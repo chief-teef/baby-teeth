@@ -2,3 +2,9 @@ node_modules/
 dist/
 test-results/
 playwright-report/
+.dev.vars*
+.env*
+.wrangler/
+dist-blog/
+.astro/
+blog/.astro/

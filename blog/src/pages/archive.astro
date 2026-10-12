@@ -1,0 +1,6 @@
+---
+import Page from '../layouts/Page.astro';
+import {allPosts,postUrl} from '../lib/posts.js';
+const posts=allPosts();
+---
+<Page title="Archive ♥ Baby Teeth" canonical="/baby-teeth/archive/"><section class="reader-head"><h1>the archive ♥</h1><ul class="archive-list">{posts.map(post=><li><time datetime={post.publishedAt}>{post.publishedAt.slice(0,10)}</time> <a href={postUrl(post)}>{post.title}</a></li>)}</ul>{!posts.length&&<p>No entries yet.</p>}</section></Page>

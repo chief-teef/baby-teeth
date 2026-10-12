@@ -1,0 +1,74 @@
+import {validatePost,cleanPost,POST_ID,MEDIA_PATH} from '../shared/document.js';
+import {base64,random,digest,seal,open,cookie,setCookie,HttpError,limitedBody,jsonBody,cleanJpeg} from './security.js';
+import {github,verifyRepository,snapshot,readPost,readIndex,commitPost,REPO,REPO_ID,OWNER_ID,postPath} from './github.js';
+const SESSION='__Host-bt-session',LOGIN='__Host-bt-oauth';
+const json=(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
+const redirect=(location,cookies=[])=>{const headers=new Headers({Location:location,'Cache-Control':'no-store','Referrer-Policy':'no-referrer'});cookies.forEach(c=>headers.append('Set-Cookie',c));return new Response(null,{status:302,headers});};
+const ready=env=>!!(env.GITHUB_CLIENT_ID&&env.GITHUB_CLIENT_SECRET&&env.SESSION_SECRET?.length>=32&&env.SESSIONS);
+async function session(request,env){const id=cookie(request,SESSION);if(!id||!/^[-\w]{43}$/.test(id))return null;const data=await env.SESSIONS.get(`session:${await digest(id)}`);const value=await open(env.SESSION_SECRET,'session',data);return value?.userId===OWNER_ID?value:null;}
+async function authorize(request,env){const user=await session(request,env);if(!user)throw new HttpError(401,'Sign in to GitHub before saving online.');return user;}
+async function csrf(request,user){if(request.headers.get('origin')!==new URL(request.url).origin||request.headers.get('x-csrf-token')!==user.csrf)throw new HttpError(403,'This write request could not be verified. Reload the editor.');}
+async function limit(env,key){if(env.WRITE_LIMIT){const {success}=await env.WRITE_LIMIT.limit({key});if(!success)throw new HttpError(429,'Too many requests. Wait a minute before trying again.');}}
+function validation(fn){try{return fn();}catch(e){throw new HttpError(400,e.message);}}
+export function createHandler(fetcher=fetch){return async function handle(request,env){
+  try{
+    const url=new URL(request.url),path=url.pathname;
+    if(path==='/api/session'){
+      if(!ready(env))return json({configured:false,signedIn:false,repository:REPO});
+      const user=await session(request,env);return json({configured:true,signedIn:!!user,repository:REPO,...(user?{login:user.login,csrf:user.csrf}:{})});
+    }
+    if(path.startsWith('/api/')||path.startsWith('/auth/')){if(!ready(env))throw new HttpError(503,'Online saving setup is not complete yet. Local editing and export still work.');}
+    if(path==='/auth/login'&&request.method==='GET'){
+      await limit(env,`login:${request.headers.get('CF-Connecting-IP')||'unknown'}`);
+      const state=random(),verifier=random(),challenge=await digest(verifier);const login=await seal(env.SESSION_SECRET,'oauth',{state,verifier,exp:Date.now()+600000});
+      const auth=new URL('https://github.com/login/oauth/authorize');auth.search=new URLSearchParams({client_id:env.GITHUB_CLIENT_ID,redirect_uri:`${url.origin}/auth/callback`,state,code_challenge:challenge,code_challenge_method:'S256'});
+      return redirect(auth.toString(),[setCookie(LOGIN,login,600)]);
+    }
+    if(path==='/auth/callback'&&request.method==='GET'){
+      const pending=await open(env.SESSION_SECRET,'oauth',cookie(request,LOGIN));if(!pending||pending.state!==url.searchParams.get('state')||!url.searchParams.get('code'))throw new HttpError(403,'Sign-in could not be verified. Start again.');
+      const response=await fetcher('https://github.com/login/oauth/access_token',{method:'POST',headers:{Accept:'application/json','Content-Type':'application/json'},body:JSON.stringify({client_id:env.GITHUB_CLIENT_ID,client_secret:env.GITHUB_CLIENT_SECRET,code:url.searchParams.get('code'),redirect_uri:`${url.origin}/auth/callback`,code_verifier:pending.verifier,repository_id:String(REPO_ID)})});const token=await response.json();if(!response.ok||!token.access_token)throw new HttpError(401,'GitHub sign-in failed. Try again.');
+      const user=await github(token.access_token,'/user',{fetcher});if(user.id!==OWNER_ID)throw new HttpError(403,'Only the blog owner can sign in at this stage.');await verifyRepository(token.access_token,fetcher);
+      const ttl=Math.min(28800,token.expires_in||28800),id=random();const value=await seal(env.SESSION_SECRET,'session',{token:token.access_token,userId:user.id,login:user.login,csrf:random(),exp:Date.now()+ttl*1000});await env.SESSIONS.put(`session:${await digest(id)}`,value,{expirationTtl:ttl});
+      return redirect('/',[setCookie(SESSION,id,ttl),setCookie(LOGIN,'',0)]);
+    }
+    if(path==='/auth/logout'&&request.method==='POST'){
+      const user=await authorize(request,env);await csrf(request,user);
+      const response=await fetcher(`https://api.github.com/applications/${env.GITHUB_CLIENT_ID}/token`,{method:'DELETE',headers:{Authorization:`Basic ${btoa(`${env.GITHUB_CLIENT_ID}:${env.GITHUB_CLIENT_SECRET}`)}`,'Content-Type':'application/json','User-Agent':'Baby-Teeth-Studio'},body:JSON.stringify({access_token:user.token})});
+      if(!response.ok&&response.status!==404)throw new HttpError(503,'Could not revoke the GitHub session. Try signing out again.');
+      await env.SESSIONS.delete(`session:${await digest(cookie(request,SESSION))}`);return json({signedIn:false},200,{'Set-Cookie':setCookie(SESSION,'',0)});
+    }
+    if(path==='/api/posts'&&request.method==='GET'){
+      const user=await authorize(request,env),state=await snapshot(user.token,fetcher),index=await readIndex(user.token,state,fetcher);
+      return json({posts:state.entries.filter(e=>/^content\/posts\/[a-f0-9-]{36}\.json$/i.test(e.path)&&e.type==='blob').map(e=>{const id=e.path.split('/').at(-1).slice(0,-5);return {id,revision:e.sha,...index[id]};}),head:state.head});
+    }
+    const match=path.match(/^\/api\/posts\/([a-f0-9-]{36})$/i);
+    if(match&&request.method==='GET'){const user=await authorize(request,env);const result=await readPost(user.token,match[1],fetcher);validation(()=>validatePost(result.post));return json(result);}
+    if(path==='/api/assets'&&request.method==='POST'){
+      const user=await authorize(request,env);await csrf(request,user);await limit(env,`upload:${user.userId}`);await verifyRepository(user.token,fetcher);
+      if(request.headers.get('content-type')!=='image/jpeg')throw new HttpError(415,'Only processed JPEG photos can be uploaded.');
+      const bytes=cleanJpeg(await limitedBody(request,700000));const blob=await github(user.token,`/repos/${REPO}/git/blobs`,{method:'POST',body:{content:base64(bytes),encoding:'base64'},fetcher});
+      const path=`media/${blob.sha}.jpg`,receipt=await seal(env.SESSION_SECRET,'asset',{sha:blob.sha,path,userId:user.userId,exp:Date.now()+7200000});return json({path,receipt});
+    }
+    if(match&&request.method==='PUT'){
+      const user=await authorize(request,env);await csrf(request,user);await limit(env,`save:${user.userId}`);await verifyRepository(user.token,fetcher);
+      const body=await jsonBody(request);validation(()=>validatePost(body.post));if(body.post.id!==match[1]||!['save','publish','unpublish'].includes(body.action))throw new HttpError(400,'Invalid save request.');
+      const doc=cleanPost(body.post),state=await snapshot(user.token,fetcher);const current=state.entries.find(e=>e.path===postPath(doc.id));
+      if((body.baseRevision||null)!==(current?.sha||null))throw new HttpError(409,'A newer version exists online. Load it or save your local work as a copy.',{currentRevision:current?.sha||null});
+      let previous=null;if(current)previous=(await readPost(user.token,doc.id,fetcher)).post;
+      const paths=[...new Set(doc.elements.filter(e=>e.type==='photo').map(e=>e.src))];const assets=[];
+      for(const path of paths){const expected=path.slice(6,-4);const existing=state.entries.find(e=>e.path===path&&e.type==='blob');if(existing?.sha===expected)continue;const proof=await open(env.SESSION_SECRET,'asset',body.receipts?.[path]);if(!proof||proof.path!==path||proof.sha!==expected||proof.userId!==user.userId)throw new HttpError(400,'Photo upload expired or is missing. Upload the photo again.');assets.push({path,sha:expected});}
+      const now=new Date().toISOString();doc.status=body.action==='unpublish'?'draft':body.action==='publish'||previous?.status==='published'?'published':'draft';doc.publishedAt=previous?.publishedAt||(doc.status==='published'?now:null);doc.updatedAt=now;doc.updatedBy=user.userId;
+      const index=await readIndex(user.token,state,fetcher);const result=await commitPost(user.token,state,doc,assets,fetcher,index);return json({...result,post:doc,publishing:doc.status==='published'||previous?.status==='published'});
+    }
+    if(path==='/api/deployment'&&request.method==='GET'){
+      const user=await authorize(request,env),commit=url.searchParams.get('commit');if(!/^[a-f0-9]{40}$/.test(commit||''))throw new HttpError(400,'Invalid publishing revision.');
+      const runs=await github(user.token,`/repos/${REPO}/actions/runs?head_sha=${commit}&per_page=10`,{fetcher});const run=runs.workflow_runs.find(r=>r.path==='.github/workflows/publish.yml');return json({status:run?.status||'queued',conclusion:run?.conclusion||null,url:`https://chief-teef.github.io/baby-teeth/`});
+    }
+    if(path.startsWith('/api/')||path.startsWith('/auth/'))throw new HttpError(404,'Unknown endpoint.');
+    const asset=await env.ASSETS.fetch(request),headers=new Headers(asset.headers);
+    headers.set('X-Content-Type-Options','nosniff');headers.set('Referrer-Policy','strict-origin-when-cross-origin');headers.set('X-Frame-Options','DENY');
+    headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://raw.githubusercontent.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
+    return new Response(asset.body,{status:asset.status,headers});
+  }catch(error){const status=error instanceof HttpError?error.status:503;return json({error:error instanceof HttpError?error.message:'The saving service is temporarily unavailable. Local work is safe.',...(error.details||{})},status);}
+};}
+export default {fetch:createHandler()};

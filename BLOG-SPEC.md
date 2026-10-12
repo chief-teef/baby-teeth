@@ -1,6 +1,6 @@
 # Blog specification and implementation plan
 
-Status: first editor prototype implemented, browser-checked, and deployed for iPad testing at https://chief-teef.github.io/baby-teeth/. Production persistence and blog publishing remain pending. Pause implementation for owner testing at this checkpoint.
+Status: core editor tested successfully by the owner on iPad. Repository persistence, sign-in, and the public blog are implemented and locally checked; live Cloudflare/GitHub App activation remains pending. The existing public prototype remains at https://chief-teef.github.io/baby-teeth/.
 Updated: October 12, 2026.
 
 ## First test checkpoint
@@ -14,7 +14,8 @@ Updated: October 12, 2026.
 
 ## Confirmed requirements
 
-- Simple, ad-free public personal blog; one author with exclusive editing access.
+- Simple, ad-free public personal blog. Initially, one owner has editing access; support for a second trusted editor is planned for later.
+- Future collaborator does not yet have a GitHub account. Defer invitations and multi-account access until the owner supplies their account and desired permissions; record this as planned scope rather than requiring setup now.
 - Strict $0 operating cost. GitHub Pages is the preferred public host. Select only services and libraries usable without payment; paid upgrades are not an acceptable fallback.
 - Author from iPhone, iPad, and desktop. Write directly in the editor or paste formatted text from Google Docs.
 - Primary authoring device: iPad Pro with the newest Apple Pencil as described by the owner, using the onscreen keyboard; desktop secondary; phone occasional. Confirm exact hardware/OS during device testing rather than inferring a Pencil model. Prioritize iPad composition, Pencil handling, and onscreen keyboard behavior in the prototype.
@@ -38,11 +39,23 @@ Updated: October 12, 2026.
 
 ## Architecture
 
+### Implemented second phase, awaiting live activation
+
+- Cloudflare Workers Free hosts the connected editor and API at one origin. KV Free stores short-lived encrypted GitHub sessions; browser cookies contain random session identifiers only. Keep the account on Free and do not enable chargeable products.
+- A private GitHub App uses state plus PKCE, expiring user access tokens restricted to repository ID `1416133666`, and a fixed owner account-ID check. Initial permission requirements: Contents read/write, Actions read, and Metadata read; only `baby-teeth` is installed. Future collaborator access remains deferred.
+- Photos are processed on the device and uploaded individually as bounded JPEGs. Server checks dimensions/structure and strips EXIF/comments; uploaded blobs are staged until a signed receipt is included in the atomic document/tree save. The public build fully decodes referenced JPEGs before deployment.
+- Draft saving remains separate from first publication. Saving a published entry requests a site update; unpublishing keeps a repository draft but removes its public output on successful deployment. Stable URLs use immutable post IDs.
+- Per-entry revisions and non-forced Git ref updates reject stale or racing saves. The editor preserves work, offers a new-copy fallback, and retains a recovery copy when opening a newer online entry.
+- Astro generates the feed (five full entries/page), stable post pages, About, archive, RSS, sitemap, and 404. Editor preview and public reader share document HTML/layout code. Narrow screens stack readable text and anchored media; widths below 800 pixels use the readable flow.
+- Public builds exclude all draft documents and copy only published media. The Actions workflow is inactive until `BLOG_PUBLISHING_ENABLED=true` and Pages is switched to GitHub Actions, preserving the current editor preview during setup.
+- Verified locally: authorization/CSRF/state/PKCE, encrypted sessions and logout, staged assets, draft/publish/update transitions, revision races, editor recovery/copy controls, static page generation, pagination, draft text/media exclusion, JPEG decoding, phone/desktop reader, and Worker packaging.
+- Still to verify live: Free plan, account deployment access, GitHub App installation/client credentials, KV binding, iPad sign-in/cookies, actual GitHub writes/build triggers, deployed revision status, and upload CPU usage on Workers Free. Complete [SETUP.md](SETUP.md) before declaring this phase launched.
+
 Public blog: Astro generates static pages deployed to GitHub Pages through GitHub Actions. The reader receives text as real HTML, images, and a lightweight layout renderer; no editor framework is needed for reading.
 
 Custom editor: a browser application with rich-text editing inside a DOM-based freeform canvas. This replaces the previous Pages CMS proposal. Select the rich-text and gesture libraries during a prototype after checking current licenses and compatibility; do not build text editing primitives from scratch.
 
-Saving service: proposed small separately hosted authenticated service exchanges GitHub sign-in credentials and writes posts/assets to the selected repository. GitHub Pages cannot run this service. A genuinely free plan with no chargeable overage is a feasibility gate; verify current quotas, account requirements, and whether billing can be disabled before selection. If no suitable free service qualifies, redesign persistence rather than adding a paid dependency. Keep write tokens server-side; authorize every write against the fixed owner and repository. Use secure sessions, CSRF protection, upload limits, and validated request bodies.
+Saving service: proposed small separately hosted authenticated service exchanges GitHub sign-in credentials and writes posts/assets to the selected repository. GitHub Pages cannot run this service. A genuinely free plan with no chargeable overage is a feasibility gate; verify current quotas, account requirements, and whether billing can be disabled before selection. If no suitable free service qualifies, redesign persistence rather than adding a paid dependency. Keep write tokens server-side; authorize every write against the fixed repository and an explicit allowlist of immutable GitHub account IDs. Initially the allowlist contains only the owner; leave room for per-account draft/publish roles later. Use secure sessions, CSRF protection, upload limits, and validated request bodies.
 
 Storage: versioned JSON post documents containing rich-text nodes and layout data, plus processed photo files. Shared renderer and schema between editor and public site prevent divergent rendering. Generate plain-text excerpts, RSS, sharing metadata, and search-engine-readable content from the document model.
 
@@ -123,6 +136,19 @@ Sources:
 
 Home page with newest scrapbook entries stacked vertically and pagination, individual stable post URLs, About page, archive, RSS, sharing metadata, and a not-found page. Default to displaying full entry compositions in the feed, with lazy-loaded offscreen media; page size remains an implementation choice based on performance. No reader account required. Comments, newsletters, video hosting, scheduling, private posts, and collaborative editing are deferred.
 
+## Later: a second trusted editor
+
+Owner request October 12: allow another person to edit the blog later. Their GitHub account has not been created yet, so this feature is deferred while owner saving and publishing are implemented.
+
+- Each person signs in with their own GitHub account; do not share the owner's credentials or a browser session.
+- Repository write access and editor authorization are separate requirements. Use a repository collaborator invitation for normal writing access; transferring repository ownership is not required for editing.
+- Before inviting or enabling the account, confirm its username/immutable account ID and whether it may publish or only save drafts. Repository collaboration alone must not automatically authorize editor access.
+- Proposed editor roles: owner (drafts and publishing), publisher (drafts and publishing), and draft editor (drafts only). For draft-only access, saving edits to a published entry must retain them as unpublished changes; it must not trigger the owner's confirmed “Save & update site” behavior. Resolve repository permissions as part of this role design, since unrestricted repository write access can bypass editor-only restrictions.
+- Record the authenticated account responsible for saves and publication in server-generated audit metadata. Do not trust client-supplied author IDs as proof of authorization.
+- Preserve revision conflict detection across accounts as well as devices. This is sequential shared editing; simultaneous live co-editing is a separate deferred feature.
+- Document removing repository access and editor access, and invalidate that person's active sessions when removing editor authorization.
+- Maintain the strict $0 operating requirement when adding a second editor.
+
 ## Implementation plan
 
 1. **Prove the custom editor locally.** Neutral sample post with scattered text boxes, Google Docs paste, photos, Pencil drawing, layers, touch controls, onscreen keyboard, undo/redo, recovery, and three device previews. Test a short daily post, a long post, and multiple vertically stacked entries. No final styling yet.
@@ -202,7 +228,7 @@ The following details are engineering proposals unless explicitly identified abo
 - Treat 20 photos and 30 text boxes as the minimum large-entry capacity scenario to demonstrate, not a hard maximum. Also test substantial text in some boxes, grouped drawings, and rotated overlapping photos. Bound image-processing concurrency and avoid rerendering every rich-text editor for each drag or pen movement.
 - Content-address processed assets for safe reuse. Removing an image from a draft must not remove a file used by a live post. Treat history cleanup as separate maintenance.
 - Uploaded SVGs require sanitization or rasterization; ordinary image validation alone is insufficient. Constrain URL schemes and post paths on the server as well as in the editor.
-- Choose editor/service origins together with authentication. Verify sign-in and session cookies on iPad Safari; avoid dependence on third-party cookies. Authorize the fixed owner's immutable account ID, validate the sign-in callback, and rate-limit writes.
+- Choose editor/service origins together with authentication. Verify sign-in and session cookies on iPad Safari; avoid dependence on third-party cookies. Authorize an explicit account-ID allowlist containing only the owner initially, validate the sign-in callback, and rate-limit writes. Later collaborator roles must be enforced server-side.
 - Document who owns hosting/API accounts, how credentials are rotated, and how the owner restores content. A backup must include documents and assets; test restoring to a fresh checkout. Choose backup frequency and destination before launch.
 
 ### Additional prototype and launch gates

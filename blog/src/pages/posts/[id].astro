@@ -1,0 +1,10 @@
+---
+import Page from '../../layouts/Page.astro';
+import Entry from '../../components/Entry.astro';
+import {allPosts,postUrl,base} from '../../lib/posts.js';
+import {excerpt} from '../../../../shared/document.js';
+export function getStaticPaths(){return allPosts().map(post=>({params:{id:post.id},props:{post}}));}
+const {post}=Astro.props;
+const cover=post.elements.find(e=>e.type==='photo');
+---
+<Page title={`${post.title} ♥ Baby Teeth`} description={excerpt(post)} canonical={postUrl(post)} image={cover?`${base}${cover.src}`:undefined}><Entry post={post}/><a class="page-link" href="/baby-teeth/">← back to the scrapbook</a></Page>

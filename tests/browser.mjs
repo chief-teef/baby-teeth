@@ -39,7 +39,7 @@ assert.equal(await page.locator('.object.photo').count(),20);assert.equal(await 
 await page.waitForTimeout(600);
 await page.getByRole('button',{name:'Reading preview ↗',exact:true}).click();
 assert.equal(await page.locator('.reader-entry').count(),2);
-const boxes=await page.locator('.reader-canvas').last().locator('.object.text').evaluateAll(els=>els.map(e=>({y:e.offsetTop,h:e.offsetHeight})));
+const boxes=await page.locator('[data-canvas]').last().locator('.public-text').evaluateAll(els=>els.map(e=>({y:e.offsetTop,h:e.offsetHeight})));
 for(let i=1;i<boxes.length;i++)assert.ok(boxes[i].y>=boxes[i-1].y+boxes[i-1].h,'phone text must not overlap');
 await page.screenshot({path:'test-results/phone-preview.png',fullPage:false});
 await page.getByRole('button',{name:'← Back to editor',exact:true}).click();

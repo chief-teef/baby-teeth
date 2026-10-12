@@ -1,7 +1,16 @@
 # Blog specification and implementation plan
 
-Status: first local editor prototype implemented and browser-checked; public iPad test preview preparation in progress. Production persistence and blog publishing remain pending.
+Status: first editor prototype implemented, browser-checked, and deployed for iPad testing at https://chief-teef.github.io/baby-teeth/. Production persistence and blog publishing remain pending. Pause implementation for owner testing at this checkpoint.
 Updated: October 12, 2026.
+
+## First test checkpoint
+
+- Implemented: Tiptap rich text, explicit Write/Arrange/Draw modes, photo resizing/rotation/layers/grouping, Pencil/mouse ink, undo/redo, IndexedDB local recovery, JSON backup export/import, and stacked reading previews with automatic phone text reflow.
+- Capacity fixture: 20 sample photos and 30 text boxes. Desktop browser checks cover editing, recovery after reload, rotation undo, drawing, capacity fixture, and phone text overflow. Actual iPad keyboard/Pencil feel and real-photo batch memory remain for the owner to test.
+- Hosting: free GitHub Pages from `main:/docs`; deployed editor code is public, while test entries/assets remain in each browser's local storage. They are not sent to GitHub or synchronized across devices.
+- Prototype limits: no repository saves/public post publishing or full offline reopening; HEIC support depends on browser decoding; each completed ink stroke is its own drawing object (grouping is available), and eraser removes the last stroke of the object under the pointer. Re-editing transformed ink and pressure-sensitive brushes remain pending.
+- Owner requested bright green/pink early-2000s girly Myspace styling and older fonts during testing; applied to editor and reading preview.
+- First feedback fixes: disable native panning before Pencil gestures in Draw mode, explicitly scroll for fingers, ignore palm contacts during ink, and track the active ink pointer. Movement controls are labeled “Move & resize” with visible Drag labels and larger resize handles. Removed selection's pointer propagation block so the gesture library can start dragging. Regression checks exercise real drag/resize plus trusted pen/touch input in Edge; actual iPad Safari retest remains necessary.
 
 ## Confirmed requirements
 
@@ -25,7 +34,7 @@ Updated: October 12, 2026.
 - Preserve the intended composition across device sizes while keeping text readable.
 - Stickers are deferred entirely for now, including API search, uploaded sticker tooling, and animated sticker handling.
 - Public repository content, including saved drafts and uploaded assets, is acceptable to the owner.
-- Conduct the broader styling interview after resolving the implementation details. Fonts, colors, navigation, and overall styling remain open.
+- Confirmed style direction: tacky, bright, early-2000s Myspace girly style in green and pink, with older fonts and an authentic period feel. Use hot pink/lime, tiled sparkle/checker patterns, square beveled controls, and web-safe Comic Sans/Verdana/Times families with device fallbacks. Refine styling during testing; sticker tooling remains deferred.
 
 ## Architecture
 

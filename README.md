@@ -6,7 +6,7 @@ A scrapbook editor prototype for iPad Pro, Apple Pencil, and an onscreen keyboar
 
 Public preview: https://chief-teef.github.io/baby-teeth/
 
-Use **Write** for rich text, **Arrange** for dragging/resizing/rotation/layers/grouping, and **Draw** for Pencil or mouse ink. Fingers scroll in drawing mode. Open **Reading preview** to inspect phone, tablet, and desktop arrangements. The large test entry adds 20 sample photos and 30 text boxes without replacing existing entries.
+Use **Write** for rich text, **Move & resize** for dragging/resizing/rotation/layers/grouping, and **Draw** for Pencil or mouse ink. In Move & resize, drag any photo/text box or its visible Drag label; select an object and drag its corner handle to resize. Pencil strokes keep the page still; fingers scroll in drawing mode, and touch contacts during a pen stroke are ignored. Open **Reading preview** to inspect phone, tablet, and desktop arrangements. The large test entry adds 20 sample photos and 30 text boxes without replacing existing entries.
 
 Drafts and photos are stored only in this browser's IndexedDB. They are not uploaded to GitHub or shared across devices. Export a backup before clearing browser data. Public access is to the editor application, not to anyone else's local drafts.
 
@@ -17,7 +17,7 @@ Drafts and photos are stored only in this browser's IndexedDB. They are not uplo
 - Ink currently creates a separate drawing object per completed stroke; grouping can keep multiple strokes with a photo. The eraser removes the last stroke of the drawing object under the pointer.
 - No cropping, borders, stickers, or reusable entry templates.
 - Mobile keyboard/Pencil behavior and photo memory usage must be tested on the actual iPad.
-- This neutral prototype styling is temporary; the styling interview comes later.
+- Styling direction: bright green and pink, tacky early-2000s girly Myspace, old web-safe fonts, tiled backgrounds, and beveled controls. Refine through owner testing.
 
 ## Develop
 

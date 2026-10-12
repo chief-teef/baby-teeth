@@ -1,0 +1,8 @@
+---
+import Page from '../../layouts/Page.astro';
+import Entry from '../../components/Entry.astro';
+import {allPosts} from '../../lib/posts.js';
+export function getStaticPaths(){const posts=allPosts(),count=Math.ceil(posts.length/5);return Array.from({length:Math.max(0,count-1)},(_,i)=>({params:{page:String(i+2)},props:{posts:posts.slice((i+1)*5,(i+2)*5),number:i+2,count}}));}
+const {posts,number,count}=Astro.props;
+---
+<Page title={`Baby Teeth ♥ page ${number}`} canonical={`/baby-teeth/page/${number}/`}>{posts.map(post=><Entry post={post}/>)}<div class="pagination"><a href={number===2?'/baby-teeth/':`/baby-teeth/page/${number-1}/`}>← newer entries</a>{number<count&&<a href={`/baby-teeth/page/${number+1}/`}>older entries →</a>}</div></Page>

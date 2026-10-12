@@ -1,0 +1,12 @@
+---
+import '../../../src/style.css';
+import '../../../src/y2k.css';
+import '../reader.css';
+const {title='baby teeth ♥',description='a glittery little scrapbook of words, photographs & doodles',canonical='/baby-teeth/',image}=Astro.props;
+const url=new URL(canonical,'https://chief-teef.github.io');
+---
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>{title}</title><meta name="description" content={description}/><link rel="canonical" href={url}/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:url" content={url}/><meta property="og:type" content="website"/>{image&&<meta property="og:image" content={new URL(image,'https://chief-teef.github.io')}/>}<link rel="alternate" type="application/rss+xml" title="Baby Teeth" href="/baby-teeth/rss.xml"/></head><body>
+<header class="top"><a class="brand" href="/baby-teeth/">baby teeth</a><span class="tag">a glittery little corner of the internet</span><nav><a href="/baby-teeth/">home ♥</a><a href="/baby-teeth/archive/">archive</a><a href="/baby-teeth/about/">about</a><a href="/baby-teeth/rss.xml">RSS</a></nav></header>
+<main class="reader public-reader"><slot/></main><footer class="site-footer">made with pink, green & a little too much love ♥</footer>
+<script src="../reader.js"></script>
+</body></html>

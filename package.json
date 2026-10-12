@@ -3,8 +3,31 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "scripts": {"dev": "vite --host 0.0.0.0", "build": "vite build --base=./", "test": "node --test tests/model.test.js", "test:browser": "node tests/browser.mjs"},
-  "engines": {"node": ">=22.12.0"},
-  "dependencies": {"@tiptap/core": "^3.0.0", "@tiptap/starter-kit": "^3.0.0", "@tiptap/pm": "^3.0.0", "interactjs": "^1.10.27"},
-  "devDependencies": {"vite": "^7.0.0", "@playwright/test": "^1.55.0"}
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "node scripts/build.mjs editor",
+    "build:blog": "node scripts/build.mjs blog",
+    "test": "node --test tests/model.test.js",
+    "test:browser": "node tests/browser.mjs",
+    "test:drawing": "node tests/drawing.mjs",
+    "test:server": "node --test tests/server.test.js",
+    "dev:worker": "wrangler dev",
+    "deploy:worker": "wrangler deploy"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@tiptap/core": "^3.0.0",
+    "@tiptap/pm": "^3.0.0",
+    "@tiptap/starter-kit": "^3.0.0",
+    "interactjs": "^1.10.27"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "astro": "^7.3.8",
+    "sharp": "^0.35.5",
+    "vite": "^7.0.0",
+    "wrangler": "^4.149.0"
+  }
 }

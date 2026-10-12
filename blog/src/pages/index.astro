@@ -1,0 +1,7 @@
+---
+import Page from '../layouts/Page.astro';
+import Entry from '../components/Entry.astro';
+import {allPosts} from '../lib/posts.js';
+const posts=allPosts();
+---
+<Page><div class="reader-head"><span class="eyebrow">welcome 2 my scrapbook</span><h1>my little life ♥</h1><p>words, photos & little things worth keeping.</p></div>{posts.slice(0,5).map(post=><Entry post={post}/>)}{!posts.length&&<p class="empty-feed">A blank scrapbook for now. The first entry is coming soon ♥</p>}{posts.length>5&&<a class="page-link" href="/baby-teeth/page/2/">older entries →</a>}</Page>

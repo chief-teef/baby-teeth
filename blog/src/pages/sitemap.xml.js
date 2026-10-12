@@ -1,0 +1,2 @@
+import {allPosts,postUrl} from '../lib/posts.js';
+export function GET(){const paths=['/baby-teeth/','/baby-teeth/about/','/baby-teeth/archive/',...allPosts().map(postUrl)];return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(p=>`<url><loc>https://chief-teef.github.io${p}</loc></url>`).join('')}</urlset>`,{headers:{'Content-Type':'application/xml'}});}

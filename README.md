@@ -41,4 +41,3 @@ The final blog architecture is described in [BLOG-SPEC.md](BLOG-SPEC.md); this p
 ## Dependencies
 
 Tiptap (rich text), interact.js (drag/resize), and Vite (bundling) are MIT-licensed open-source dependencies. No paid extensions or external runtime APIs are used in this checkpoint.
-

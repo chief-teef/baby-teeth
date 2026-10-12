@@ -1,0 +1,4 @@
+let database;
+async function db(){if(database)return database;database=await new Promise((resolve,reject)=>{const req=indexedDB.open('baby-teeth-studio',1);req.onupgradeneeded=()=>req.result.createObjectStore('drafts');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});return database;}
+export async function load(){const d=await db();return new Promise((resolve,reject)=>{const req=d.transaction('drafts').objectStore('drafts').get('book');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+export async function save(book){const d=await db();return new Promise((resolve,reject)=>{const tx=d.transaction('drafts','readwrite');tx.objectStore('drafts').put(book,'book');tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Save interrupted'));});}

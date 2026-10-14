@@ -1,3 +1,8 @@
+import {mountScrapbook} from '../shared/scrapbook.js';
+import rawSettings from '../config/blog.json';
+import {validateSettings} from '../shared/settings.js';
+const settings=validateSettings(rawSettings);
+import '../shared/scrapbook.css';
 import {Editor,generateHTML} from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import interact from 'interactjs';
@@ -26,36 +31,44 @@ function updateHistory(){$('#undo').disabled=!undo.length;$('#redo').disabled=!r
 function history(direction){if(drawing)return;const from=direction==='undo'?undo:redo,to=direction==='undo'?redo:undo;if(!from.length)return;to.push(clone(book));book=from.pop();if(!book.posts.some(p=>p.id===activeId))activeId=book.posts[0].id;selection.clear();render();changed();}
 
 $('#app').innerHTML=`
-<header class="top"><div class="brand">baby teeth</div><span class="tag">a glittery little corner of the internet</span><span class="prototype">EDITOR PROTOTYPE</span><span class="status" id="status" role="status">Opening local drafts…</span><button class="preview-toggle" id="preview">Reading preview ↗</button></header>
+<header class="top"><div class="brand"></div><span class="tag"></span><span class="prototype">EDITOR PROTOTYPE</span><span class="status" id="status" role="status">Opening local drafts…</span><button class="preview-toggle" id="preview">Reading preview ↗</button></header>
 <div class="layout" id="editor-view"><aside class="sidebar"><span class="eyebrow">Your scrapbook</span><h2>my little entries</h2><button id="new-entry" class="primary">+ Blank entry</button><div class="entries" id="entries"></div><p class="quiet">welcome 2 my scrapbook ♥ words, photos & doodles.</p><div class="bottom"><button id="export">Export backup ↓</button><button id="import">Import backup</button><button id="stress">Open large test entry</button><button id="help">How to test</button><p class="quiet">Drafts stay in this browser.<br>Nothing is published yet.</p></div></aside>
 <main class="main"><div class="workhead"><input class="title" id="title" aria-label="Entry title" maxlength="500"><span class="count" id="count"></span></div>
-<div class="cloudbar"><button id="github-login">Sign in with GitHub</button><button id="github-load" disabled>Open online entries</button><button id="github-save" disabled>Save draft online</button><button id="github-publish" disabled>Publish entry</button><button id="github-unpublish" class="hidden">Unpublish</button><button id="github-copy" class="hidden">Keep as a new copy</button><span id="cloud-state" role="status">Checking online saving…</span><a id="public-blog" href="https://chief-teef.github.io/baby-teeth/" target="_blank" rel="noopener">Public blog ↗</a></div>
+<div class="cloudbar"><button id="github-login">Sign in with GitHub</button><button id="github-load" disabled>Manage entries</button><button id="github-save" disabled>Save draft online</button><button id="github-publish" disabled>Publish entry</button><button id="github-unpublish" class="hidden">Unpublish</button><button id="github-copy" class="hidden">Keep as a new copy</button><span id="cloud-state" role="status">Checking online saving…</span><a id="public-blog" href="https://chief-teef.github.io/baby-teeth/" target="_blank" rel="noopener">Public blog ↗</a></div>
 <div class="toolbar"><div class="segmented" aria-label="Editor mode"><button data-mode="write">Write</button><button data-mode="arrange">Move & resize</button><button data-mode="draw">Draw</button></div><button id="add-text">+ Text box</button><button id="add-photo">+ Photos</button><button id="undo" class="compact" aria-label="Undo">↶</button><button id="redo" class="compact" aria-label="Redo">↷</button>
 <div class="formatbar" id="format"><button data-format="bold"><b>B</b></button><button data-format="italic"><i>I</i></button><button data-format="heading">H2</button><button data-format="bulletList">List</button><button data-format="link">Link</button></div>
 <div class="drawbar hidden" id="draw-tools"><label>Ink <input id="ink" type="color" value="#ff1493"></label><label>Width <input id="pen-width" type="range" min="1" max="16" value="4"></label><button id="eraser">Stroke eraser</button></div></div>
 <div id="inspector" class="inspector hidden"></div><div class="notice" id="notice"></div><div class="workspace"><div class="stage-wrap" id="stage-wrap"><div class="stage" id="stage"><svg class="drawing-surface" id="drawing-surface"></svg><div class="empty" id="empty"><h3>A blank page, just for you.</h3><p>Add a text box or some photos. Leave a little room for a doodle.</p></div></div></div><button id="grow" class="grow">+ More room at the bottom</button></div></main></div>
 <section id="reader" class="reader hidden"></section><input id="photos" type="file" accept="image/*" multiple hidden><input id="archive" type="file" accept="application/json,.json" hidden><div class="toast hidden" id="toast" role="status"></div>
 <dialog id="help-dialog"><h2>Your scrapbook studio</h2><p><b>Write:</b> add text boxes and type or paste from Google Docs.<br><b>Move & resize:</b> drag a photo, text box, or its Drag label. Select an object and drag its corner handle to resize.<br><b>Draw:</b> Pencil draws, fingers scroll.<br><b>Group:</b> select objects together to attach a doodle to a photo.</p><p><b>On this device:</b> automatic recovery.<br><b>Save draft online:</b> available on your other signed-in devices.<br><b>Publish:</b> makes a new entry public after the site build.<br><b>Save & update site:</b> updates an already published entry.<br>Export a backup before clearing browser data. Offline reopening is still pending.</p><div class="actions"><button id="close-help" class="primary">Got it</button></div></dialog>
-<dialog id="online-dialog"><h2>Online entries</h2><p>Your current local entries stay on this device. Open an online entry as a separate working copy.</p><div id="online-list"></div><div class="actions"><button id="close-online">Close</button></div></dialog>`;
+<dialog id="online-dialog"><h2>Manage entries</h2><div class="actions"><button id="cms-active">Entries</button><button id="cms-trash">Trash</button></div><p>Your current local entries stay on this device. Open an online entry as a separate working copy.</p><div id="online-list"></div><div class="actions"><button id="close-online">Close</button></div></dialog>`;
 
+$('.brand').textContent=settings.title;
+$('.tag').textContent=settings.tagline;
+$('#public-blog').href=settings.publicUrl;
+document.title=`${settings.title} · Studio`;
 try{const saved=await load();if(saved){book=validateBook(saved);if(!book.posts.length)book=blankBook();activeId=book.posts[0].id;}status('Saved on this device');}catch{status('Local recovery unavailable');toast('Could not open local drafts. You can still edit and export a backup.');}
 let multi=false,erase=false;
 const cloud=createCloudClient();let cloudSession={configured:false,signedIn:false},cloudBusy=false,cloudMessage='Checking online saving…';
-let deploymentTimer;
+const deploymentTimers=new Map(),deploymentChecks=new Set();
+function resumeDeployments(){
+  if(!cloudSession.signedIn)return;
+  for(const p of book.posts)if(p.cloud?.commit&&(p.cloud.publishing||p.cloud.deployment==='unknown'))monitorDeployment(p.id,p.cloud.commit);
+}
 function updateCloudControls(){
   if(!$('#cloud-state'))return;
   const p=post(),published=p?.cloud?.status==='published';
   $('#github-login').textContent=cloudSession.signedIn?`Sign out (${cloudSession.login})`:'Sign in with GitHub';
   $('#github-login').disabled=cloudBusy;
   $('#github-load').disabled=cloudBusy||!cloudSession.signedIn;
-  $('#github-save').disabled=cloudBusy||!cloudSession.signedIn;
-  $('#github-publish').disabled=cloudBusy||!cloudSession.signedIn||published;
+  $('#github-save').disabled=cloudBusy||!cloudSession.signedIn||p?.cloud?.status==='trashed';
+  $('#github-publish').disabled=cloudBusy||!cloudSession.signedIn||published||p?.cloud?.status==='trashed';
   $('#github-unpublish').classList.toggle('hidden',!published);$('#github-unpublish').disabled=cloudBusy||!cloudSession.signedIn;
   $('#github-save').textContent=published?'Save & update site':'Save draft online';
   $('#github-copy').classList.toggle('hidden',!p?.cloud?.conflict);
   $('#cloud-state').textContent=cloudBusy?cloudMessage:p?.cloud?.conflict?'Conflict · your local work is preserved':p?.cloud?.publishing?'Saved to GitHub · publishing…':p?.cloud?.deployment&&p.cloud.deployment!=='success'?'Saved to GitHub · site update failed or unconfirmed':p?.cloud?.revision?(p.cloud.savedVersion===(p.localVersion||0)?(published?(p.cloud.deployment==='success'?'Live · this revision is published':'Published entry · saved to GitHub'):'Draft saved to GitHub'):'Local changes · not yet saved online'):(cloudSession.signedIn?'This entry is only on this device':cloudMessage);
 }
-async function checkCloud(){cloudSession=await cloud.check();cloudMessage=cloudSession.unavailable?'Online saving unavailable · local drafts are safe':cloudSession.configured?(cloudSession.signedIn?'Signed in · local changes need an online save':'Sign in to save across devices'):'Local editor · online saving setup pending';updateCloudControls();}
+async function checkCloud(){cloudSession=await cloud.check();if(cloudSession.publicUrl)$('#public-blog').href=cloudSession.publicUrl;cloudMessage=cloudSession.unavailable?'Online saving unavailable · local drafts are safe':cloudSession.configured?(cloudSession.signedIn?'Signed in · local changes need an online save':'Sign in to save across devices'):'Local editor · online saving setup pending';updateCloudControls();}
 async function saveOnline(action){
   if(cloudBusy)return;finishDrawing();await persist();const target=post(),snapshot=clone(target),savedVersion=target.localVersion||0;
   cloudBusy=true;cloudMessage='Preparing online save…';updateCloudControls();
@@ -72,31 +85,56 @@ async function saveOnline(action){
     target.cloud={revision:result.revision,commit:result.commit,status:result.post.status,savedVersion,publishing:result.publishing,publishedAt:result.post.publishedAt};
     cloudMessage=result.publishing?'Saved · publication build started':'Saved to GitHub';await persist();
     if(result.publishing)monitorDeployment(target.id,result.commit);toast(result.publishing?'Saved to GitHub. Waiting for the public site build.':'Draft saved online. It is not public.');
-  }catch(error){cloudMessage=error.message;if(error.status===401)await checkCloud();if(error.status===409){target.cloud={...target.cloud,conflict:true};await persist();}if(error.status===400&&/Photo upload/.test(error.message)){target.elements.filter(e=>e.type==='photo').forEach(e=>{delete e.assetPath;delete e.assetReceipt;});}toast(error.message);}finally{cloudBusy=false;updateCloudControls();}
+  }catch(error){cloudMessage=error.message;if(error.status===401){await checkCloud();toast('Sign-in expired. Your local work is safe. Sign in again, then retry saving.');}if(error.status===409)target.cloud={...target.cloud,conflict:true};if(error.status===400&&/Photo upload/.test(error.message)){target.elements.filter(e=>e.type==='photo').forEach(e=>{delete e.assetPath;delete e.assetReceipt;});}await persist();if(error.status!==401)toast(`${error.message} Your local work is safe; retry saving when ready.`);}finally{cloudBusy=false;updateCloudControls();}
 }
 async function monitorDeployment(id,commit){
-  clearTimeout(deploymentTimer);
+  if(deploymentChecks.has(id)||!cloudSession.signedIn)return;
+  clearTimeout(deploymentTimers.get(id));deploymentChecks.add(id);
   try{const state=await cloud.deployment(commit);const target=book.posts.find(p=>p.id===id);if(!target||target.cloud?.commit!==commit)return;
     if(state.status==='completed'){target.cloud.publishing=false;target.cloud.deployment=state.conclusion;cloudMessage=state.conclusion==='success'?'Public site updated':'Saved to GitHub · site build failed';await persist();toast(cloudMessage);updateCloudControls();return;}
-    deploymentTimer=setTimeout(()=>monitorDeployment(id,commit),15000);
-  }catch{const target=book.posts.find(p=>p.id===id);if(target?.cloud?.commit===commit){target.cloud.publishing=false;target.cloud.deployment='unknown';await persist();}cloudMessage='Saved to GitHub · deployment status unavailable';updateCloudControls();}
+    deploymentTimers.set(id,setTimeout(()=>monitorDeployment(id,commit),15000));
+  }catch(error){const target=book.posts.find(p=>p.id===id);if(target?.cloud?.commit===commit){target.cloud.publishing=false;target.cloud.deployment='unknown';await persist();}cloudMessage='Saved to GitHub · deployment status unavailable';if(error.status===401)await checkCloud();else deploymentTimers.set(id,setTimeout(()=>monitorDeployment(id,commit),30000));updateCloudControls();}
+  finally{deploymentChecks.delete(id);const target=book.posts.find(p=>p.id===id);if(target?.cloud?.publishing&&target.cloud.commit!==commit)monitorDeployment(id,target.cloud.commit);}
 }
+let cmsView='active';
 async function openOnlineEntries(){
   if(cloudBusy)return;cloudBusy=true;cloudMessage='Opening online entries…';updateCloudControls();
   try{const result=await cloud.list();const list=$('#online-list');list.replaceChildren();if(!result.posts.length)list.textContent='No online entries yet. Save a draft to create the first one.';
-    for(const entry of result.posts){const button=document.createElement('button');button.textContent=`${entry.title||`Entry ${entry.id.slice(0,8)}`} · ${entry.status||'saved'}`;button.onclick=()=>loadOnlineEntry(entry.id);list.append(button);}$('#online-dialog').showModal();
+    const entries=result.posts.filter(e=>cmsView==='trash'?e.status==='trashed':e.status!=='trashed');
+    if(!entries.length)list.textContent=cmsView==='trash'?'Trash is empty.':'No online entries yet.';
+    for(const entry of entries){
+      const row=document.createElement('div'),open=document.createElement('button'),action=document.createElement('button');
+      open.textContent=`${entry.title||'Untitled entry'} · ${entry.status||'draft'}`;
+      open.disabled=entry.status==='trashed';open.onclick=()=>loadOnlineEntry(entry.id);
+      action.textContent=entry.status==='trashed'?'Restore as draft':'Move to trash';
+      action.onclick=()=>manageEntry(entry);row.append(open,action);list.append(row);
+    }
+    $('#online-dialog').showModal();
   }catch(error){toast(error.message);}finally{cloudBusy=false;updateCloudControls();}
+}
+async function manageEntry(entry){
+  const action=entry.status==='trashed'?'restore':'trash';
+  if(!confirm(action==='trash'?`Move “${entry.title||'Untitled entry'}” to trash? Its content will be retained for restoration.`:'Restore this entry as a draft? It will need publishing to appear publicly.'))return;
+  cloudBusy=true;updateCloudControls();
+  try{
+    const result=await cloud.lifecycle(entry.id,action,entry.revision);
+    const local=book.posts.find(p=>p.id===entry.id);
+    if(local){local.cloud={...local.cloud,status:result.post.status,conflict:true,commit:result.commit,publishing:result.publishing};await persist();if(result.publishing)monitorDeployment(local.id,result.commit);}
+    toast(action==='trash'?(result.publishing?'Moved to trash. Public removal waits for a successful site build.':'Moved to trash. Local edits are preserved.'):'Restored as a draft. Open it to resume editing.');
+  }catch(error){toast(error.message);}
+  finally{cloudBusy=false;updateCloudControls();await openOnlineEntries();}
 }
 async function loadOnlineEntry(id){
   if(cloudBusy)return;cloudBusy=true;cloudMessage='Loading online entry…';updateCloudControls();
   try{const result=await cloud.get(id),loaded=result.post;
-    for(const e of loaded.elements.filter(e=>e.type==='photo')){if(!MEDIA_PATH.test(e.src))throw Error('Invalid online photo reference.');e.assetPath=e.src;const response=await fetch(`https://raw.githubusercontent.com/chief-teef/baby-teeth/main/${e.src}`);if(!response.ok)throw Error('An online photo could not be loaded. Retry later.');e.src=await dataUrl(await response.blob());}
+    if(loaded.status==='trashed')throw Error('Restore this entry from Trash before opening it.');
+    for(const e of loaded.elements.filter(e=>e.type==='photo')){if(!MEDIA_PATH.test(e.src))throw Error('Invalid online photo reference.');e.assetPath=e.src;const response=await fetch(`https://raw.githubusercontent.com/${cloudSession.repository}/${cloudSession.branch||'main'}/${e.src}`);if(!response.ok)throw Error('An online photo could not be loaded. Retry later.');e.src=await dataUrl(await response.blob());}
     validateBook({version:1,posts:[loaded]});checkpoint();const existing=book.posts.find(p=>p.id===id);
     if(existing){const copy=clone(existing);copy.id=uid();copy.title=`${copy.title} (local recovery copy)`;delete copy.cloud;book.posts.push(copy);book.posts=book.posts.filter(p=>p!==existing);}
     loaded.localVersion=0;loaded.cloud={revision:result.revision,status:loaded.status,savedVersion:0,publishedAt:loaded.publishedAt};book.posts.push(loaded);activeId=loaded.id;selection.clear();render();await persist();$('#online-dialog').close();toast(existing?'Online entry opened. Your previous local version is kept as a recovery copy.':'Online entry opened on this device.');
   }catch(error){toast(error.message);}finally{cloudBusy=false;cloudMessage='Signed in · online entries available';updateCloudControls();}
 }
-function renderEntries(){const root=$('#entries');root.replaceChildren();[...book.posts].reverse().forEach(p=>{const b=document.createElement('button');b.className=`entry ${p.id===activeId?'selected':''}`;const t=document.createElement('span');t.textContent=p.title||'Untitled entry';const s=document.createElement('small');s.textContent=`${p.elements.length} objects · local draft`;b.append(t,s);b.onclick=()=>{finishDrawing();activeId=p.id;selection.clear();extraHeight=0;render();};root.append(b);});}
+function renderEntries(){const root=$('#entries');root.replaceChildren();[...book.posts].filter(p=>p.cloud?.status!=='trashed').sort((a,b)=>new Date(a.created)-new Date(b.created)).forEach(p=>{const b=document.createElement('button');b.className=`entry ${p.id===activeId?'selected':''}`;const t=document.createElement('span');t.textContent=p.title||'Untitled entry';const s=document.createElement('small');s.textContent=`${p.elements.length} objects · local draft`;b.append(t,s);b.onclick=()=>{finishDrawing();activeId=p.id;selection.clear();extraHeight=0;render();};root.append(b);});}
 function render(){editors.forEach(e=>e.destroy());editors.clear();resizeObserver?.disconnect();renderEntries();$('#title').value=post().title;const stage=$('#stage');stage.querySelectorAll('.object').forEach(e=>{interact(e).unset();e.remove();});post().elements.forEach(mount);resizeObserver=new ResizeObserver(entries=>{for(const entry of entries){const e=post().elements.find(e=>e.id===entry.target.dataset.id);if(e?.type==='text'){const next=Math.ceil(entry.target.scrollHeight);if(Math.abs(e.h-next)>1){e.h=next;updateStage();changed();}}}});stage.querySelectorAll('.object.text').forEach(el=>resizeObserver.observe(el));updateMode();updateSelection();updateStage();updateCounts();updateHistory();updateCloudControls();}
 function updateCounts(){const p=post();$('#count').textContent=`${p.elements.filter(e=>e.type==='photo').length} photos · ${p.elements.filter(e=>e.type==='text').length} text boxes`;$('#empty').classList.toggle('hidden',!!p.elements.length);}
 function updateStage(){const available=$('#stage-wrap').parentElement.clientWidth-26;scale=Math.min(1,available/WIDTH);const h=height(post().elements)+extraHeight;$('#stage').style.width=`${WIDTH}px`;$('#stage').style.height=`${h}px`;$('#stage').style.transform=`scale(${scale})`;$('#stage-wrap').style.width=`${WIDTH*scale}px`;$('#stage-wrap').style.height=`${h*scale}px`;$('#drawing-surface').setAttribute('viewBox',`0 0 ${WIDTH} ${h}`);}
@@ -184,12 +222,12 @@ function showPreview(){
   const root=$('#reader');root.replaceChildren();const head=document.createElement('div');head.className='reader-head';head.innerHTML='<span class="eyebrow">Reading preview</span><h1>my little life ♥</h1><p>Preview uses the same layout as the public blog. Unsaved changes are included.</p>';
   const controls=document.createElement('div');controls.className='reader-controls';
   for(const [name,w] of [['Phone',350],['Tablet',700],['Desktop',900]]){const b=document.createElement('button');b.textContent=name;b.classList.toggle('active',previewWidth===w);b.onclick=()=>{previewWidth=w;showPreview();};controls.append(b);}head.append(controls);root.append(head);
-  [...book.posts].reverse().forEach(p=>{
+  [...book.posts].filter(p=>p.cloud?.status!=='trashed').sort((a,b)=>new Date(a.created)-new Date(b.created)).forEach(p=>{
     const entry=document.createElement('article');entry.className='reader-entry';entry.style.maxWidth=`${previewWidth}px`;
     const header=document.createElement('header'),title=document.createElement('h2'),date=document.createElement('time');title.textContent=p.title||'Untitled entry';date.textContent=new Date(p.cloud?.publishedAt||p.created).toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'});header.append(title,date);
     const content=document.createElement('div');content.innerHTML=renderComposition(p,'');entry.append(header,...content.childNodes);root.append(entry);
     layoutReading(entry.querySelector('[data-canvas]'));
-  });window.scrollTo(0,0);
+  });mountScrapbook(root,page=>layoutReading(page.querySelector('[data-canvas]')));window.scrollTo(0,0);
 }
 function exportBook(){finishDrawing();const a=document.createElement('a');const url=URL.createObjectURL(new Blob([JSON.stringify(book)],{type:'application/json'}));a.href=url;a.download=`baby-teeth-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 $('#archive').onchange=async ev=>{const file=ev.target.files[0];ev.target.value='';if(!file)return;try{if(file.size>100*1024*1024)throw Error('Archive exceeds the 100 MB prototype limit.');const incoming=validateBook(JSON.parse(await file.text()));for(const p of incoming.posts)for(const e of p.elements)if(e.type==='text')generateHTML(e.doc,extensions);checkpoint();const existing=new Set(book.posts.map(p=>p.id));incoming.posts.forEach(p=>{if(existing.has(p.id)){p.id=uid();delete p.cloud;}book.posts.push(p);});activeId=book.posts.at(-1).id;selection.clear();render();changed();toast('Archive imported as additional entries. Existing entries are preserved.');}catch(e){toast(`Import failed: ${e.message}`);}};
@@ -203,11 +241,16 @@ $('#preview').onclick=()=>{if(view==='editor')showPreview();else{view='editor';$
 $('#export').onclick=exportBook;$('#import').onclick=()=>$('#archive').click();$('#stress').onclick=stressEntry;$('#help').onclick=()=>$('#help-dialog').showModal();$('#close-help').onclick=()=>$('#help-dialog').close();
 window.addEventListener('resize',()=>{if(view==='editor')updateStage();});document.addEventListener('visibilitychange',()=>{if(document.hidden){finishDrawing();persist();}});window.addEventListener('pagehide',()=>{finishDrawing();persist();});window.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='z'){ev.preventDefault();history(ev.shiftKey?'redo':'undo');}if(ev.key==='Escape'){finishDrawing();selection.clear();updateSelection();}});
 render();
-$('#github-login').onclick=async()=>{if(cloudSession.signedIn){try{await cloud.logout();await checkCloud();}catch(error){toast(error.message);}}else if(cloudSession.configured)cloud.login();else toast('Online saving setup is pending. Keep using this editor and export a backup before moving to the connected studio.');};
+$('#github-login').onclick=async()=>{if(cloudSession.signedIn){try{await persist();await cloud.logout();location.reload();}catch(error){toast(error.message);}}else if(cloudSession.configured)cloud.login();else toast('Online saving setup is pending. Keep using this editor and export a backup before moving to the connected studio.');};
 $('#github-save').onclick=()=>saveOnline('save');
 $('#github-publish').onclick=()=>{if(confirm('Publish this entry so anyone can read it on the public blog?'))saveOnline('publish');};
 $('#github-unpublish').onclick=()=>{if(confirm('Remove this entry from the public blog after the next build? Its saved draft and repository history will remain.'))saveOnline('unpublish');};
 $('#github-load').onclick=openOnlineEntries;
 $('#close-online').onclick=()=>$('#online-dialog').close();
 $('#github-copy').onclick=()=>{checkpoint();const p=clone(post());p.id=uid();p.title=`${p.title} (copy)`;delete p.cloud;book.posts.push(p);activeId=p.id;render();changed();toast('Local work kept as a new entry. You can save this copy online.');};
-checkCloud();
+checkCloud().then(resumeDeployments);
+window.addEventListener('online',()=>checkCloud().then(resumeDeployments));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkCloud().then(resumeDeployments);});
+
+$('#cms-active').onclick=()=>{cmsView='active';openOnlineEntries();};
+$('#cms-trash').onclick=()=>{cmsView='trash';openOnlineEntries();};

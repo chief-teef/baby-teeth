@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+const base=process.argv[2];
+if(!base||new URL(base).protocol!=='https:')throw Error('Supply the deployed HTTPS studio URL.');
+const url=path=>new URL(path,base);
+const root=await fetch(url('/'));
+assert.equal(root.status,200);
+assert.match(root.headers.get('content-security-policy'),/frame-ancestors 'none'/);
+assert.equal(root.headers.get('x-content-type-options'),'nosniff');
+const session=await fetch(url('/api/session'));
+assert.match(session.headers.get('cache-control'),/no-store/);
+const info=await session.json();
+assert.equal(info.configured,true);
+assert.equal(info.signedIn,false);
+assert.ok(!('csrf' in info));
+for(const [path,method] of [['/api/posts','GET'],['/api/assets','POST'],['/api/posts/11111111-1111-4111-8111-111111111111','PUT'],['/auth/logout','POST']]){
+  const response=await fetch(url(path),{method});
+  assert.equal(response.status,401,`${method} ${path} must require sign-in`);
+}
+const login=await fetch(url('/auth/login'),{redirect:'manual'});
+assert.equal(login.status,302);
+const target=new URL(login.headers.get('location'));
+assert.equal(target.origin,'https://github.com');
+assert.equal(target.searchParams.get('redirect_uri'),url('/auth/callback').href);
+assert.equal(target.searchParams.get('code_challenge_method'),'S256');
+assert.ok(target.searchParams.get('state'));
+const cookie=login.headers.get('set-cookie');
+for(const flag of ['HttpOnly','Secure','SameSite=Lax'])assert.ok(cookie.includes(flag));
+const callback=await fetch(url('/auth/callback?state=invalid&code=invalid'));
+assert.equal(callback.status,403);
+console.log('PASS: live HTTPS studio, configured session, restricted logged-out access, secure OAuth redirect/state/cookie, rejected invalid callback. No content written.');

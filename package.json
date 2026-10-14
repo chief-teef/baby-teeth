@@ -7,9 +7,10 @@
     "dev": "vite --host 0.0.0.0",
     "build": "node scripts/build.mjs editor",
     "build:blog": "node scripts/build.mjs blog",
-    "test": "node --test tests/model.test.js",
+    "test": "node --test tests/model.test.js tests/settings.test.js",
     "test:browser": "node tests/browser.mjs",
     "test:drawing": "node tests/drawing.mjs",
+    "test:reliability": "node tests/reliability-browser.mjs",
     "test:server": "node --test tests/server.test.js",
     "dev:worker": "wrangler dev",
     "deploy:worker": "wrangler deploy"

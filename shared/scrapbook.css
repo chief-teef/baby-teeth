@@ -1,0 +1,6 @@
+.scrapbook-nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;position:sticky;top:0;z-index:10;padding:12px;background:#baff48;border:3px double #e90088;box-shadow:4px 4px #ed54ae;font:bold 12px Verdana,sans-serif;margin:16px auto;max-width:900px}
+.scrapbook-nav button{font:bold 13px Verdana,sans-serif;padding:10px 14px;color:#71004b;background:#ffc1e8;border:2px outset #ff81cb;cursor:pointer}
+.scrapbook-nav button:disabled{opacity:.45;cursor:default}
+.scrapbook .reader-entry{transform-origin:left center;background:#fff9ec;box-shadow:8px 10px 0 #fc76c1,12px 14px 0 #84b623;border-left:14px ridge #ff74bd;margin:24px auto;padding:20px;min-height:60vh}
+.scrapbook .reader-entry[hidden]{display:none!important}
+@media(max-width:600px){.scrapbook .reader-entry{padding:10px;border-left-width:7px}.scrapbook-nav{gap:6px}.scrapbook-nav button{padding:10px}.scrapbook-nav span{flex-basis:100%;text-align:center}}

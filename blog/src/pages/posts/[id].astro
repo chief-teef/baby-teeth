@@ -1,4 +1,5 @@
 ---
+import {base as blogBase, siteOrigin} from '../../lib/posts.js';
 import Page from '../../layouts/Page.astro';
 import Entry from '../../components/Entry.astro';
 import {allPosts,postUrl,base} from '../../lib/posts.js';
@@ -7,4 +8,4 @@ export function getStaticPaths(){return allPosts().map(post=>({params:{id:post.i
 const {post}=Astro.props;
 const cover=post.elements.find(e=>e.type==='photo');
 ---
-<Page title={`${post.title} ♥ Baby Teeth`} description={excerpt(post)} canonical={postUrl(post)} image={cover?`${base}${cover.src}`:undefined}><Entry post={post}/><a class="page-link" href="/baby-teeth/">← back to the scrapbook</a></Page>
+<Page title={`${post.title} ♥ Baby Teeth`} description={excerpt(post)} canonical={postUrl(post)} image={cover?`${base}${cover.src}`:undefined}><Entry post={post}/><a class="page-link" href={`${blogBase}`}>← back to the scrapbook</a></Page>

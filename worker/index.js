@@ -1,6 +1,7 @@
-import {validatePost,cleanPost,POST_ID,MEDIA_PATH} from '../shared/document.js';
+import {transitionEntry} from './lifecycle.js';
+import {validatePost,cleanPost,POST_ID,MEDIA_PATH,esc} from '../shared/document.js';
 import {base64,random,digest,seal,open,cookie,setCookie,HttpError,limitedBody,jsonBody,cleanJpeg} from './security.js';
-import {github,verifyRepository,snapshot,readPost,readIndex,commitPost,REPO,REPO_ID,OWNER_ID,postPath} from './github.js';
+import {github,verifyRepository,snapshot,readPost,readIndex,commitPost,REPO,REPO_ID,OWNER_ID,postPath,PUBLIC_URL,BRANCH} from './github.js';
 const SESSION='__Host-bt-session',LOGIN='__Host-bt-oauth';
 const json=(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
 const redirect=(location,cookies=[])=>{const headers=new Headers({Location:location,'Cache-Control':'no-store','Referrer-Policy':'no-referrer'});cookies.forEach(c=>headers.append('Set-Cookie',c));return new Response(null,{status:302,headers});};
@@ -14,8 +15,8 @@ export function createHandler(fetcher=fetch){return async function handle(reques
   try{
     const url=new URL(request.url),path=url.pathname;
     if(path==='/api/session'){
-      if(!ready(env))return json({configured:false,signedIn:false,repository:REPO});
-      const user=await session(request,env);return json({configured:true,signedIn:!!user,repository:REPO,...(user?{login:user.login,csrf:user.csrf}:{})});
+      if(!ready(env))return json({configured:false,signedIn:false,repository:REPO,publicUrl:PUBLIC_URL,branch:BRANCH});
+      const user=await session(request,env);return json({configured:true,signedIn:!!user,repository:REPO,publicUrl:PUBLIC_URL,branch:BRANCH,...(user?{login:user.login,csrf:user.csrf}:{})});
     }
     if(path.startsWith('/api/')||path.startsWith('/auth/')){if(!ready(env))throw new HttpError(503,'Online saving setup is not complete yet. Local editing and export still work.');}
     if(path==='/auth/login'&&request.method==='GET'){
@@ -43,6 +44,19 @@ export function createHandler(fetcher=fetch){return async function handle(reques
     }
     const match=path.match(/^\/api\/posts\/([a-f0-9-]{36})$/i);
     if(match&&request.method==='GET'){const user=await authorize(request,env);const result=await readPost(user.token,match[1],fetcher);validation(()=>validatePost(result.post));return json(result);}
+    const lifecycleMatch=path.match(/^\/api\/posts\/([a-f0-9-]{36})\/(trash|restore)$/i);
+    if(lifecycleMatch&&request.method==='POST'){
+      const user=await authorize(request,env);await csrf(request,user);await limit(env,`save:${user.userId}`);await verifyRepository(user.token,fetcher);
+      const body=await jsonBody(request),state=await snapshot(user.token,fetcher);
+      const current=state.entries.find(e=>e.path===postPath(lifecycleMatch[1]));
+      if(!current)throw new HttpError(404,'Entry not found.');
+      if(body.baseRevision!==current.sha)throw new HttpError(409,'Entry changed online. Refresh the CMS before retrying.');
+      const previous=(await readPost(user.token,lifecycleMatch[1],fetcher,state.head)).post;
+      const doc=transitionEntry(previous,lifecycleMatch[2],new Date().toISOString(),user.userId);
+      const index=await readIndex(user.token,state,fetcher);
+      const result=await commitPost(user.token,state,doc,[],fetcher,index);
+      return json({...result,post:doc,publishing:previous.status==='published'});
+    }
     if(path==='/api/assets'&&request.method==='POST'){
       const user=await authorize(request,env);await csrf(request,user);await limit(env,`upload:${user.userId}`);await verifyRepository(user.token,fetcher);
       if(request.headers.get('content-type')!=='image/jpeg')throw new HttpError(415,'Only processed JPEG photos can be uploaded.');
@@ -54,7 +68,8 @@ export function createHandler(fetcher=fetch){return async function handle(reques
       const body=await jsonBody(request);validation(()=>validatePost(body.post));if(body.post.id!==match[1]||!['save','publish','unpublish'].includes(body.action))throw new HttpError(400,'Invalid save request.');
       const doc=cleanPost(body.post),state=await snapshot(user.token,fetcher);const current=state.entries.find(e=>e.path===postPath(doc.id));
       if((body.baseRevision||null)!==(current?.sha||null))throw new HttpError(409,'A newer version exists online. Load it or save your local work as a copy.',{currentRevision:current?.sha||null});
-      let previous=null;if(current)previous=(await readPost(user.token,doc.id,fetcher)).post;
+      let previous=null;if(current)previous=(await readPost(user.token,doc.id,fetcher,state.head)).post;
+      if(previous?.status==='trashed')throw new HttpError(409,'This entry is in trash. Restore it in the CMS before editing.');
       const paths=[...new Set(doc.elements.filter(e=>e.type==='photo').map(e=>e.src))];const assets=[];
       for(const path of paths){const expected=path.slice(6,-4);const existing=state.entries.find(e=>e.path===path&&e.type==='blob');if(existing?.sha===expected)continue;const proof=await open(env.SESSION_SECRET,'asset',body.receipts?.[path]);if(!proof||proof.path!==path||proof.sha!==expected||proof.userId!==user.userId)throw new HttpError(400,'Photo upload expired or is missing. Upload the photo again.');assets.push({path,sha:expected});}
       const now=new Date().toISOString();doc.status=body.action==='unpublish'?'draft':body.action==='publish'||previous?.status==='published'?'published':'draft';doc.publishedAt=previous?.publishedAt||(doc.status==='published'?now:null);doc.updatedAt=now;doc.updatedBy=user.userId;
@@ -62,11 +77,15 @@ export function createHandler(fetcher=fetch){return async function handle(reques
     }
     if(path==='/api/deployment'&&request.method==='GET'){
       const user=await authorize(request,env),commit=url.searchParams.get('commit');if(!/^[a-f0-9]{40}$/.test(commit||''))throw new HttpError(400,'Invalid publishing revision.');
-      const runs=await github(user.token,`/repos/${REPO}/actions/runs?head_sha=${commit}&per_page=10`,{fetcher});const run=runs.workflow_runs.find(r=>r.path==='.github/workflows/publish.yml');return json({status:run?.status||'queued',conclusion:run?.conclusion||null,url:`https://chief-teef.github.io/baby-teeth/`});
+      const runs=await github(user.token,`/repos/${REPO}/actions/runs?head_sha=${commit}&per_page=10`,{fetcher});const run=runs.workflow_runs.find(r=>r.path==='.github/workflows/publish.yml');return json({status:run?.status||'queued',conclusion:run?.conclusion||null,url:PUBLIC_URL});
     }
     if(path.startsWith('/api/')||path.startsWith('/auth/'))throw new HttpError(404,'Unknown endpoint.');
+    if(!ready(env)||!await session(request,env)){
+      const html=`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Studio sign-in</title><style>body{background:#ffe0f5;color:#4b0035;font:20px Georgia;margin:0;min-height:100vh;display:grid;place-items:center}main{padding:2rem;max-width:30rem;background:#f0ffb0;border:4px solid #ff1493}a{color:#9b005d;display:inline-block;margin:1rem 1rem 0 0}h1{margin-top:0}</style><main><h1>Baby Teeth Studio</h1><p>Sign in with the blog owner's GitHub account to open the editor.</p>${ready(env)?'<a href="/auth/login">Sign in with GitHub →</a>':'<p>Studio sign-in is temporarily unavailable. Please try again later.</p>'}<a href="${esc(PUBLIC_URL)}">Read the public blog →</a></main></html>`;
+      return new Response(html,{status:ready(env)?200:503,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Frame-Options':'DENY','Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'"}});
+    }
     const asset=await env.ASSETS.fetch(request),headers=new Headers(asset.headers);
-    headers.set('X-Content-Type-Options','nosniff');headers.set('Referrer-Policy','strict-origin-when-cross-origin');headers.set('X-Frame-Options','DENY');
+    headers.set('Cache-Control','no-store');headers.set('X-Content-Type-Options','nosniff');headers.set('Referrer-Policy','strict-origin-when-cross-origin');headers.set('X-Frame-Options','DENY');
     headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://raw.githubusercontent.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
     return new Response(asset.body,{status:asset.status,headers});
   }catch(error){const status=error instanceof HttpError?error.status:503;return json({error:error instanceof HttpError?error.message:'The saving service is temporarily unavailable. Local work is safe.',...(error.details||{})},status);}

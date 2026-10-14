@@ -112,3 +112,7 @@ Desktop browser automation against the deployed studio passes editing, recovery,
 ## Public activation and studio gate — October 13, 2026
 
 Pushed the implementation to main while preserving the owner's saved published entry. Enabled BLOG_PUBLISHING_ENABLED and switched Pages to GitHub Actions; dispatched the first public blog deployment. Studio static HTML/assets now pass through owner session checks and logged-out visitors receive only a sign-in screen with a public-blog link. Sign-out persists recovery data and reloads into that screen. Server tests cover gated assets and unconfigured fail-closed behavior; 19 tests pass. Live logged-out gate verified. Studio version a22dce88-fc55-47ca-ae98-fcfc48ce0242.
+
+## Collaborator sign-in — October 13, 2026
+
+Owner authorized repository write collaborators to use the studio. Deployed server version 1b72a3f0-1d64-4fdd-97ea-c12fbc2a521f. Session authorization now checks current write permission on the fixed repository for every authenticated request. Read-only and removed collaborators are rejected, including existing sessions. All 15 server tests pass. GitHub App visibility still needs updating for non-owner sign-in; GitHub requires owner email verification before its settings can be opened. Do not claim collaborator sign-in works end-to-end until that setting and a real collaborator login are verified.

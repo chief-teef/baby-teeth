@@ -17,14 +17,14 @@ test('entry reads can be pinned to the checked repository revision',async()=>{
   },commit);
   assert.equal(result.post.id,ID);
 });
-function fixture(){
+function fixture(push=true){
   const kv=new Map(),files=new Map(),commits=new Map(),trees=new Map();let head='a'.repeat(40),sequence=0,race=false;
   const env={GITHUB_CLIENT_ID:'test-client',GITHUB_CLIENT_SECRET:'test-secret',SESSION_SECRET:'this-is-a-test-only-session-secret-with-enough-length',SESSIONS:{get:async key=>kv.get(key)||null,put:async(key,value)=>kv.set(key,value),delete:async key=>kv.delete(key)},WRITE_LIMIT:{limit:async()=>({success:true})},ASSETS:{fetch:async()=>new Response('editor')}};
   const fetcher=async(url,options={})=>{
     const u=new URL(url),path=u.pathname,body=options.body?JSON.parse(options.body):null;
     if(path==='/login/oauth/access_token')return Response.json({access_token:'test-only-access-token',expires_in:28800});
     if(path==='/user')return Response.json({id:341668853,login:'chief-teef'});
-    if(path==='/repos/chief-teef/baby-teeth')return Response.json({id:1416133666,permissions:{push:true}});
+    if(path==='/repos/chief-teef/baby-teeth')return Response.json({id:1416133666,permissions:{push}});
     if(path.endsWith('/git/ref/heads/main'))return Response.json({object:{sha:head}});
     if(path.includes('/git/commits/')&&options.method!=='POST')return Response.json({tree:{sha:'tree-head'}});
     if(path.includes('/git/trees/')&&options.method!=='POST')return Response.json({tree:[...files].map(([path,value])=>({path,type:'blob',sha:value.sha})),truncated:false});
@@ -47,7 +47,8 @@ function fixture(){
   return {env,handler,files,request,signedIn,setRace:()=>{race=true;}};
 }
 test('sealed state expires, rejects tampering, and cannot change purpose',async()=>{const secret='testing-encryption-secret-long-enough',value=await seal(secret,'session',{exp:Date.now()+10000,id:1});assert.equal((await open(secret,'session',value)).id,1);assert.equal(await open(secret,'oauth',value),null);assert.equal(await open(secret,'session',value+'broken'),null);assert.equal(await open(secret,'session',await seal(secret,'session',{exp:Date.now()-1})),null);});
-test('owner-only writes, CSRF and origin enforced',async()=>{const f=fixture();const body={post:doc(),action:'save',baseRevision:null};assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body,cookie:false})).status,401);await f.signedIn(999);assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body})).status,401);await f.signedIn();assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body,origin:'https://evil.example'})).status,403);assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body,token:'wrong'})).status,403);});
+test('write collaborators can save; logged-out writes, CSRF and origin enforced',async()=>{const f=fixture();const body={post:doc(),action:'save',baseRevision:null};assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body,cookie:false})).status,401);await f.signedIn(999);const saved=await f.request(`/api/posts/${ID}`,{method:'PUT',body});assert.equal(saved.status,200);assert.equal((await saved.json()).post.updatedBy,999);assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body,origin:'https://evil.example'})).status,403);assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body,token:'wrong'})).status,403);});
+test('read-only or removed collaborators cannot reopen studio or write with old sessions',async()=>{const f=fixture(false);await f.signedIn(999);assert.equal((await (await f.request('/api/session')).json()).signedIn,false);assert.match(await (await f.request('/')).text(),/Sign in with GitHub/);assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'save'}})).status,401);});
 test('draft stays draft, publish is explicit, saving published entry requests update',async()=>{const f=fixture();await f.signedIn();let r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:{...doc(),status:'published',updatedBy:123},action:'save',baseRevision:null}});assert.equal(r.status,200);let data=await r.json();assert.equal(data.post.status,'draft');assert.equal(data.publishing,false);assert.equal(data.post.updatedBy,341668853);r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'publish',baseRevision:data.revision}});data=await r.json();assert.equal(data.post.status,'published');assert.equal(data.publishing,true);r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'save',baseRevision:data.revision}});data=await r.json();assert.equal(data.post.status,'published');assert.equal(data.publishing,true);});
 test('stale and racing saves never overwrite the latest ref',async()=>{const f=fixture();await f.signedIn();let r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'save',baseRevision:null}});const data=await r.json();r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'save',baseRevision:null}});assert.equal(r.status,409);f.setRace();r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'publish',baseRevision:data.revision}});assert.equal(r.status,409);const saved=JSON.parse(f.files.get(`content/posts/${ID}.json`).content);assert.equal(saved.status,'draft');});
 test('cannot save arbitrary media or raw inline image data',async()=>{const f=fixture();await f.signedIn();const p=doc();p.elements.push({id:'33333333-3333-4333-8333-333333333333',type:'photo',x:20,y:200,w:200,h:150,rotation:0,src:`media/${'b'.repeat(40)}.jpg`,alt:'Photo'});assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'save'}})).status,400);p.elements[1].src='data:image/jpeg;base64,ABC';assert.throws(()=>validatePost(p));});
@@ -99,3 +100,4 @@ test('CMS lifecycle requires authorization, CSRF, revision and correct transitio
   f.setRace();assert.equal((await f.request(url,{method:'POST',body:{baseRevision:saved.revision}})).status,409);
   assert.equal(JSON.parse(f.files.get(`content/posts/${ID}.json`).content).status,'draft');
 });
+

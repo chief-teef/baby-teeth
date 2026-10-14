@@ -4,6 +4,7 @@ if(!base||new URL(base).protocol!=='https:')throw Error('Supply the deployed HTT
 const url=path=>new URL(path,base);
 const root=await fetch(url('/'));
 assert.equal(root.status,200);
+assert.match(await root.text(),/Sign in with GitHub/);
 assert.match(root.headers.get('content-security-policy'),/frame-ancestors 'none'/);
 assert.equal(root.headers.get('x-content-type-options'),'nosniff');
 const session=await fetch(url('/api/session'));

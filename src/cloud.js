@@ -6,6 +6,7 @@ export function createCloudClient(base=''){
     login(){location.href=`${base}/auth/login`;},
     async logout(){await request('/auth/logout',{method:'POST'});session={...session,signedIn:false};},
     list:()=>request('/api/posts'),
+    lifecycle:(id,action,baseRevision)=>request(`/api/posts/${id}/${action}`,{method:'POST',body:JSON.stringify({baseRevision})}),
     get:id=>request(`/api/posts/${id}`),
     upload:blob=>request('/api/assets',{method:'POST',headers:{'Content-Type':'image/jpeg'},body:blob}),
     save:(id,body)=>request(`/api/posts/${id}`,{method:'PUT',body:JSON.stringify(body)}),

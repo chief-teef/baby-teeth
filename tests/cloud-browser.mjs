@@ -8,6 +8,7 @@ try{
     const req=route.request(),u=new URL(req.url());let result={};
     if(u.pathname==='/api/session')result={configured:true,signedIn:true,login:'chief-teef',csrf:'test-csrf'};
     else if(u.pathname==='/api/posts')result={posts:stored?[{id:stored.id,title:stored.title,status:stored.status}]:[]};
+    else if(/\/(trash|restore)$/.test(u.pathname)&&req.method()==='POST'){stored={...stored,status:u.pathname.endsWith('/trash')?'trashed':'draft'};result={post:stored,revision:'c'.repeat(40),publishing:false};}
     else if(u.pathname.startsWith('/api/posts/')&&req.method()==='PUT'){
       assert.equal(req.headers()['x-csrf-token'],'test-csrf');const data=req.postDataJSON();calls.push(data);
       if(conflict)return route.fulfill({status:409,contentType:'application/json',body:JSON.stringify({error:'A newer version exists online.'})});
@@ -35,10 +36,19 @@ try{
   await page.getByRole('button',{name:'Save & update site',exact:true}).click();
   await page.getByRole('button',{name:'Keep as a new copy',exact:true}).waitFor();
   assert.match(await page.locator('.tiptap').textContent(),/must not be overwritten/);
-  await page.getByRole('button',{name:'Open online entries',exact:true}).click();
+  await page.getByRole('button',{name:'Manage entries',exact:true}).click();
   await page.getByRole('dialog').getByRole('button',{name:/Untitled entry/}).click();
   await page.getByText('Online entry opened. Your previous local version is kept as a recovery copy.',{exact:true}).waitFor();
   assert.equal(await page.locator('.entry').count(),2);
   assert.match(await page.locator('.tiptap').textContent(),/updated public entry/);
+  await page.getByRole('button',{name:'Manage entries',exact:true}).click();
+  await page.getByRole('button',{name:'Move to trash',exact:true}).click();
+  await page.getByRole('button',{name:'Trash',exact:true}).click();
+  await page.getByRole('button',{name:'Restore as draft',exact:true}).waitFor();
+  assert.equal(await page.getByRole('dialog').getByRole('button',{name:/Untitled entry/}).isEnabled(),false);
+  await page.getByRole('button',{name:'Restore as draft',exact:true}).click();
+  await page.getByText('Trash is empty.',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'Entries',exact:true}).click();
+  await page.getByRole('dialog').getByRole('button',{name:/Untitled entry.*draft/}).waitFor();
   console.log('PASS: draft save, publish, live status, auto-update, conflict retention, and opening online entries without losing local work.');
 }finally{await browser.close();}

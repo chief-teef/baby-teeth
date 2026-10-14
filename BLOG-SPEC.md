@@ -243,6 +243,24 @@ The following details are engineering proposals unless explicitly identified abo
 
 ## Interview queue
 
+## Reusable system and CMS — October 12, 2026
+
+Build toward independently deployable blogs using shared editor, document schema, reading renderer, content lifecycle, and repository adapter modules. Each deployment has its own repository, owner identity, public URL, Cloudflare resources, and secrets. This is initially one blog per deployment; a hosted multi-blog account system and deletion of whole repositories are deferred. Here “delete blogs” means delete blog entries in the CMS. Never delete hosting accounts or repositories as an entry operation.
+
+The CMS lists active entries and a separate Trash view. Move to trash preserves the full document, photos, ink, identity, and Git history. Trashed entries cannot be edited, saved, or published until restored. Trashing a published entry requests a public rebuild; removal is effective only after successful deployment. Restore returns the entry as a draft, preserving its original publication date and URL identity, and requires explicit publication to go live again. No automatic expiry or permanent-delete control in this release. Photos are retained for restoration and reuse.
+
+All lifecycle writes require owner authorization, CSRF checks, rate limiting, and an exact base revision. Stale saves cannot resurrect trashed entries. Local unsaved work remains available as a recovery copy. Server state controls lifecycle; client-supplied status cannot override it.
+
+Implementation action items:
+
+1. Extract deployment identity into configuration and isolate lifecycle transitions from transport/storage code.
+2. Add atomic trash/restore endpoints and CMS Active/Trash views with clear confirmation and safe draft restoration.
+3. Test lifecycle transitions, access rejection, stale edits, racing writes, public exclusion, content preservation, and CMS interactions.
+4. Verify locally, then deploy the tested studio update; keep public publishing activation as a separate launch gate.
+5. Finish removing presentation/deployment assumptions from build metadata and provide a fresh-deployment checklist before advertising the system as reusable. Future multi-blog dashboards and collaborator permissions remain separate work.
+
+Clean code requirements: small focused modules, explicit lifecycle operations, shared validation, no duplicated rendering rules, meaningful behavior tests, and configuration errors that fail closed. Avoid broad refactoring of tested Pencil/text interactions solely for style.
+
 Answered October 12: iPad with Pencil is primary; desktop secondary and phone rare. Arrange once with automatic adaptation and optional fixes. Saving published posts updates the live site. Direct drawing is wanted. Composition uses scattered scrapbook text boxes with substantial freedom; entries expand vertically and stack. Phone layout decisions are delegated to implementation judgment.
 
 Additional answers: start entries blank; no cropping or borders for now; resizing and rotation are wanted. Offline support would be nice to have. Dedicated captions were not requested; grouped text boxes are the implementation default.
@@ -261,3 +279,25 @@ Follow-ups when relevant:
 4. Use simple publishing defaults: title and first-publication date, stable URLs, newest-first feed, and unpublish/delete with recovery. Confirm specific controls only if prototype use reveals a material preference.
 
 Resolve these in short interview rounds. Library selection, schema details, and hosting comparisons are implementation work; ask the owner about consequences and preferences rather than requiring technical selections without context.
+
+## Scrapbook navigation — October 12, 2026
+
+The primary reading experience is now an interactive scrapbook, replacing the stacked home feed. Each entry is one flexible-height page; long entries scroll within the normal document flow. Start on the last page (newest published entry), with First (oldest), Previous (older), Next (newer), and Last (newest) navigation. Disable controls at boundaries. Preserve chronological order, readable phone reflow, stable individual entry URLs, archive, RSS, and sitemap. Apply a subtle page-turn animation with no animation for reduced-motion users. Controls remain visible while scrolling; provide page number announcements and keyboard-operable buttons. Local Reading preview uses the same navigation including unsaved work; trash is excluded.
+
+Action items: implement shared navigation and styling; test initial newest page, backwards navigation, first/last jumps, boundaries, empty/single entries, reduced motion, and responsive layout; deploy the studio preview for owner testing. Public activation still requires finishing the publishing launch gate.
+
+## Implementation checkpoint — October 13, 2026
+
+Deployment settings now validate repository/owner IDs, branch, HTTPS public URL, and branding before the editor, Worker repository adapter, and Astro build initialize. Studio branding and public link use configuration; the shared reader no longer defaults to the original repository path. Added an independent-deployment checklist to SETUP.md without changing existing browser storage keys.
+
+Verified with bundled Node 24: 17 model/security/lifecycle/configuration tests; editor production build; published-only blog fixture build; browser editing/recovery/transform/drawing/20-photo-and-30-text-box checks; cloud CMS save/publish/conflict checks; scrapbook navigation/boundaries/reduced-motion checks. These changes are local, not deployed. Live GitHub App sign-in, publishing activation, and actual iPad testing remain launch gates.
+
+## Live implementation checkpoint — October 13, 2026
+
+Deployed the validated reusable configuration and revision-pinned save/lifecycle reads to the existing Cloudflare studio. Live testing discovered missing security headers on direct static responses; added public/_headers and redeployed. The studio reports GitHub sign-in configured and rejects logged-out mutations and invalid OAuth callbacks. 18 model/security/configuration tests and public build/reader checks passed. Live editor and simulated pen/touch tests passed. Owner sign-in, actual iPad testing, and public publishing activation remain launch checks, not reasons to defer independent implementation/testing.
+
+## Reliability completion — October 13, 2026
+
+Implemented per-entry publication monitoring that resumes on reopening, reconnecting, and returning to the visible studio. Temporary status errors retry; expired authentication keeps the revision unconfirmed until sign-in. Failed saves persist staged asset paths/receipts before reload and explain retry steps without discarding local work.
+
+New browser regression verifies Docs-style HTML headings, bold/italic, links, bulleted/numbered lists; exported/imported text/photo/ink content and transforms; upload interruption; expired login; photo receipt reuse; and resumed publishing after reload. Existing cloud-save lifecycle tests and all 18 model/server/settings tests pass. Live authorization checks pass after deployment of version a20a95d9-ad5b-4f1b-bf90-bbde6564a377. No repository test content published. Actual Google Docs clipboard and Pencil behavior on iPad remain device checks. Full offline reopening remains deferred.

@@ -1,1 +1,2 @@
-export function GET(){return new Response('User-agent: *\nAllow: /\nSitemap: https://chief-teef.github.io/baby-teeth/sitemap.xml\n',{headers:{'Content-Type':'text/plain'}});}
+import {siteOrigin,base as blogBase} from '../lib/posts.js';
+export function GET(){return new Response(`User-agent: *\nAllow: /\nSitemap: ${siteOrigin}${blogBase}sitemap.xml\n`,{headers:{'Content-Type':'text/plain'}});}

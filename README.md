@@ -8,11 +8,13 @@ Public preview: https://chief-teef.github.io/baby-teeth/
 
 Use **Write** for rich text, **Move & resize** for dragging/resizing/rotation/layers/grouping, and **Draw** for Pencil or mouse ink. In Move & resize, drag any photo/text box or its visible Drag label; select an object and drag its corner handle to resize. Pencil strokes keep the page still; fingers scroll in drawing mode, and touch contacts during a pen stroke are ignored. Open **Reading preview** to inspect phone, tablet, and desktop arrangements. The large test entry adds 20 sample photos and 30 text boxes without replacing existing entries.
 
-The currently deployed prototype keeps drafts/photos in this browser's IndexedDB. The connected studio implementation adds owner-only GitHub sign-in, repository-backed drafts, atomic photo/document saves, revision conflicts, publishing, and unpublishing. Activate it with [SETUP.md](SETUP.md); live account setup and iPad testing are still pending. Export a backup before moving existing work to the new studio origin.
+The Pages prototype keeps drafts/photos in this browser's IndexedDB. The connected studio is deployed at https://baby-teeth-studio.aucourantfilms.workers.dev and reports GitHub sign-in configured. It adds owner-only GitHub sign-in, repository-backed drafts, atomic photo/document saves, revision conflicts, publishing, unpublishing, and entry trash/restoration. Completing an actual owner sign-in and activating the public blog still require the live checks in [SETUP.md](SETUP.md). Export a backup before moving existing work to the new studio origin.
 
 ## First checkpoint limits
 
 - Online saving/publishing is implemented and locally tested, but not activated until Cloudflare/GitHub App setup is complete. Full offline reopening is still pending.
+- Publishing checks resume after reopening, reconnecting, or returning to the editor. Failed saves preserve local work and staged photo receipts so you can sign in again and retry.
+- `npm run test:reliability` (with the local dev server running) checks Docs-style formatted paste, text/photo/ink backup restoration, interrupted upload, expired login, and publishing recovery. Actual Google Docs clipboard behavior on iPad Safari still needs device testing.
 - Photo decoding depends on the browser; if HEIC fails, use JPEG/PNG/WebP. Photos are re-encoded as JPEG, at a maximum 1600-pixel long edge, before local storage.
 - Ink currently creates a separate drawing object per completed stroke; grouping can keep multiple strokes with a photo. The eraser removes the last stroke of the drawing object under the pointer.
 - No cropping, borders, stickers, or reusable entry templates.

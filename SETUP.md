@@ -1,5 +1,13 @@
 # Connect saving and publishing — $0 setup
 
+## Fresh deployment checklist
+
+For another independently owned blog, use a separate checkout and repository. Update `config/blog.json` with its repository name, numeric repository ID, numeric owner account ID, branch, HTTPS public URL ending in `/`, title, and tagline. These settings are validated by the editor, public build, and saving service; incomplete identity fails before repository writes. The studio header and public link use this configuration. Numeric IDs must come from GitHub, not guesses.
+
+Use a unique Worker name in `wrangler.jsonc`, create a new SESSIONS KV namespace in the intended Cloudflare account, and replace the namespace binding and rate-limit namespace. Register a separate repository-restricted GitHub App with the new studio callback URL. Replace its client ID and upload new client/session secrets through secret prompts. Never copy the original blog's KV binding, credentials, or sessions into another deployment.
+
+Build and test with Node.js 22.12 or newer. Run `npm test`, `npm run test:server`, `npm run build`, and `npm run build:blog`. Complete the live checks below before enabling `BLOG_PUBLISHING_ENABLED`. Browser storage is per studio origin; transfer work using Export/Import backup when changing origins. Existing storage keys remain stable to preserve current drafts.
+
 The implementation is prepared locally. The current public editor remains usable while these account steps are completed. The new saving service must be activated and tested before changing the public Pages site into the blog.
 
 ## 1. Connect Cloudflare Free
@@ -84,3 +92,19 @@ The workflow is gated until this explicit activation. This preserves the current
 - [GitHub App user authorization](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app): web OAuth supports PKCE and further token restriction to a repository ID.
 
 Remaining live verification: actual account plan, deployed URL, GitHub App setup, iPad cookies/redirects, and CPU usage. Do not describe online saving as deployed until those checks pass.
+
+## Deployment progress — October 12, 2026
+
+Cloudflare OAuth is connected through Windows Credential Manager. Verified Free account request allowance: 100,000/day. Created the SESSIONS KV binding and deployed https://baby-teeth-studio.aucourantfilms.workers.dev. SESSION_SECRET was generated and uploaded without displaying it. GitHub App registration is prepared but not submitted; GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET remain pending. Initial public URL verification encountered a TLS provisioning error; do not claim the studio is reachable or online saving works yet. The existing GitHub Pages prototype remains unchanged.
+
+
+Studio update deployed: CMS Entries/Trash with safe draft restoration, configurable repository identity, and shared scrapbook navigation in Reading preview. Public GitHub Pages activation remains pending. Tests passed: 15 server/model cases, CMS browser lifecycle, scrapbook navigation including empty/single/reduced motion, published-only build with trash exclusion, phone and desktop public layout.
+
+
+## Live studio verification — October 13, 2026
+
+The studio update is deployed at https://baby-teeth-studio.aucourantfilms.workers.dev (version a0efd0ef-e963-4973-be77-17b7c4a187fa). Both required secret names are present, and the live session endpoint reports configured=true. Earlier notes about pending secrets or unreachable TLS describe historical state.
+
+Verified live without signing in or writing repository content: HTTPS editor responds, static security headers apply, logged-out entry/asset writes and reads are rejected, sign-in redirects to GitHub with PKCE and the correct callback, secure HttpOnly state cookie is set, and an invalid callback is rejected. A static _headers file fixes Cloudflare's direct asset responses bypassing Worker response headers. Revision-sensitive saves and lifecycle operations now read the checked commit snapshot.
+
+Desktop browser automation against the deployed studio passes editing, recovery, transforms, drawing, 20-photo/30-text-box capacity, and phone reflow; simulated pen/palm/finger checks pass. Actual owner authentication, cross-device repository saving, real iPad/Pencil input, and public blog activation are still unverified. Public GitHub Pages remains the existing prototype. No test content was published.

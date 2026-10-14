@@ -2,7 +2,7 @@ import {esc,renderText,MEDIA_PATH} from './document.js';
 import {bounds} from '../src/model.js';
 function ink(e){const paths=e.strokes.map(s=>`<path d="${s.points.map((p,i)=>`${i?'L':'M'}${p[0]},${p[1]}`).join(' ')}" fill="none" stroke="${s.color}" stroke-width="${s.size}" stroke-linecap="round" stroke-linejoin="round"/>`).join('');return `<svg viewBox="0 0 ${e.sourceW} ${e.sourceH}" aria-hidden="true">${paths}</svg>`;}
 const layout=e=>esc(JSON.stringify({x:e.x,y:e.y,w:e.w,h:e.h,rotation:e.rotation}));
-export function renderComposition(post,base='/baby-teeth/'){
+export function renderComposition(post,base='/'){
   const units=[],groups=new Map();post.elements.forEach(e=>{const key=e.group||e.id;if(!groups.has(key)){const unit=[];groups.set(key,unit);units.push(unit);}groups.get(key).push(e);});
   return `<div class="public-canvas" data-canvas>${units.map(unit=>{
     const media=unit.filter(e=>e.type!=='text');let html='';

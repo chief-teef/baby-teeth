@@ -5,9 +5,18 @@ import {createHandler} from '../worker/index.js';
 import {seal,open,digest,cleanJpeg} from '../worker/security.js';
 import {validatePost,textContent,renderText} from '../shared/document.js';
 import {renderComposition} from '../shared/renderer.js';
+import {readPost} from '../worker/github.js';
 const ID='11111111-1111-4111-8111-111111111111',ELEMENT='22222222-2222-4222-8222-222222222222';
 const doc=()=>({id:ID,title:'A little day',created:'2026-10-12T18:00:00.000Z',elements:[{id:ELEMENT,type:'text',x:60,y:70,w:300,h:100,rotation:0,doc:{type:'doc',content:[{type:'paragraph',content:[{type:'text',text:'Hello scrapbook!'}]}]}}]});
 const sha=value=>createHash('sha1').update(value).digest('hex');
+test('entry reads can be pinned to the checked repository revision',async()=>{
+  const commit='a'.repeat(40);
+  const result=await readPost('test-token',ID,async url=>{
+    assert.equal(new URL(url).searchParams.get('ref'),commit);
+    return Response.json({sha:'b'.repeat(40),content:Buffer.from(JSON.stringify(doc())).toString('base64')});
+  },commit);
+  assert.equal(result.post.id,ID);
+});
 function fixture(){
   const kv=new Map(),files=new Map(),commits=new Map(),trees=new Map();let head='a'.repeat(40),sequence=0,race=false;
   const env={GITHUB_CLIENT_ID:'test-client',GITHUB_CLIENT_SECRET:'test-secret',SESSION_SECRET:'this-is-a-test-only-session-secret-with-enough-length',SESSIONS:{get:async key=>kv.get(key)||null,put:async(key,value)=>kv.set(key,value),delete:async key=>kv.delete(key)},WRITE_LIMIT:{limit:async()=>({success:true})},ASSETS:{fetch:async()=>new Response('editor')}};
@@ -44,7 +53,8 @@ test('stale and racing saves never overwrite the latest ref',async()=>{const f=f
 test('cannot save arbitrary media or raw inline image data',async()=>{const f=fixture();await f.signedIn();const p=doc();p.elements.push({id:'33333333-3333-4333-8333-333333333333',type:'photo',x:20,y:200,w:200,h:150,rotation:0,src:`media/${'b'.repeat(40)}.jpg`,alt:'Photo'});assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'save'}})).status,400);p.elements[1].src='data:image/jpeg;base64,ABC';assert.throws(()=>validatePost(p));});
 test('safe renderer escapes HTML and rejects script links',()=>{const p=doc();p.elements[0].doc.content[0].content[0].text='<script>alert(1)</script>';validatePost(p);assert.ok(renderText(p.elements[0].doc).includes('&lt;script&gt;'));p.elements[0].doc.content[0].content[0].marks=[{type:'link',attrs:{href:'javascript:alert(1)'}}];assert.throws(()=>validatePost(p));delete p.elements[0].doc.content[0].content[0].marks;assert.ok(renderComposition(p).includes('&lt;script&gt;'));});
 test('JPEG upload strips EXIF and comments and rejects non-images',()=>{const bytes=Uint8Array.from([255,216,255,225,0,8,69,88,73,70,0,0,255,192,0,11,8,0,10,0,10,1,1,17,0,255,218,0,8,1,1,0,0,63,0,0,255,217]);const result=cleanJpeg(bytes);assert.ok(result.length<bytes.length);assert.equal(Buffer.from(result).includes(Buffer.from('EXIF')),false);assert.throws(()=>cleanJpeg(new TextEncoder().encode('<svg>not JPEG</svg>')));});
-test('unconfigured service is explicit and leaves local editor available',async()=>{const f=fixture();delete f.env.GITHUB_CLIENT_SECRET;const r=await f.request('/api/session');assert.equal((await r.json()).configured,false);assert.equal((await f.request('/auth/login')).status,503);assert.equal(await (await f.request('/')).text(),'editor');});
+test('studio assets are hidden until owner authentication',async()=>{const f=fixture();for(const path of ['/','/assets/editor.js']){const r=await f.request(path,{cookie:false});assert.match(await r.text(),/Sign in with GitHub/);assert.equal(r.headers.get('cache-control'),'no-store');}await f.signedIn();assert.equal(await (await f.request('/')).text(),'editor');});
+test('unconfigured service does not expose the editor',async()=>{const f=fixture();delete f.env.GITHUB_CLIENT_SECRET;const r=await f.request('/api/session');assert.equal((await r.json()).configured,false);assert.equal((await f.request('/auth/login')).status,503);assert.equal((await f.request('/')).status,503);});
 test('OAuth uses state and PKCE; credentials stay in encrypted server storage',async()=>{
   const f=fixture();const start=await f.request('/auth/login');assert.equal(start.status,302);const target=new URL(start.headers.get('location'));assert.ok(target.searchParams.get('code_challenge'));assert.equal(target.searchParams.get('code_challenge_method'),'S256');assert.ok(!target.searchParams.has('client_secret'));
   const pending=start.headers.get('set-cookie').split(';')[0];
@@ -59,4 +69,33 @@ test('uploaded photos require signed receipts and are committed with their entry
   const response=await f.handler(new Request('https://studio.example/api/assets',{method:'POST',headers:{cookie:`__Host-bt-session=${'x'.repeat(43)}`,origin:'https://studio.example','x-csrf-token':'test-csrf','content-type':'image/jpeg'},body:bytes}),f.env);assert.equal(response.status,200);const photo=await response.json();assert.ok(!f.files.has(photo.path),'Upload is staged, not committed independently');
   const p=doc();p.elements.push({id:'33333333-3333-4333-8333-333333333333',type:'photo',x:10,y:200,w:100,h:100,rotation:0,src:photo.path,alt:'A photo'});
   const saved=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'save',receipts:{[photo.path]:photo.receipt}}});assert.equal(saved.status,200);assert.ok(f.files.has(photo.path));assert.ok(f.files.has(`content/posts/${ID}.json`));
+});
+
+test('trash preserves content, prevents stale resurrection, and restores as draft',async()=>{
+  const f=fixture();await f.signedIn();
+  let response=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'publish'}});
+  let saved=await response.json();const publishedAt=saved.post.publishedAt;
+  const oldRevision=saved.revision;
+  response=await f.request(`/api/posts/${ID}/trash`,{method:'POST',body:{baseRevision:oldRevision}});
+  assert.equal(response.status,200);saved=await response.json();
+  assert.equal(saved.post.status,'trashed');assert.equal(saved.publishing,true);
+  assert.deepEqual(saved.post.elements,doc().elements);assert.ok(saved.post.trashedAt);
+  const list=await (await f.request('/api/posts')).json();assert.equal(list.posts[0].status,'trashed');
+  assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'save',baseRevision:oldRevision}})).status,409);
+  assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'publish',baseRevision:saved.revision}})).status,409);
+  response=await f.request(`/api/posts/${ID}/restore`,{method:'POST',body:{baseRevision:saved.revision}});
+  assert.equal(response.status,200);saved=await response.json();assert.equal(saved.post.status,'draft');
+  assert.equal(saved.post.publishedAt,publishedAt);assert.equal(saved.publishing,false);assert.equal(saved.post.trashedAt,undefined);
+  assert.deepEqual(saved.post.elements,doc().elements);
+});
+test('CMS lifecycle requires authorization, CSRF, revision and correct transition',async()=>{
+  const f=fixture();const url=`/api/posts/${ID}/trash`;
+  assert.equal((await f.request(url,{method:'POST',body:{baseRevision:null},cookie:false})).status,401);
+  await f.signedIn();assert.equal((await f.request(url,{method:'POST',body:{},token:'bad'})).status,403);
+  assert.equal((await f.request(url,{method:'POST',body:{}})).status,404);
+  let saved=await (await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'save'}})).json();
+  assert.equal((await f.request(`/api/posts/${ID}/restore`,{method:'POST',body:{baseRevision:saved.revision}})).status,409);
+  assert.equal((await f.request(url,{method:'POST',body:{baseRevision:'stale'}})).status,409);
+  f.setRace();assert.equal((await f.request(url,{method:'POST',body:{baseRevision:saved.revision}})).status,409);
+  assert.equal(JSON.parse(f.files.get(`content/posts/${ID}.json`).content).status,'draft');
 });

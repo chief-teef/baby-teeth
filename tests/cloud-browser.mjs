@@ -18,14 +18,15 @@ try{
     else if(u.pathname==='/api/deployment')result={status:'completed',conclusion:'success'};
     await route.fulfill({contentType:'application/json',body:JSON.stringify(result)});
   });
-  await page.goto('http://localhost:5173/');
+  await page.goto(process.argv[2]||'http://localhost:5173/');
+  await page.getByRole('textbox',{name:'Entry title'}).fill('Untitled entry');
   await page.getByRole('button',{name:'+ Text box',exact:true}).click();
   await page.locator('.tiptap').fill('A draft to keep across devices.');
   await page.getByRole('button',{name:'Save draft online',exact:true}).click();
-  await page.getByText('Draft saved to GitHub',{exact:true}).waitFor();
+  await page.locator('#cloud-state').filter({hasText:'Online draft saved'}).waitFor();
   assert.equal(calls[0].action,'save');assert.equal(calls[0].baseRevision,null);
   page.on('dialog',d=>d.accept());
-  await page.getByRole('button',{name:'Publish entry',exact:true}).click();
+  await page.getByRole('button',{name:'Publication',exact:true}).click();await page.getByRole('button',{name:'Publish entry',exact:true}).click();
   await page.getByText('Live · this revision is published',{exact:true}).waitFor();
   assert.equal(calls[1].action,'publish');assert.equal(calls[1].baseRevision,'1'.repeat(40));
   await page.locator('.tiptap').fill('An updated public entry.');
@@ -48,7 +49,7 @@ try{
   assert.equal(await page.getByRole('dialog').getByRole('button',{name:/Untitled entry/}).isEnabled(),false);
   await page.getByRole('button',{name:'Restore as draft',exact:true}).click();
   await page.getByText('Trash is empty.',{exact:true}).waitFor();
-  await page.getByRole('button',{name:'Entries',exact:true}).click();
+  await page.locator('#cms-active').click();
   await page.getByRole('dialog').getByRole('button',{name:/Untitled entry.*draft/}).waitFor();
   console.log('PASS: draft save, publish, live status, auto-update, conflict retention, and opening online entries without losing local work.');
 }finally{await browser.close();}

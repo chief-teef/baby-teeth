@@ -2,7 +2,7 @@ name: Publish blog
 on:
   push:
     branches: [main]
-    paths: ['config/**', 'content/**', 'media/**', 'blog/**', 'shared/**', 'src/style.css', 'src/y2k.css', 'scripts/build.mjs', 'package.json', 'package-lock.json', '.github/workflows/publish.yml']
+    paths: ['config/**', 'content/**', 'media/**', 'blog/**', 'shared/**', 'public/**', 'scripts/**', 'package.json', 'package-lock.json', '.github/workflows/publish.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,6 +22,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run test:server
+      - run: npx playwright install --with-deps chromium
       - run: npm run build:blog
       - uses: actions/upload-pages-artifact@v3
         with:

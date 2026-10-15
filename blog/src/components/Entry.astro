@@ -1,7 +1,7 @@
 ---
-import {renderComposition} from '../../../shared/renderer.js';
+import {renderComposition,renderMusic} from '../../../shared/renderer.js';
 import {postUrl,base} from '../lib/posts.js';
 const {post}=Astro.props;
 const date=new Date(post.publishedAt).toLocaleDateString('en-US',{timeZone:'America/Chicago',month:'long',day:'numeric',year:'numeric'});
 ---
-<article class="reader-entry"><header><h2><a href={postUrl(post)}>{post.title||'Untitled entry'}</a></h2><time datetime={post.publishedAt}>{date}</time></header><Fragment set:html={renderComposition(post,base)}/></article>
+<article class="reader-entry"><header><h2><a href={postUrl(post)}>{post.title||'Untitled entry'}</a></h2><time datetime={post.publishedAt}>{date}</time></header><Fragment set:html={renderComposition(post,base)+renderMusic(post,base)}/></article>

@@ -1,0 +1,918 @@
+[
+  {
+    "file": "front-cover.png",
+    "logicalSize": [
+      988,
+      1280
+    ],
+    "sourcePixelSize": [
+      247,
+      320
+    ],
+    "pivot": [
+      32,
+      640
+    ],
+    "attachmentPoint": [
+      32,
+      640
+    ],
+    "layer": "front-cover",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/front-cover.svg",
+    "sha256": "800b31a5d3edd37101533df1801bc9a4d2578c3e805cc57e1c39b4345628f684"
+  },
+  {
+    "file": "back-cover.png",
+    "logicalSize": [
+      988,
+      1280
+    ],
+    "sourcePixelSize": [
+      247,
+      320
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "back-cover",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/back-cover.svg",
+    "sha256": "4a021ac3b6efe5514e2f1938b4da65bade65e5227850cd880adc7dca4fb85b80"
+  },
+  {
+    "file": "inside-cover.png",
+    "logicalSize": [
+      988,
+      1280
+    ],
+    "sourcePixelSize": [
+      247,
+      320
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "inside-cover",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/inside-cover.svg",
+    "sha256": "aec05d16e95b9c33f2eaf77392213324655b9cec52ed453c6fb4ae6e4ac95699"
+  },
+  {
+    "file": "spine.png",
+    "logicalSize": [
+      28,
+      1280
+    ],
+    "sourcePixelSize": [
+      7,
+      320
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "spine",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/spine.svg",
+    "sha256": "f7fdda58b4cfb77a650300e3f2a3b5b9b164ec643e1754714ffd4181c4f00bd0"
+  },
+  {
+    "file": "paper-stack.png",
+    "logicalSize": [
+      900,
+      1200
+    ],
+    "sourcePixelSize": [
+      225,
+      300
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "paper-stack",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/paper-stack.svg",
+    "sha256": "b2235bf8fa1aa03409ccd87e7bed0750ec0b8d446e65cbdcc15b3a3a2cca7f7b"
+  },
+  {
+    "file": "clasp.png",
+    "logicalSize": [
+      140,
+      100
+    ],
+    "sourcePixelSize": [
+      35,
+      25
+    ],
+    "pivot": [
+      140,
+      48
+    ],
+    "attachmentPoint": [
+      140,
+      48
+    ],
+    "layer": "clasp",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/clasp.svg",
+    "sha256": "b8fed519a9ffeab997e41e4edaeba86fe85b77684304f33aadd6d7d1a87db78f"
+  },
+  {
+    "file": "clasp-anchor.png",
+    "logicalSize": [
+      36,
+      100
+    ],
+    "sourcePixelSize": [
+      9,
+      25
+    ],
+    "pivot": [
+      16,
+      48
+    ],
+    "attachmentPoint": [
+      16,
+      48
+    ],
+    "layer": "clasp-anchor",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/clasp-anchor.svg",
+    "sha256": "b31d93ff9034ccd72d470371315b701b2c93293e8c073012e1deefb86e1b0b92"
+  },
+  {
+    "file": "tooth.png",
+    "logicalSize": [
+      72,
+      88
+    ],
+    "sourcePixelSize": [
+      18,
+      22
+    ],
+    "pivot": [
+      36,
+      0
+    ],
+    "attachmentPoint": [
+      36,
+      0
+    ],
+    "layer": "tooth",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/tooth.svg",
+    "sha256": "efbdac52daf202092903467914b1b09fd310be93cb00c3d2b52b9879af25735c"
+  },
+  {
+    "file": "star.png",
+    "logicalSize": [
+      72,
+      72
+    ],
+    "sourcePixelSize": [
+      18,
+      18
+    ],
+    "pivot": [
+      36,
+      0
+    ],
+    "attachmentPoint": [
+      36,
+      0
+    ],
+    "layer": "star",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/star.svg",
+    "sha256": "f9c3b589dba79c619f610d42fba9abd3bafbd64896888bd909a5f8beecf70d1c"
+  },
+  {
+    "file": "heart.png",
+    "logicalSize": [
+      68,
+      64
+    ],
+    "sourcePixelSize": [
+      17,
+      16
+    ],
+    "pivot": [
+      32,
+      0
+    ],
+    "attachmentPoint": [
+      32,
+      0
+    ],
+    "layer": "heart",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/heart.svg",
+    "sha256": "f90e8a586757aca85d206af2bfd1d70ac42c2ce59be7d295fa286587c0785832"
+  },
+  {
+    "file": "ring-chain.png",
+    "logicalSize": [
+      64,
+      216
+    ],
+    "sourcePixelSize": [
+      16,
+      54
+    ],
+    "pivot": [
+      32,
+      0
+    ],
+    "attachmentPoint": [
+      32,
+      0
+    ],
+    "layer": "ring-chain",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/ring-chain.svg",
+    "sha256": "176769000a09a95b8fdc801dc6583dc026d7c1fbe7e2feff9923a806e1b55c24"
+  },
+  {
+    "file": "ribbon.png",
+    "logicalSize": [
+      28,
+      100
+    ],
+    "sourcePixelSize": [
+      7,
+      25
+    ],
+    "pivot": [
+      12,
+      0
+    ],
+    "attachmentPoint": [
+      12,
+      0
+    ],
+    "layer": "ribbon",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/ribbon.svg",
+    "sha256": "566a7b726dd498e26fc3461217e12cc55bdafbf448716bfdf6f5041cb75661e2"
+  },
+  {
+    "file": "grain.png",
+    "logicalSize": [
+      64,
+      64
+    ],
+    "sourcePixelSize": [
+      16,
+      16
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "grain",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/grain.svg",
+    "sha256": "48b1bd36aa662c279131f472a4dcad074f6189daf98a72c28afaa9da74e42a93"
+  },
+  {
+    "file": "space-dither.png",
+    "logicalSize": [
+      128,
+      128
+    ],
+    "sourcePixelSize": [
+      32,
+      32
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "space-dither",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/space-dither.svg",
+    "sha256": "7cb7073190908f36852531cfcd7bb9645d3edee7512d5338eb4554a5c0325762"
+  },
+  {
+    "file": "stars.png",
+    "logicalSize": [
+      128,
+      96
+    ],
+    "sourcePixelSize": [
+      32,
+      24
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "stars",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/stars.svg",
+    "sha256": "17756fc8337753a89038a461cbec56b1e3069324b0607e77cc4bdf4b34f6c5e8"
+  },
+  {
+    "file": "icons.png",
+    "logicalSize": [
+      384,
+      32
+    ],
+    "sourcePixelSize": [
+      96,
+      8
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "icons",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/icons.svg",
+    "sha256": "c8c1c51c8d4b22b4c296d505cb12073dd3abc2ca2ed95346db99a76626de06b5"
+  },
+  {
+    "file": "desk-wood.png",
+    "logicalSize": [
+      1024,
+      512
+    ],
+    "sourcePixelSize": [
+      256,
+      128
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "desk-wood",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/desk-wood.svg",
+    "sha256": "35337fcaaccca51bb066ad21c053d470281583484a828783730ef9793f8d277d"
+  },
+  {
+    "file": "lighter.png",
+    "logicalSize": [
+      56,
+      92
+    ],
+    "sourcePixelSize": [
+      14,
+      23
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "lighter",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/lighter.svg",
+    "sha256": "9d0cd9d0362b99e95d0c9e6efc1ad3d38e7960209bcbe829f8cabd994d62b91d"
+  },
+  {
+    "file": "lighter-lid.png",
+    "logicalSize": [
+      56,
+      28
+    ],
+    "sourcePixelSize": [
+      14,
+      7
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "lighter-lid",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/lighter-lid.svg",
+    "sha256": "a49d392883f0370a8f4a42ae49e3a29ea4ae62b5c040422135dda521c16a9c93"
+  },
+  {
+    "file": "grinder.png",
+    "logicalSize": [
+      112,
+      88
+    ],
+    "sourcePixelSize": [
+      28,
+      22
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "grinder",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/grinder.svg",
+    "sha256": "91ccece12dd86c32a2f5d390398d8509642f703c034f75f742c474fafcf0430f"
+  },
+  {
+    "file": "grinder-top.png",
+    "logicalSize": [
+      112,
+      88
+    ],
+    "sourcePixelSize": [
+      28,
+      22
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "grinder-top",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/grinder-top.svg",
+    "sha256": "2d36dc113b6cf5ae165b9904324f91c300774b92a1176d9bfa0ef460c0fd2433"
+  },
+  {
+    "file": "grinder-well.png",
+    "logicalSize": [
+      112,
+      88
+    ],
+    "sourcePixelSize": [
+      28,
+      22
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "grinder-well",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/grinder-well.svg",
+    "sha256": "e1f3a1a17f03c7277e36c959d1f784ef86b05efe3cb197e88dbeed779dc7bb18"
+  },
+  {
+    "file": "page-corner.png",
+    "logicalSize": [
+      64,
+      64
+    ],
+    "sourcePixelSize": [
+      16,
+      16
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "page-corner",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/page-corner.svg",
+    "sha256": "06948d62ca88a778cb8b86ca05fd6d6beede0ab5e606b60f19fc45aeb11f34a7"
+  },
+  {
+    "file": "pipe.png",
+    "logicalSize": [
+      136,
+      80
+    ],
+    "sourcePixelSize": [
+      34,
+      20
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "pipe",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/pipe.svg",
+    "sha256": "dcfb378201f4ecba9f72ab9c81644c54a930bd05070042a948240c5ee6f588cc"
+  },
+  {
+    "file": "oregano.png",
+    "logicalSize": [
+      136,
+      80
+    ],
+    "sourcePixelSize": [
+      34,
+      20
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "oregano",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/oregano.svg",
+    "sha256": "4786b373d1760e2f99b06ab70db2d44ffd779fbc4939c68b3d9bf730df516528"
+  },
+  {
+    "file": "jar.png",
+    "logicalSize": [
+      88,
+      120
+    ],
+    "sourcePixelSize": [
+      22,
+      30
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "jar",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/jar.svg",
+    "sha256": "05d2e7c9448e3af0786bea59caed94845a6f13b9c82fefb41d7aa8d33432229d"
+  },
+  {
+    "file": "buds.png",
+    "logicalSize": [
+      56,
+      56
+    ],
+    "sourcePixelSize": [
+      14,
+      14
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "buds",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/buds.svg",
+    "sha256": "451c203befb9e99d455f08ba64b57fa6dde2fee2c4292438012611103775d590"
+  },
+  {
+    "file": "dust.png",
+    "logicalSize": [
+      88,
+      48
+    ],
+    "sourcePixelSize": [
+      22,
+      12
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "dust",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/dust.svg",
+    "sha256": "442fbec4e8c15824bd043913c2dc3a2acc6ca7eb1a5889797b3cfe97810273c7"
+  },
+  {
+    "file": "figurine.png",
+    "logicalSize": [
+      80,
+      116
+    ],
+    "sourcePixelSize": [
+      20,
+      29
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "figurine",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/figurine.svg",
+    "sha256": "ce703cfd6e3a620c81b0a0efeb96b92f6af95cf18fd30732700ad9721cfada05"
+  },
+  {
+    "file": "mp3.png",
+    "logicalSize": [
+      220,
+      300
+    ],
+    "sourcePixelSize": [
+      55,
+      75
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "mp3",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/mp3.svg",
+    "sha256": "f97222d1a5fb10d339a322ba6bbef0bf56ecc59369c4cf2a36bd8e6cde2fe166"
+  },
+  {
+    "file": "turn-0.wav",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "audio",
+    "license": "CC0-1.0",
+    "source": "Original deterministic synthesis; scripts/book-assets.mjs",
+    "sha256": "3fff88e52388ab33caad545ac59f78779cb16d8ff00baf7c9903af827719b374"
+  },
+  {
+    "file": "turn-1.wav",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "audio",
+    "license": "CC0-1.0",
+    "source": "Original deterministic synthesis; scripts/book-assets.mjs",
+    "sha256": "8e87410a9fa818bb2fe453116670237bedea4fa9d2cb75fbe007524a68761a92"
+  },
+  {
+    "file": "Caveat-latin-ext.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Caveat v23; https://github.com/google/fonts/tree/main/ofl/caveat; official fonts.gstatic.com Latin subsets",
+    "sha256": "f626b95c1efa95cf6b7c9b043d3bbe8862b6abbe5f55a082102f33f7de2fd4f9"
+  },
+  {
+    "file": "Caveat-latin.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Caveat v23; https://github.com/google/fonts/tree/main/ofl/caveat; official fonts.gstatic.com Latin subsets",
+    "sha256": "891951df5e8b5b0f0bc760d31375405e795c666b5add70437de12d4a6482b33f"
+  },
+  {
+    "file": "Caveat-OFL.txt",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Caveat v23; https://github.com/google/fonts/tree/main/ofl/caveat; official fonts.gstatic.com Latin subsets",
+    "sha256": "1f9d81d094273d82f3898a1ee8b598a717d050ecbf5ff7bede105b704880157b"
+  },
+  {
+    "file": "Gelasio-italic-latin-ext.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Gelasio v14; https://github.com/google/fonts/tree/main/ofl/gelasio; official fonts.gstatic.com subsets",
+    "sha256": "1d3ce84fd0b54cd9178ca07de88e79950d28b172ebbd8b6558c0a10e61692239"
+  },
+  {
+    "file": "Gelasio-italic-latin.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Gelasio v14; https://github.com/google/fonts/tree/main/ofl/gelasio; official fonts.gstatic.com subsets",
+    "sha256": "ed0963db68abeaf30b52fbadc14ecfe912fc0b247055f063da0d491d41072050"
+  },
+  {
+    "file": "Gelasio-italic-vietnamese.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Gelasio v14; https://github.com/google/fonts/tree/main/ofl/gelasio; official fonts.gstatic.com subsets",
+    "sha256": "0d914895796b0ebd7059c84f8584e5045ae58220e6087b5c89ddf17d3bd72eb6"
+  },
+  {
+    "file": "Gelasio-latin-ext.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Gelasio v14; https://github.com/google/fonts/tree/main/ofl/gelasio; official fonts.gstatic.com subsets",
+    "sha256": "2f3f0cd292326e19687d727f87400d91632ab2ab3a0020a187ce22db6f358961"
+  },
+  {
+    "file": "Gelasio-latin.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Gelasio v14; https://github.com/google/fonts/tree/main/ofl/gelasio; official fonts.gstatic.com subsets",
+    "sha256": "ba5b902e472cfe3456eba6b2d8fcf2d237988ff181d8da3cb5cf839de989ab15"
+  },
+  {
+    "file": "Gelasio-OFL.txt",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Gelasio v14; https://github.com/google/fonts/tree/main/ofl/gelasio; official fonts.gstatic.com subsets",
+    "sha256": "b393cb01867c919b44381512120dc3e4c954c7b47e2035c405f3a324799a4d29"
+  },
+  {
+    "file": "Gelasio-vietnamese.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Gelasio v14; https://github.com/google/fonts/tree/main/ofl/gelasio; official fonts.gstatic.com subsets",
+    "sha256": "b3821ae0b75577df51fb3af429fdfc3e74f7947a081830551ed8d450e674ceae"
+  },
+  {
+    "file": "Kalam-devanagari.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Kalam v18; https://github.com/google/fonts/tree/main/ofl/kalam; official fonts.gstatic.com subsets",
+    "sha256": "b79d6614aac600d3bf950ae2d6924f72725366d9b5cfb8e9ff88dbc5152044c0"
+  },
+  {
+    "file": "Kalam-latin-ext.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Kalam v18; https://github.com/google/fonts/tree/main/ofl/kalam; official fonts.gstatic.com subsets",
+    "sha256": "1099e56781c48f97dc66c8df2039a640ded07742acd4c6f2c9dc6350c3e3f324"
+  },
+  {
+    "file": "Kalam-latin.woff2",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Kalam v18; https://github.com/google/fonts/tree/main/ofl/kalam; official fonts.gstatic.com subsets",
+    "sha256": "954410601a823f37e219f7930b7446f86afa15621326a7078d56fb9c910135cb"
+  },
+  {
+    "file": "OFL.txt",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts Kalam v18; https://github.com/google/fonts/tree/main/ofl/kalam; official fonts.gstatic.com subsets",
+    "sha256": "f62ef357d3a1c3d27edd35a6e1ba350e8a8d13499797964eeadefbf0b3b15d1f"
+  },
+  {
+    "file": "VT323-latin.ttf",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts VT323 v18; https://github.com/google/fonts/tree/main/ofl/vt323; official fonts.gstatic.com TTF",
+    "sha256": "9cef6eccc997e82f45d3ed41e323362667465777b9a04f6b6a29b0c26afa6d98"
+  },
+  {
+    "file": "VT323-OFL.txt",
+    "logicalSize": null,
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "font",
+    "license": "SIL-OFL-1.1",
+    "source": "Google Fonts VT323 v18; https://github.com/google/fonts/tree/main/ofl/vt323; official fonts.gstatic.com TTF",
+    "sha256": "27d9af34210253e7ca1251fbace86c6f65b40031d6ce1a75493a1b2093631298"
+  },
+  {
+    "file": "spotify-icon.svg",
+    "logicalSize": [
+      24,
+      24
+    ],
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "attribution",
+    "license": "Spotify trademark; use under Spotify Design & Branding Guidelines",
+    "source": "Unmodified official black RGB icon; https://developer.spotify.com/images/guidelines/design/2024-spotify-logo-icon.zip",
+    "sha256": "5595afea0e6f009b1dd8529511204d0fd5ca035e49c85409d1697063b3c27a05"
+  },
+  {
+    "file": "spotify-logo.svg",
+    "logicalSize": [
+      78,
+      24
+    ],
+    "sourcePixelSize": null,
+    "pivot": null,
+    "attachmentPoint": null,
+    "layer": "attribution",
+    "license": "Spotify trademark; use under Spotify Design & Branding Guidelines",
+    "source": "Unmodified official black RGB full logo; https://developer.spotify.com/images/guidelines/design/2024-spotify-full-logo.zip",
+    "sha256": "b91219c14405166e3667deb7f250df4b939a8a5dbc8460ee9525a75672ba9ec5"
+  }
+]

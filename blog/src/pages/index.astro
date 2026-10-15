@@ -1,8 +1,8 @@
 ---
-import {base as blogBase, siteOrigin} from '../lib/posts.js';
 import Page from '../layouts/Page.astro';
 import Entry from '../components/Entry.astro';
+import Book from '../components/Book.astro';
 import {allPosts} from '../lib/posts.js';
 const posts=allPosts();
 ---
-<Page><div class="reader-head"><span class="eyebrow">my little scrapbook</span><h1>flip through my life ♥</h1></div><div data-scrapbook>{[...posts].reverse().map(post=><Entry post={post}/>)}</div>{!posts.length&&<p class="empty-feed">A blank scrapbook for now. The first entry is coming soon ♥</p>}</Page>
+<Page book><Book/><section class="reading-fallback">{posts.map(post=><Entry post={post}/>)}</section></Page>

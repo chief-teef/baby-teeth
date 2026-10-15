@@ -22,7 +22,7 @@ try{
     if(path==='/api/deployment'){checks++;data={status:deployed?'completed':'in_progress',conclusion:deployed?'success':null};}
     await route.fulfill({json:data||{}});
   });
-  await page.goto('http://localhost:5173/');
+  await page.goto(process.argv[2]||'http://localhost:5173/');
   await page.getByRole('button',{name:'+ Text box',exact:true}).click();
   await page.locator('.tiptap').evaluate(el=>{
     el.focus();const data=new DataTransfer();
@@ -41,7 +41,7 @@ try{
     await save(book);
   });
   await page.reload();await page.locator('.object.photo').waitFor();
-  const downloadPromise=page.waitForEvent('download');await page.getByRole('button',{name:'Export backup ↓',exact:true}).click();
+  const downloadPromise=page.waitForEvent('download');await page.getByRole('button',{name:'Account & tools',exact:true}).click();await page.getByRole('button',{name:'Export backup ↓',exact:true}).click();
   const download=await downloadPromise;const backup=JSON.parse(await fs.readFile(await download.path(),'utf8'));
   assert.equal(backup.posts[0].elements.length,3);
   const original=structuredClone(backup.posts[0].elements);
@@ -60,7 +60,7 @@ try{
   assert.equal(await page.locator('.object.photo').count(),1);assert.equal(await page.locator('.object.drawing').count(),1);
   signedIn=true;saveFailure=false;
   await page.reload();await page.getByRole('button',{name:'Save draft online',exact:true}).click();
-  await page.getByText('Saved to GitHub · publishing…',{exact:true}).waitFor();
+  await page.locator('#cloud-state').filter({hasText:'Update pending'}).waitFor();
   assert.equal(uploads,2,'staged photo receipt survives reload and expired login without another upload');
   const before=checks;deployed=true;await page.reload();
   await page.waitForFunction(async()=>{const {load}=await import('/src/storage.js');return (await load()).posts.some(p=>p.cloud?.deployment==='success'&&!p.cloud.publishing);});

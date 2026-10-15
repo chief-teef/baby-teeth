@@ -1,0 +1,6 @@
+---
+import {allPosts,base} from '../lib/posts.js';
+const {initialId=null}=Astro.props;
+const data=JSON.stringify({posts:allPosts(),base,initialId}).replace(/</g,'\\u003c');
+---
+<div data-book></div><script type="application/json" id="book-data" set:html={data}></script>

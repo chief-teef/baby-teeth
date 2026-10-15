@@ -1,3 +1,5 @@
+import {validateFormat} from './notebook-format.js';
+import {validateMusic} from './music.js';
 export const POST_ID = /^[a-f0-9-]{36}$/i;
 export const MEDIA_PATH = /^media\/[a-f0-9]{40}\.jpg$/;
 export const esc = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -11,6 +13,8 @@ export function validateText(node,depth=0,state={count:0}){
   if(node.content){if(!Array.isArray(node.content))throw Error('Invalid text content.');for(const child of node.content)validateText(child,depth+1,state);}
 }
 export function validatePost(post,{local=false}={}){
+  if(post)validateFormat(post);
+  if(post?.music!==undefined)validateMusic(post.music);
   if(!post||!POST_ID.test(post.id)||typeof post.title!=='string'||post.title.length>500||!Number.isFinite(Date.parse(post.created)))throw Error('Invalid entry identity or date.');
   if(!Array.isArray(post.elements)||post.elements.length>500)throw Error('Entry exceeds 500 objects.');
   const ids=new Set();let totalPoints=0;
@@ -19,7 +23,12 @@ export function validatePost(post,{local=false}={}){
     for(const key of ['x','y','w','h','rotation'])if(!Number.isFinite(e[key])||Math.abs(e[key])>100000)throw Error('Invalid object geometry.');
     if(e.w<20||e.h<1||Math.abs(e.rotation)>180)throw Error('Invalid object size or rotation.');
     if(e.group!==undefined&&!POST_ID.test(e.group))throw Error('Invalid group.');
-    if(e.type==='text'){if(e.doc?.type!=='doc')throw Error('Invalid text document.');validateText(e.doc);}
+    if(e.type==='text'){
+      if(e.font!==undefined&&!['handwriting','serif'].includes(e.font))throw Error('Invalid text font.');
+      if(e.fontSize!==undefined&&(!Number.isFinite(e.fontSize)||e.fontSize<18||e.fontSize>60))throw Error('Invalid text size.');
+      if(e.fixedHeight!==undefined&&e.fixedHeight!==true)throw Error('Invalid text height mode.');
+      if(e.doc?.type!=='doc')throw Error('Invalid text document.');validateText(e.doc);
+    }
     if(e.type==='photo'){
       if(typeof e.src!=='string'||(!MEDIA_PATH.test(e.src)&&!(local&&/^data:image\/(jpeg|png|webp);base64,/.test(e.src))))throw Error('Invalid photo reference.');
       if(typeof e.alt!=='string'||e.alt.length>3000)throw Error('Invalid photo description.');
@@ -29,14 +38,15 @@ export function validatePost(post,{local=false}={}){
       for(const s of e.strokes){if(!/^#[a-f0-9]{6}$/i.test(s.color)||!Number.isFinite(s.size)||s.size<1||s.size>40||!Array.isArray(s.points)||s.points.length>50000)throw Error('Invalid stroke.');totalPoints+=s.points.length;for(const pt of s.points)if(!Array.isArray(pt)||pt.length!==2||!pt.every(n=>Number.isFinite(n)&&Math.abs(n)<100000))throw Error('Invalid stroke point.');}
     }
   }
-  if(totalPoints>100000)throw Error('This entry has too much ink for one save. Split it into separate entries.');
+  // The repository save limit must not make a locally recovered draft unreadable.
+  if(totalPoints>100000&&!local)throw Error('This entry has too much ink for one online save. Reduce the ink before saving online; local recovery and export remain available.');
   return post;
 }
 export function cleanPost(post){
   validatePost(post);
-  return {version:1,id:post.id,title:post.title,created:post.created,elements:post.elements.map(e=>{
+  return {version:2,pageFormat:post.pageFormat,id:post.id,title:post.title,created:post.created,...(post.music?{music:validateMusic(post.music)}:{}),elements:post.elements.map(e=>{
     const result={id:e.id,type:e.type,x:e.x,y:e.y,w:e.w,h:e.h,rotation:e.rotation};if(e.group)result.group=e.group;
-    if(e.type==='text')result.doc=e.doc;
+    if(e.type==='text'){result.doc=e.doc;for(const key of ['font','fontSize','fixedHeight'])if(e[key]!==undefined)result[key]=e[key];}
     if(e.type==='photo'){result.src=e.src;result.alt=e.alt;}
     if(e.type==='drawing'){result.sourceW=e.sourceW;result.sourceH=e.sourceH;result.strokes=e.strokes;}
     return result;

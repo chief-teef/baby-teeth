@@ -6,6 +6,7 @@ export function createCloudClient(base=''){
     login(){location.href=`${base}/auth/login`;},
     async logout(){await request('/auth/logout',{method:'POST'});session={...session,signedIn:false};},
     list:()=>request('/api/posts'),
+    spotify:url=>request('/api/spotify?url='+encodeURIComponent(url)),
     lifecycle:(id,action,baseRevision)=>request(`/api/posts/${id}/${action}`,{method:'POST',body:JSON.stringify({baseRevision})}),
     get:id=>request(`/api/posts/${id}`),
     upload:blob=>request('/api/assets',{method:'POST',headers:{'Content-Type':'image/jpeg'},body:blob}),
@@ -14,7 +15,13 @@ export function createCloudClient(base=''){
   };
 }
 export async function jpegForUpload(src){
-  const original=await fetch(src).then(r=>r.blob());const image=await createImageBitmap(original);
+  let original;
+  if(/^data:image\/(jpeg|png|webp);base64,/.test(src)){
+    // Local photos are data URLs; fetching them is blocked by the studio CSP.
+    const comma=src.indexOf(','),bytes=atob(src.slice(comma+1));
+    original=new Blob([Uint8Array.from(bytes,character=>character.charCodeAt(0))],{type:src.slice(5,src.indexOf(';'))});
+  }else original=await fetch(src).then(r=>{if(!r.ok)throw Error('Could not read this photo for upload.');return r.blob();});
+  const image=await createImageBitmap(original);
   const canvas=document.createElement('canvas');let ratio=Math.min(1,1600/Math.max(image.width,image.height));
   const encode=async quality=>{canvas.width=Math.round(image.width*ratio);canvas.height=Math.round(image.height*ratio);const ctx=canvas.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);return new Promise(r=>canvas.toBlob(r,'image/jpeg',quality));};
   try{let blob=await encode(.8);if(blob?.size>600000)blob=await encode(.65);if(blob?.size>600000){ratio*=.7;blob=await encode(.7);}if(!blob||blob.size>700000)throw Error('This photo needs to be smaller before online saving.');return blob;}finally{image.close();}

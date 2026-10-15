@@ -1,26 +1,12 @@
 import {chromium} from '@playwright/test';
-import {createServer} from 'node:http';
-import fs from 'node:fs';
-import path from 'node:path';
 import assert from 'node:assert/strict';
-const root=path.resolve('dist-blog');
-const server=createServer((req,res)=>{const relative=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/baby-teeth\//,'');let file=path.resolve(root,relative||'index.html');if(!file.startsWith(root+path.sep)){res.writeHead(404);return res.end();}if(fs.existsSync(file)&&fs.statSync(file).isDirectory())file=path.join(file,'index.html');if(!fs.existsSync(file)){res.writeHead(404);return res.end('Missing');}const type={'.js':'application/javascript','.css':'text/css','.jpg':'image/jpeg','.html':'text/html','.xml':'application/xml','.json':'application/json'}[path.extname(file)]||'text/plain';res.writeHead(200,{'Content-Type':type});fs.createReadStream(file).pipe(res);});
-await new Promise(r=>server.listen(0,'127.0.0.1',r));
-const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true}),page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+import {serveBuild} from './static-server.mjs';
+const site=await serveBuild(),browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true}),page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
 try{
-  await page.goto(`http://127.0.0.1:${server.address().port}/baby-teeth/`);await page.waitForSelector('.reader-entry:not([hidden]) [data-canvas]');
-  assert.equal(await page.locator('.reader-entry').count(),6);
-  assert.equal(await page.locator('.public-canvas.desktop').count(),0);
-  assert.equal(await page.locator('.reader-entry:visible .public-text').first().evaluate(e=>parseFloat(getComputedStyle(e).fontSize)),21);
-  for(const image of await page.locator('.reader-entry:visible .public-photo img').all()){await image.scrollIntoViewIfNeeded();await image.evaluate(e=>e.decode());assert.ok(await image.evaluate(e=>e.naturalWidth>0));}
-  await page.evaluate(()=>window.scrollTo(0,0));
-  assert.ok(!await page.getByText('DRAFT_TITLE_SECRET').count());
-  await page.screenshot({path:'test-results/public-phone.png',fullPage:false});
-  await page.setViewportSize({width:1280,height:960});await page.waitForFunction(()=>document.querySelector('.reader-entry:not([hidden]) .public-canvas.desktop') !== null);
-  await page.screenshot({path:'test-results/public-desktop.png',fullPage:false});
-  const bad=await page.goto(`http://127.0.0.1:${server.address().port}/baby-teeth/posts/00000007-1111-4111-8111-111111111111/`);assert.equal(bad.status(),404);
-  assert.deepEqual(errors,[]);console.log('PASS: public reader phone reflow, desktop collage, readable fonts, image decoding, and no draft route.');
-}finally{await browser.close();await new Promise(r=>server.close(r));}
-
-
-
+ await page.goto(site.url);await page.waitForFunction(()=>window.bookScene);assert.equal(await page.locator('.reading-fallback .reader-entry').count(),6);assert.equal(await page.locator('.reading-fallback').isVisible(),false);assert.ok(!await page.getByText('DRAFT_TITLE_SECRET').count());assert.match(await page.locator('.mp3-screen').textContent(),/Public artist 6/);
+ await page.locator('.book-rail').getByRole('button',{name:'Open book',exact:true}).click();await page.waitForFunction(()=>bookScene.controller.state==='open-idle');assert.equal(await page.evaluate(()=>bookScene.controller.current.title),'Published 6');assert.equal(await page.evaluate(()=>bookScene.controller.camera),'focus');
+ await page.locator('.book-rail').getByRole('button',{name:'Contents',exact:true}).click();await page.getByRole('button',{name:/Published 1/}).click();await page.waitForFunction(()=>bookScene.controller.state==='open-idle'&&bookScene.controller.index===0);assert.match(await page.locator('.mp3-screen').textContent(),/Public artist 1/);assert.match(await page.locator('.reading-music').last().textContent(),/Public artist 1/); assert.equal(await page.locator('.book-sheet .notebook-page[data-entry-id="00000001-1111-4111-8111-111111111111"] .notebook-text').evaluate(e=>getComputedStyle(e).fontSize),'28px');
+ await page.getByRole('button',{name:'Page color',exact:true}).click();await page.getByRole('button',{name:'mint paper',exact:true}).click();assert.equal(await page.locator('.notebook-page').first().evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(227, 237, 207)');await page.reload();await page.waitForFunction(()=>window.bookScene);await page.getByRole('button',{name:'Page color',exact:true}).click();assert.equal(await page.getByRole('button',{name:'mint paper',exact:true}).getAttribute('aria-pressed'),'true');await page.keyboard.press('Escape');
+ await page.getByRole('link',{name:'Reading mode',exact:true}).click();assert.equal(await page.locator('.reading-fallback .public-text').first().evaluate(e=>getComputedStyle(e).fontSize),'21px');for(const image of await page.locator('.reading-fallback .public-photo img').all()){await image.evaluate(e=>e.decode());assert.ok(await image.evaluate(e=>e.naturalWidth>0));}
+ const response=await fetch(site.url+'posts/00000007-1111-4111-8111-111111111111/');assert.equal(response.status,404);assert.deepEqual(errors,[]);console.log('PASS six-entry published fixture: latest, phone focus, canonical v2 content, contents/permalink, accessible photo reading, and no draft route.');
+}finally{await browser.close();await site.close();}

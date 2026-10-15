@@ -6,8 +6,9 @@ import {seal,open,digest,cleanJpeg} from '../worker/security.js';
 import {validatePost,textContent,renderText} from '../shared/document.js';
 import {renderComposition} from '../shared/renderer.js';
 import {readPost} from '../worker/github.js';
+import {spotifyPreview} from '../worker/spotify.js';
 const ID='11111111-1111-4111-8111-111111111111',ELEMENT='22222222-2222-4222-8222-222222222222';
-const doc=()=>({id:ID,title:'A little day',created:'2026-10-12T18:00:00.000Z',elements:[{id:ELEMENT,type:'text',x:60,y:70,w:300,h:100,rotation:0,doc:{type:'doc',content:[{type:'paragraph',content:[{type:'text',text:'Hello scrapbook!'}]}]}}]});
+const doc=()=>({version:2,pageFormat:'notebook-900x1200-v1',id:ID,title:'A little day',created:'2026-10-12T18:00:00.000Z',elements:[{id:ELEMENT,type:'text',x:60,y:70,w:300,h:100,rotation:0,doc:{type:'doc',content:[{type:'paragraph',content:[{type:'text',text:'Hello scrapbook!'}]}]}}]});
 const sha=value=>createHash('sha1').update(value).digest('hex');
 test('entry reads can be pinned to the checked repository revision',async()=>{
   const commit='a'.repeat(40);
@@ -47,6 +48,32 @@ function fixture(push=true){
   return {env,handler,files,request,signedIn,setRace:()=>{race=true;}};
 }
 test('sealed state expires, rejects tampering, and cannot change purpose',async()=>{const secret='testing-encryption-secret-long-enough',value=await seal(secret,'session',{exp:Date.now()+10000,id:1});assert.equal((await open(secret,'session',value)).id,1);assert.equal(await open(secret,'oauth',value),null);assert.equal(await open(secret,'session',value+'broken'),null);assert.equal(await open(secret,'session',await seal(secret,'session',{exp:Date.now()-1})),null);});
+test('Spotify lookup is authenticated, URL errors are 400, provider failures are 502, metadata persists online',async()=>{
+ const f=fixture(),url='https://open.spotify.com/artist/'+'a'.repeat(22);assert.equal((await f.request('/api/spotify?url='+encodeURIComponent(url),{cookie:false})).status,401);await f.signedIn();assert.equal((await f.request('/api/spotify?url=https://evil.test')).status,400);assert.equal((await f.request('/api/spotify?url='+encodeURIComponent(url))).status,502);
+ const p=doc();p.music={artists:[{name:'brakence',url}],songs:[]};const r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'save'}});assert.equal(r.status,200);assert.deepEqual((await r.json()).post.music,p.music);assert.deepEqual((await (await f.request(`/api/posts/${ID}`)).json()).post.music,p.music);
+ f.env.WRITE_LIMIT.limit=async()=>({success:false});assert.equal((await f.request('/api/spotify?url='+encodeURIComponent(url))).status,429);
+ const headers=await f.request('/');assert.ok(headers.headers.get('Content-Security-Policy').includes('https://image-cdn-fa.spotifycdn.com'));assert.ok(!headers.headers.get('Content-Security-Policy').includes('https:;'));
+});
+test('Spotify preview fixes host, forbids redirects, bounds response and ignores embed HTML',async()=>{
+ const url='https://open.spotify.com/track/'+'a'.repeat(22),image='https://i.scdn.co/image/'+'f'.repeat(40);
+ const result=await spotifyPreview(url,async(endpoint,options)=>{assert.equal(new URL(endpoint).origin,'https://open.spotify.com');assert.equal(new URL(endpoint).searchParams.get('url'),url);assert.equal(options.redirect,'error');assert.ok(options.signal instanceof AbortSignal);return Response.json({title:'Song',thumbnail_url:image,html:'<script>evil()</script>'});});assert.deepEqual(result,{name:'Song',url,image});
+ assert.deepEqual(await spotifyPreview(url,async()=>Response.json({title:'Song',thumbnail_url:'https://evil.test/art'})),{name:'Song',url});
+ const cdn='https://image-cdn-fa.spotifycdn.com/image/'+'a'.repeat(40);assert.equal((await spotifyPreview(url,async()=>Response.json({title:'Song',thumbnail_url:cdn}))).image,cdn);
+ assert.deepEqual(await spotifyPreview(url,async(endpoint,options)=>{assert.equal(options.redirect,'error');return endpoint===url?new Response(`<meta property="og:image" content="${image}"/>`):Response.json({title:'Song'});}),{name:'Song',url,image});
+ assert.deepEqual(await spotifyPreview(url,async endpoint=>endpoint===url?new Response('<meta property="og:image" content="https://evil.test/art"/>'):Response.json({title:'Song'})),{name:'Song',url});
+ assert.deepEqual(await spotifyPreview(url,async endpoint=>endpoint===url?new Response('x'.repeat(1048577)):Response.json({title:'Song'})),{name:'Song',url});
+ for(const response of [new Response('',{status:404}),Response.json(null),Response.json({title:4}),Response.json({title:'a'.repeat(40000)}),new Response('invalid')])await assert.rejects(spotifyPreview(url,async()=>response));
+ await assert.rejects(spotifyPreview('https://evil.test',()=>{throw Error('Should never fetch');}));
+ await assert.rejects(spotifyPreview(url,async(_,options)=>new Promise((resolve,reject)=>options.signal.addEventListener('abort',()=>reject(options.signal.reason)))),/timeout/i);
+});
+test('v2 draft overflow round-trips; publish and live revision updates reject bounds without committing',async()=>{
+ const f=fixture();await f.signedIn();const p={...doc(),version:2,pageFormat:'notebook-900x1200-v1'};p.elements[0].y=1000;
+ let r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'save',baseRevision:null}});assert.equal(r.status,200);let saved=await r.json();assert.equal(saved.post.pageFormat,p.pageFormat);assert.equal(saved.post.elements[0].y,1000);
+ r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'publish',baseRevision:saved.revision}});assert.equal(r.status,400);assert.equal(JSON.parse(f.files.get(`content/posts/${ID}.json`).content).status,'draft');
+ p.elements[0].y=50;r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'publish',baseRevision:saved.revision}});assert.equal(r.status,200);saved=await r.json();const before=f.files.get(`content/posts/${ID}.json`).content;p.elements[0].rotation=90;p.elements[0].x=750;
+ r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'save',baseRevision:saved.revision}});assert.equal(r.status,400);assert.equal(f.files.get(`content/posts/${ID}.json`).content,before);
+ p.pageFormat='future';r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'save',baseRevision:saved.revision}});assert.equal(r.status,400);
+});
 test('write collaborators can save; logged-out writes, CSRF and origin enforced',async()=>{const f=fixture();const body={post:doc(),action:'save',baseRevision:null};assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body,cookie:false})).status,401);await f.signedIn(999);const saved=await f.request(`/api/posts/${ID}`,{method:'PUT',body});assert.equal(saved.status,200);assert.equal((await saved.json()).post.updatedBy,999);assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body,origin:'https://evil.example'})).status,403);assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body,token:'wrong'})).status,403);});
 test('read-only or removed collaborators cannot reopen studio or write with old sessions',async()=>{const f=fixture(false);await f.signedIn(999);assert.equal((await (await f.request('/api/session')).json()).signedIn,false);assert.match(await (await f.request('/')).text(),/Sign in with GitHub/);assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'save'}})).status,401);});
 test('draft stays draft, publish is explicit, saving published entry requests update',async()=>{const f=fixture();await f.signedIn();let r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:{...doc(),status:'published',updatedBy:123},action:'save',baseRevision:null}});assert.equal(r.status,200);let data=await r.json();assert.equal(data.post.status,'draft');assert.equal(data.publishing,false);assert.equal(data.post.updatedBy,341668853);r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'publish',baseRevision:data.revision}});data=await r.json();assert.equal(data.post.status,'published');assert.equal(data.publishing,true);r=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'save',baseRevision:data.revision}});data=await r.json();assert.equal(data.post.status,'published');assert.equal(data.publishing,true);});
@@ -101,3 +128,13 @@ test('CMS lifecycle requires authorization, CSRF, revision and correct transitio
   assert.equal(JSON.parse(f.files.get(`content/posts/${ID}.json`).content).status,'draft');
 });
 
+
+test('private verification saves drafts but blocks publishing and changes to published entries',async()=>{
+ const f=fixture();await f.signedIn();f.env.PRIVATE_VERIFICATION='true';const handwritten=doc();Object.assign(handwritten.elements[0],{font:'handwriting',fontSize:32,fixedHeight:true});
+ let response=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:handwritten,action:'save',baseRevision:null}});assert.equal(response.status,200);const draft=await response.json();assert.equal(draft.post.status,'draft');assert.equal(draft.post.elements[0].font,'handwriting');assert.equal(draft.post.elements[0].fontSize,32);assert.equal(draft.post.elements[0].fixedHeight,true);
+ for(const action of ['publish','unpublish'])assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action,baseRevision:draft.revision}})).status,403);
+ assert.equal(JSON.parse(f.files.get(`content/posts/${ID}.json`).content).status,'draft');
+ delete f.env.PRIVATE_VERIFICATION;response=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'publish',baseRevision:draft.revision}});assert.equal(response.status,200);const published=await response.json();f.env.PRIVATE_VERIFICATION='true';
+ assert.equal((await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'save',baseRevision:published.revision}})).status,403);
+ assert.equal((await f.request(`/api/posts/${ID}/trash`,{method:'POST',body:{baseRevision:published.revision}})).status,403);assert.equal(JSON.parse(f.files.get(`content/posts/${ID}.json`).content).status,'published');
+});

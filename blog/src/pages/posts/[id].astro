@@ -2,10 +2,11 @@
 import {base as blogBase, siteOrigin} from '../../lib/posts.js';
 import Page from '../../layouts/Page.astro';
 import Entry from '../../components/Entry.astro';
+import Book from '../../components/Book.astro';
 import {allPosts,postUrl,base} from '../../lib/posts.js';
 import {excerpt} from '../../../../shared/document.js';
 export function getStaticPaths(){return allPosts().map(post=>({params:{id:post.id},props:{post}}));}
 const {post}=Astro.props;
 const cover=post.elements.find(e=>e.type==='photo');
 ---
-<Page title={`${post.title} ♥ Baby Teeth`} description={excerpt(post)} canonical={postUrl(post)} image={cover?`${base}${cover.src}`:undefined}><Entry post={post}/><a class="page-link" href={`${blogBase}`}>← back to the scrapbook</a></Page>
+<Page book title={`${post.title} · bbyteeth`} description={excerpt(post)} canonical={postUrl(post)} image={cover?`${base}${cover.src}`:undefined}><Book initialId={post.id}/><section class="reading-fallback"><Entry post={post}/><a class="page-link" href={`${blogBase}`}>Back to book</a><nav aria-label="Entry navigation">{allPosts().filter(p=>p.id!==post.id).map(p=><a href={postUrl(p)}>{p.title}</a>)}</nav></section></Page>

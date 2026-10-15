@@ -1,0 +1,29 @@
+@import './book/theme.css';
+.notebook-page{position:relative;width:900px;height:1200px;background-color:var(--page-color,var(--paper));background-image:linear-gradient(90deg,#2035240c,transparent 3%,transparent 97%,#20352408),url('../public/book/grain.png');background-size:auto,32px 32px;color:var(--ink);box-sizing:border-box;overflow:visible;box-shadow:inset 0 0 0 1px #20352418}
+.notebook-page:before{content:'';position:absolute;inset:220px 0 60px;pointer-events:none;background:repeating-linear-gradient(transparent 0 35px,#b6c5a030 35px 36px);border-left:1px solid #edb5c840;margin-left:44px}
+.notebook-page:after{content:'';position:absolute;inset:0;pointer-events:none;background:url('../public/book/grain.png');opacity:.02}
+.notebook-header{position:absolute;left:54px;top:48px;width:792px;height:152px;color:var(--ink)}
+.notebook-header h2{font:400 44px/52px Kalam,Georgia,serif;margin:0;padding:0;overflow-wrap:anywhere}
+.notebook-header time{position:absolute;top:112px;left:0;font:400 24px/32px Kalam,Georgia,serif}
+.notebook-composition{position:absolute;left:54px;top:220px;width:792px;height:920px}
+.notebook-object{position:absolute;transform-origin:center;box-sizing:border-box;color:var(--ink)}
+.notebook-text,.notebook-stage .ProseMirror{font:28px/38px Georgia,Gelasio,serif;padding:12px 14px;overflow-wrap:anywhere}
+.notebook-text p,.notebook-stage .ProseMirror p{margin:0 0 .7em}.notebook-text p:last-child,.notebook-stage .ProseMirror p:last-child{margin:0}
+.notebook-text h1,.notebook-stage .ProseMirror h1{font-size:44px;line-height:52px}.notebook-text h2,.notebook-stage .ProseMirror h2{font-size:38px;line-height:46px;margin:.2em 0 .6em}
+.notebook-text h3,.notebook-stage .ProseMirror h3{font-size:32px;line-height:40px}.notebook-text :is(h4,h5,h6),.notebook-stage .ProseMirror :is(h4,h5,h6){font-size:28px;line-height:38px}
+.notebook-text :is(ul,ol),.notebook-stage .ProseMirror :is(ul,ol){padding-left:40px}.notebook-text pre,.notebook-stage .ProseMirror pre{white-space:pre-wrap;font-size:24px;line-height:34px}.notebook-text code,.notebook-stage .ProseMirror code{font-size:24px}
+.notebook-text a,.notebook-stage .ProseMirror a{color:var(--ink);text-decoration:underline}.notebook-text blockquote,.notebook-stage .ProseMirror blockquote{margin:0 0 20px;padding-left:24px;border-left:4px solid var(--rule)}
+.notebook-photo img,.notebook-drawing svg{width:100%;height:100%;display:block;object-fit:contain}.notebook-drawing svg{overflow:visible}
+.notebook-text[data-font],.notebook-stage .object[data-font] .ProseMirror{font-size:var(--text-size,28px);line-height:calc(var(--text-size,28px)*38/28)}
+.notebook-text[data-font=handwriting],.notebook-stage .object[data-font=handwriting] .ProseMirror{font-family:Caveat,Georgia,serif;line-height:1.25;font-synthesis:style}
+.notebook-text[data-font] h1,.notebook-stage .object[data-font] .ProseMirror h1{font-size:calc(var(--text-size,28px)*44/28);line-height:calc(var(--text-size,28px)*52/28)}
+.notebook-text[data-font] h2,.notebook-stage .object[data-font] .ProseMirror h2{font-size:calc(var(--text-size,28px)*38/28);line-height:calc(var(--text-size,28px)*46/28)}
+.notebook-text[data-font] h3,.notebook-stage .object[data-font] .ProseMirror h3{font-size:calc(var(--text-size,28px)*32/28);line-height:calc(var(--text-size,28px)*40/28)}
+.notebook-text[data-font] :is(h4,h5,h6),.notebook-stage .object[data-font] .ProseMirror :is(h4,h5,h6){font-size:var(--text-size,28px);line-height:calc(var(--text-size,28px)*38/28)}
+.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror{min-height:0;overflow:hidden}
+.notebook-text[data-text-fits=false]{outline:2px dashed #9b463b;outline-offset:2px}
+:is(.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) :is(ul,ol){padding-left:calc(var(--text-size,28px)*40/28);margin-block:.7em}
+:is(.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) pre{font-size:calc(var(--text-size,28px)*24/28);line-height:calc(var(--text-size,28px)*34/28);margin-block:.7em}
+:is(.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) code{font-size:calc(var(--text-size,28px)*24/28)}
+:is(.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) blockquote{padding-left:calc(var(--text-size,28px)*24/28);margin-bottom:calc(var(--text-size,28px)*20/28);border-left-width:calc(var(--text-size,28px)*4/28)}
+:is(.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) :is(h1,h3,h4,h5,h6){margin-block:.6em}

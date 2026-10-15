@@ -9,8 +9,10 @@ fs.writeFileSync(path.join(fixtures,publicMedia),await sharp({create:{width:32,h
 const ids=[];
 for(let i=0;i<8;i++){
   const id=`${String(i+1).padStart(8,'0')}-1111-4111-8111-111111111111`;ids.push(id);
-  const post={id,title:i>=6?'DRAFT_TITLE_SECRET':`Published ${i+1}`,created:'2026-10-12T18:00:00.000Z',status:i===7?'trashed':i>=6?'draft':'published',publishedAt:i>=6?null:'2026-10-12T18:00:00.000Z',elements:[{id:'22222222-2222-4222-8222-222222222222',type:'text',x:50,y:50,w:300,h:100,rotation:0,doc:{type:'doc',content:[{type:'paragraph',content:[{type:'text',text:i>=6?'DRAFT_TEXT_SECRET':'Readable public content & escaped <tags>.'}]}]}},{id:'33333333-3333-4333-8333-333333333333',type:'photo',x:100,y:200,w:300,h:200,rotation:5,src:i>=6?draftMedia:publicMedia,alt:'Photo fixture'}]};
+  const post={version:2,pageFormat:'notebook-900x1200-v1',id,title:i>=6?'DRAFT_TITLE_SECRET':`Published ${i+1}`,created:'2026-10-12T18:00:00.000Z',status:i===7?'trashed':i>=6?'draft':'published',publishedAt:i>=6?null:'2026-10-12T18:00:00.000Z',elements:[{id:'22222222-2222-4222-8222-222222222222',type:'text',x:50,y:50,w:300,h:100,rotation:0,doc:{type:'doc',content:[{type:'paragraph',content:[{type:'text',text:i>=6?'DRAFT_TEXT_SECRET':'Readable public content & escaped <tags>.'}]}]}},{id:'33333333-3333-4333-8333-333333333333',type:'photo',x:100,y:200,w:300,h:200,rotation:5,src:i>=6?draftMedia:publicMedia,alt:'Photo fixture'}]};
+  post.music={artists:[{name:i>=6?'DRAFT_MUSIC_SECRET':`Public artist ${i+1}`}],songs:[]};
   fs.writeFileSync(path.join(postsDir,`${id}.json`),JSON.stringify(post));
+  if(i===0){post.version=2;post.pageFormat='notebook-900x1200-v1';fs.writeFileSync(path.join(postsDir,`${id}.json`),JSON.stringify(post));}
 }
 const run=spawnSync(process.execPath,['scripts/build.mjs','blog'],{stdio:'inherit',env:{...process.env,BLOG_CONTENT_DIR:postsDir,BLOG_MEDIA_ROOT:fixtures}});assert.equal(run.status,0);
 const output=path.resolve('dist-blog');

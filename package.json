@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "node scripts/build.mjs editor",
+    "build:verification": "node scripts/build.mjs verification",
     "build:blog": "node scripts/build.mjs blog",
-    "test": "node --test tests/model.test.js tests/settings.test.js",
+    "test": "node --test tests/model.test.js tests/settings.test.js tests/notebook.test.js",
     "test:browser": "node tests/browser.mjs",
     "test:drawing": "node tests/drawing.mjs",
     "test:reliability": "node tests/reliability-browser.mjs",
@@ -22,7 +23,8 @@
     "@tiptap/core": "^3.0.0",
     "@tiptap/pm": "^3.0.0",
     "@tiptap/starter-kit": "^3.0.0",
-    "interactjs": "^1.10.27"
+    "interactjs": "^1.10.27",
+    "page-flip": "2.0.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",

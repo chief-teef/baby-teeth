@@ -1,0 +1,11 @@
+# Saving service and authorization
+- Read root AGENTS.md. All studio assets are gated server-side; logged-out users receive a sign-in page.
+- Only current write access to the configured repository grants studio access. Recheck permissions for existing sessions; read-only/removed collaborators must be rejected. Never authorize by login text or client claims.
+- Preserve OAuth state/PKCE, secure HttpOnly same-origin cookies, encrypted expiring KV sessions, origin/CSRF checks, upload validation, and rate limiting.
+- Repository writes use checked commit snapshots, exact base revisions, atomic document/assets commits, and non-forced ref updates. Stale saves cannot resurrect trash.
+- Trash preserves content; restore returns a draft; publication/removal waits for a successful public build. Keep API status truthful.
+- Run `npm run test:server`. Live checks must not publish test content. Changes to authorization/permissions require explicit authorization before deployment.
+- While `PRIVATE_VERIFICATION` is `true`, allow ordinary draft saves but reject publish/unpublish and any mutation of published entries. The verification build may include the in-memory diary demo behind the same studio authentication gate; normal editor/public builds exclude it. Disable this flag only with authorization for public publishing.
+- Update this file and SETUP.md when access, secrets, bindings, endpoints, or lifecycle contracts change.
+- Accept and clean only the fixed-page v2 contract; reject old or unknown formats. Draft saves may overflow. Before committing publication or a published revision update, reject missing titles and obvious rotated/object/ink bounds violations. Canonical text/title fit is additionally enforced by the static build; preserve revision-based failure reporting.
+- GET `/api/spotify` requires current repository write authorization and rate limiting. Validate artist/track URLs before fetching the fixed Spotify oEmbed endpoint; reject redirects, use a seven-second timeout and 32KB body bound, ignore embed HTML. Return 400 for invalid links and 502 for provider failures. Keep artwork hosts restricted by shared validation and both Worker/static studio CSPs; preserve manual editing on failure.

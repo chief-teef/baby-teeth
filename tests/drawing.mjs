@@ -1,32 +1,16 @@
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
-const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
-const page=await browser.newPage({viewport:{width:1024,height:768},hasTouch:true});
-const errors=[];page.on('pageerror',e=>errors.push(e.message));
+import fs from 'node:fs';
+const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true}),page=await browser.newPage({viewport:{width:834,height:1194},acceptDownloads:true}),errors=[];
+page.on('pageerror',e=>errors.push(e.message));
 try{
-  await page.goto(process.argv[2]||'http://localhost:5173/');
-  await page.getByRole('button',{name:'Draw',exact:true}).click();
-  assert.equal(await page.locator('#drawing-surface').evaluate(e=>getComputedStyle(e).touchAction),'none');
-  const cdp=await page.context().newCDPSession(page);
-  const box=await page.locator('#stage').boundingBox();
-  const x=box.x+250,y=box.y+150;
-  const initial=await page.evaluate(()=>window.scrollY);
-  await cdp.send('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',buttons:1,clickCount:1,pointerType:'pen'});
-  // Palm events must neither move the viewport nor get appended to the ink.
-  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:x+40,y:y+40,id:99}]});
-  await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+40,y:y-80,id:99}]});
-  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-  for(let i=1;i<=10;i++)await cdp.send('Input.dispatchMouseEvent',{type:'mouseMoved',x:x+i*4,y:y+i*8,button:'left',buttons:1,pointerType:'pen'});
-  await cdp.send('Input.dispatchMouseEvent',{type:'mouseReleased',x:x+40,y:y+80,button:'left',buttons:0,clickCount:1,pointerType:'pen'});
-  assert.equal(await page.evaluate(()=>window.scrollY),initial,'Pencil drawing must keep the page still');
-  assert.equal(await page.locator('.object.drawing').count(),1,'Pencil stroke survives');
-  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});
-  for(let i=1;i<=6;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-i*15,id:1}]});
-  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-  assert.ok(await page.evaluate(()=>window.scrollY)>initial+40,'Finger swipe should scroll in drawing mode');
-  assert.equal(await page.locator('.object.drawing').count(),1,'Finger scrolling must not draw');
-  await page.getByRole('button',{name:'Write',exact:true}).click();
-  assert.equal(await page.locator('#stage').evaluate(e=>getComputedStyle(e).touchAction),'pan-y','Writing keeps native touch scrolling');
-  assert.deepEqual(errors,[]);
-  console.log('PASS: pen stroke keeps viewport still; palm input ignored; finger swipe scrolls without ink; Write retains native scroll.');
+ await page.goto(process.argv[2]||'http://127.0.0.1:5175/');await page.waitForSelector('#add-text');
+ const original=await page.evaluate(async()=>{const {blankBook,uid}=await import('/src/model.js');const {save}=await import('/src/storage.js');const b=blankBook();b.posts[0].title='Legacy drawing retained';const ink={id:uid(),type:'drawing',x:40,y:100,w:220,h:120,rotation:7,sourceW:220,sourceH:120,strokes:[{color:'#203524',size:5,points:[[10,10],[50,70],[150,40]]}]};b.posts[0].elements.push(ink);await save(b);return ink;});
+ await page.reload();await page.waitForSelector('.object.drawing');assert.equal(await page.getByRole('button',{name:'Draw',exact:true}).count(),0);assert.equal(await page.locator('#drawing-surface,#tooth-stamp,#eraser').count(),0);
+ await page.getByRole('button',{name:'Move & resize',exact:true}).click();await page.locator('.object.drawing').click();await page.getByRole('button',{name:'Write',exact:true}).click();await page.reload();await page.waitForSelector('.object.drawing');
+ assert.deepEqual(await page.evaluate(async()=>{const {load}=await import('/src/storage.js');return (await load()).posts[0].elements[0];}),original);
+ await page.locator('#preview').click();await page.waitForSelector('.notebook-drawing');assert.equal(await page.locator('.notebook-drawing path').count(),1);await page.locator('#preview').click();
+ await page.getByRole('button',{name:'Account & tools',exact:true}).click();const download=page.waitForEvent('download');await page.locator('#export').click();const file=await download;await file.saveAs('test-results/legacy-ink-backup.json');const backup=JSON.parse(fs.readFileSync('test-results/legacy-ink-backup.json','utf8'));assert.deepEqual(backup.posts[0].elements[0],original);
+ await page.locator('#archive').setInputFiles('test-results/legacy-ink-backup.json');await page.waitForTimeout(600);assert.equal(await page.locator('.object.drawing').count(),1);assert.deepEqual(errors,[]);
+ console.log('PASS retired pen/stamp controls and unchanged legacy drawing selection, recovery, preview, backup/import.');
 }finally{await browser.close();}

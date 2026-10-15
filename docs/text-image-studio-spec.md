@@ -1,0 +1,24 @@
+# Text and image studio refinement
+
+Status: reviewed, implemented, browser-verified and privately deployed on October 14, 2026; actual iPad acceptance remains open. The owner authorized autonomous specification, review, implementation and private verification. This supersedes the older Write/Arrange/Draw authoring direction; public notebook styling remains separate.
+
+## Outcome
+An iPad-first text/photo editor with clear modern controls inside the existing notebook. Text boxes must be easy to shape precisely, photos easy to rotate, and deletion obvious. No new pen/drawing/stamp creation controls. Existing drawings, groups, entries, IDs, recovery, undo, backups and online revisions remain supported and are never silently removed.
+
+## Interaction contract
+- Keep Write and Move & resize as two clear modes. Use restrained consistent SVG icons alongside short visible labels; accessible names must survive live button-label updates.
+- Selected objects expose a clear contextual Delete action, independent of opening Properties; deletion uses existing undo. No accidental delete from a drag or resize.
+- Text has eight edge/corner resize targets, at least 44 screen pixels. Width and height can be shaped independently; exact numeric size/position remain available. Do not force text height back to its previous value during resize. New text has authored fixed height (`fixedHeight:true`); older missing-flag text keeps its auto-height behavior until explicitly reshaped. Typing never overwrites a fixed box height; it automatically refits the contents. Text content must remain intact if its box is too small; reject fixed-box content overflow during canonical fit even if it stays within page bounds, instead of silently clipping it or losing text. Automatic fitting shrinks/reflows text within the definitive dimensions and regrows toward the preferred maximum text size. Fit text no longer expands height. Derived fitting never changes saved fontSize/content; preserve proportional rich formatting. Show small-text/unfittable feedback instead of losing content.
+- Text reshapes in its own rotated coordinate frame and respects canonical stage scale. Photos preserve aspect ratio on corner resize. Rotation has an obvious external handle, a live degree indicator, reset and precise numeric fallback; dragging near a snap angle should make alignment easy. Keyboard alternatives and pointer cancellation remain usable. Each gesture is one undo operation and persists normally.
+- New text defaults to a self-hosted natural handwriting font with modest readable size; text size can be adjusted for fitting. Use a licensed real handwriting family, no fake per-letter jitter or canvas conversion. Existing text retains its current body face unless explicitly changed. Add optional allowlisted element font/size metadata without changing the document version; editor, canonical fit, reader and backup/save agree. Unknown values fail validation.
+- Keep text formatting, editable Google Docs paste, original image upload/description, grouping where existing content needs it, undo/redo, recovery and private verification publishing guard. No framework, new storage layer, cropping tool or speculative font catalog.
+
+## Acceptance
+Desktop and phone/iPad-size browser checks cover nonuniform text reshape, rotated reshape, content-preserving overflow and Fit text, photo ratio and rotation/reset, visible Delete/undo, handwriting loading and editor/reader parity, absent pen/stamp controls, legacy drawing import/export, save/reload and preview return. Run model and server tests, relevant studio/recovery/music/reader regressions and both normal and verification builds. Inspect screenshots at desktop and iPad widths. Actual iPad Safari remains owner acceptance; simulations are labeled honestly.
+
+## Release
+Preserve all current uncommitted work. Review this spec before implementation, resolve routine choices independently, and deploy the final checked build only to the existing authenticated private studio with PRIVATE_VERIFICATION=true. Include the protected in-memory diary demo; do not commit/push, populate repository test entries, or publish the public site. Record exact deployment evidence and limitations in existing guidance/handoff.
+
+## Specification review
+
+Reviewed against editor, canonical renderer, recovery and publication contracts before implementation. Resolved the fixed-height/legacy-auto-height conflict with optional fixedHeight metadata; no global geometry or font migration. Rotation gestures stay in Move & resize so Write retains text selection. Deletion remains visible outside Properties at narrow widths. Retired pen creation does not retire the drawing document type. Server cleaning/fit and font transfer are release checks; target-device evidence is still required. No blocking specification omissions remain after these decisions.

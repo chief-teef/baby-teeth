@@ -1,13 +1,11 @@
 ---
 import {base as blogBase, siteOrigin} from '../lib/posts.js';
-import '../../../src/style.css';
-import '../../../src/y2k.css';
 import '../reader.css';
-const {title='baby teeth ♥',description='a glittery little scrapbook of words, photographs & doodles',canonical=blogBase,image}=Astro.props;
+const {title='bbyteeth',description='Personal diary',canonical=blogBase,image,book=false}=Astro.props;
 const url=new URL(canonical,siteOrigin);
 ---
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>{title}</title><meta name="description" content={description}/><link rel="canonical" href={url}/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:url" content={url}/><meta property="og:type" content="website"/>{image&&<meta property="og:image" content={new URL(image,siteOrigin)}/>}<link rel="alternate" type="application/rss+xml" title="Baby Teeth" href={`${blogBase}rss.xml`}/></head><body>
-<header class="top"><a class="brand" href={`${blogBase}`}>baby teeth</a><span class="tag">a glittery little corner of the internet</span><nav><a href={`${blogBase}`}>home ♥</a><a href={`${blogBase}archive/`}>archive</a><a href={`${blogBase}about/`}>about</a><a href={`${blogBase}rss.xml`}>RSS</a></nav></header>
-<main class="reader public-reader"><slot/></main><footer class="site-footer">made with pink, green & a little too much love ♥</footer>
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><link rel="icon" href="data:,"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>{title}</title><meta name="description" content={description}/><link rel="canonical" href={url}/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:url" content={url}/><meta property="og:type" content="website"/>{image&&<meta property="og:image" content={new URL(image,siteOrigin)}/>}<link rel="alternate" type="application/rss+xml" title="bbyteeth" href={`${blogBase}rss.xml`}/>{book&&<script is:inline>if(!new URLSearchParams(location.search).has('reading'))document.documentElement.classList.add('book-js');</script>}</head><body>
+<main class="reader public-reader"><slot/></main>
+<nav class="fallback-nav" aria-label="Reader"><a href={blogBase}>bbyteeth</a><a href={`${blogBase}archive/`}>Archive</a><a href={`${blogBase}about/`}>About</a><a href={`${blogBase}rss.xml`}>RSS</a></nav>
 <script src="../reader.js"></script>
 </body></html>

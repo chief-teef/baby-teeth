@@ -1,1 +1,2 @@
-.cloudbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:12px 18px;background:#edffc2;border-bottom:2px dotted #f00095;font:11px/1.5 Verdana,sans-serif}.cloudbar button{font-size:10px}.cloudbar a{margin-left:auto;font-weight:bold;color:#a00069}#cloud-state{max-width:380px}#online-list{display:grid;gap:10px;margin-bottom:20px}
+/* Repository status lives beside the existing entry save action. */
+.studio #online-list{display:grid;gap:10px;margin-bottom:20px}.studio #online-list>div{display:flex;gap:8px;flex-wrap:wrap}.studio #online-list button{flex:1;text-align:left}

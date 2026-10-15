@@ -26,6 +26,7 @@
     }
   ],
   "vars": {
+    "PRIVATE_VERIFICATION": "false",
     "GITHUB_CLIENT_ID": "Iv23liU5EJQDmpZLXU8Z"
   },
   "kv_namespaces": [

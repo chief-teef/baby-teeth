@@ -1,5 +1,8 @@
 import {transitionEntry} from './lifecycle.js';
+import {spotifyPreview} from './spotify.js';
+import {spotifyUrl} from '../shared/music.js';
 import {validatePost,cleanPost,POST_ID,MEDIA_PATH,esc} from '../shared/document.js';
+import {assertPublicationGeometry} from '../shared/notebook-format.js';
 import {base64,random,digest,seal,open,cookie,setCookie,HttpError,limitedBody,jsonBody,cleanJpeg} from './security.js';
 import {github,verifyRepository,snapshot,readPost,readIndex,commitPost,REPO,REPO_ID,OWNER_ID,postPath,PUBLIC_URL,BRANCH} from './github.js';
 const SESSION='__Host-bt-session',LOGIN='__Host-bt-oauth';
@@ -42,6 +45,11 @@ export function createHandler(fetcher=fetch){return async function handle(reques
       const user=await authorize(request,env,fetcher),state=await snapshot(user.token,fetcher),index=await readIndex(user.token,state,fetcher);
       return json({posts:state.entries.filter(e=>/^content\/posts\/[a-f0-9-]{36}\.json$/i.test(e.path)&&e.type==='blob').map(e=>{const id=e.path.split('/').at(-1).slice(0,-5);return {id,revision:e.sha,...index[id]};}),head:state.head});
     }
+    if(path==='/api/spotify'&&request.method==='GET'){
+      const user=await authorize(request,env,fetcher);await limit(env,`spotify:${user.userId}`);
+      const link=validation(()=>spotifyUrl(url.searchParams.get('url')));
+      try{return json(await spotifyPreview(link,fetcher));}catch{throw new HttpError(502,'Spotify preview unavailable. Enter the name manually or retry.');}
+    }
     const match=path.match(/^\/api\/posts\/([a-f0-9-]{36})$/i);
     if(match&&request.method==='GET'){const user=await authorize(request,env,fetcher);const result=await readPost(user.token,match[1],fetcher);validation(()=>validatePost(result.post));return json(result);}
     const lifecycleMatch=path.match(/^\/api\/posts\/([a-f0-9-]{36})\/(trash|restore)$/i);
@@ -52,6 +60,7 @@ export function createHandler(fetcher=fetch){return async function handle(reques
       if(!current)throw new HttpError(404,'Entry not found.');
       if(body.baseRevision!==current.sha)throw new HttpError(409,'Entry changed online. Refresh the CMS before retrying.');
       const previous=(await readPost(user.token,lifecycleMatch[1],fetcher,state.head)).post;
+      if(env.PRIVATE_VERIFICATION==='true'&&previous.status==='published')throw new HttpError(403,'Public entry changes are disabled during private verification.');
       const doc=transitionEntry(previous,lifecycleMatch[2],new Date().toISOString(),user.userId);
       const index=await readIndex(user.token,state,fetcher);
       const result=await commitPost(user.token,state,doc,[],fetcher,index);
@@ -69,10 +78,12 @@ export function createHandler(fetcher=fetch){return async function handle(reques
       const doc=cleanPost(body.post),state=await snapshot(user.token,fetcher);const current=state.entries.find(e=>e.path===postPath(doc.id));
       if((body.baseRevision||null)!==(current?.sha||null))throw new HttpError(409,'A newer version exists online. Load it or save your local work as a copy.',{currentRevision:current?.sha||null});
       let previous=null;if(current)previous=(await readPost(user.token,doc.id,fetcher,state.head)).post;
+      if(env.PRIVATE_VERIFICATION==='true'&&(body.action!=='save'||previous?.status==='published'))throw new HttpError(403,'Publishing is disabled during private verification. Save a draft instead.');
       if(previous?.status==='trashed')throw new HttpError(409,'This entry is in trash. Restore it in the CMS before editing.');
       const paths=[...new Set(doc.elements.filter(e=>e.type==='photo').map(e=>e.src))];const assets=[];
       for(const path of paths){const expected=path.slice(6,-4);const existing=state.entries.find(e=>e.path===path&&e.type==='blob');if(existing?.sha===expected)continue;const proof=await open(env.SESSION_SECRET,'asset',body.receipts?.[path]);if(!proof||proof.path!==path||proof.sha!==expected||proof.userId!==user.userId)throw new HttpError(400,'Photo upload expired or is missing. Upload the photo again.');assets.push({path,sha:expected});}
       const now=new Date().toISOString();doc.status=body.action==='unpublish'?'draft':body.action==='publish'||previous?.status==='published'?'published':'draft';doc.publishedAt=previous?.publishedAt||(doc.status==='published'?now:null);doc.updatedAt=now;doc.updatedBy=user.userId;
+      if(doc.status==='published')validation(()=>assertPublicationGeometry(doc));
       const index=await readIndex(user.token,state,fetcher);const result=await commitPost(user.token,state,doc,assets,fetcher,index);return json({...result,post:doc,publishing:doc.status==='published'||previous?.status==='published'});
     }
     if(path==='/api/deployment'&&request.method==='GET'){
@@ -86,10 +97,8 @@ export function createHandler(fetcher=fetch){return async function handle(reques
     }
     const asset=await env.ASSETS.fetch(request),headers=new Headers(asset.headers);
     headers.set('Cache-Control','no-store');headers.set('X-Content-Type-Options','nosniff');headers.set('Referrer-Policy','strict-origin-when-cross-origin');headers.set('X-Frame-Options','DENY');
-    headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://raw.githubusercontent.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
+    headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.scdn.co https://image-cdn-fa.spotifycdn.com; connect-src 'self' https://raw.githubusercontent.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
     return new Response(asset.body,{status:asset.status,headers});
   }catch(error){const status=error instanceof HttpError?error.status:503;return json({error:error instanceof HttpError?error.message:'The saving service is temporarily unavailable. Local work is safe.',...(error.details||{})},status);}
 };}
 export default {fetch:createHandler()};
-
-

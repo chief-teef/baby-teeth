@@ -1,5 +1,16 @@
 # Notebook implementation verification
 
+## Public release completed — October 14, 2026
+
+The owner authorized going live after successful draft saving. Release code commit `9b2f5df5783add09dbc1d45629130fd8b6802955` is on main. The latest owner draft and JPEG from remote main were merged without changing their blobs; only the previously authorized retired v1 entry/index metadata was removed. The saved entry was not published automatically. All prior working changes are preserved in release commits.
+
+GitHub Pages workflow https://github.com/chief-teef/baby-teeth/actions/runs/38675733053 completed successfully. Live https://chief-teef.github.io/baby-teeth/revision.json returned that exact release commit; home returned200/title bbyteeth/book markup. Desktop1440×900 and phone390×844 live notebook opening/closing passed without page errors. Draft route and draft-only JPEG returned404; initial reader output was zero published entries/photos. The owner can add a title and use Publish entry to release the draft.
+
+The normal editor build (excluding verification demo) was deployed to https://baby-teeth-studio.aucourantfilms.workers.dev, Worker version `70c4ec2d-261c-4ec5-9a30-ebb58161a700`, with PRIVATE_VERIFICATION=false. Publishing is enabled; authentication/permission, CSRF, revision/conflict and draft-privacy protections remain. Live signed-out studio stayed gated and session configuration ready. Existing origin/recovery/session bindings were preserved.
+
+Release validation:11 model tests,19 server tests, normal editor build, production-CSP photo upload/save regression and actual-content blog build passed locally; GitHub CI build/deploy passed independently. Earlier browser/hardware evidence retains its limits. Full real iPad Safari/keyboard/clipboard and long-session performance acceptance remain manual; owner confirmed actual draft saving. Earlier private-only/no-commit/no-push instructions below are historical and superseded by this explicit release authorization. Do not publish future drafts without an explicit author action.
+
+
 ## Public release authorization — October 14, 2026
 
 The owner confirmed draft saving worked and requested going live. Public code release and disabling PRIVATE_VERIFICATION are now authorized. Preserve the newly saved remote draft and photo when merging origin/main; do not turn draft content into a published entry. The previous pre-launch v1 entry removal remains authorized. Run release checks, publish the current reader through GitHub Actions and deploy the normal authenticated studio build. Do not deploy the demo-only verification artifact as the public reader. Record terminal/live evidence and any remaining device limitations. Earlier private-only/no-push restrictions below describe superseded phases.

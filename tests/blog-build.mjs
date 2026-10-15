@@ -3,6 +3,7 @@ import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
+import settings from '../config/blog.json' with {type:'json'};
 const fixtures=path.resolve('test-results/blog-fixtures'),postsDir=path.join(fixtures,'content/posts');fs.mkdirSync(postsDir,{recursive:true});fs.mkdirSync(path.join(fixtures,'media'),{recursive:true});
 const publicMedia=`media/${'c'.repeat(40)}.jpg`,draftMedia=`media/${'d'.repeat(40)}.jpg`;
 fs.writeFileSync(path.join(fixtures,publicMedia),await sharp({create:{width:32,height:32,channels:3,background:{r:255,g:100,b:200}}}).jpeg().toBuffer());fs.writeFileSync(path.join(fixtures,draftMedia),'DRAFT_PHOTO_SECRET');
@@ -14,8 +15,22 @@ for(let i=0;i<8;i++){
   fs.writeFileSync(path.join(postsDir,`${id}.json`),JSON.stringify(post));
   if(i===0){post.version=2;post.pageFormat='notebook-900x1200-v1';fs.writeFileSync(path.join(postsDir,`${id}.json`),JSON.stringify(post));}
 }
-const run=spawnSync(process.execPath,['scripts/build.mjs','blog'],{stdio:'inherit',env:{...process.env,BLOG_CONTENT_DIR:postsDir,BLOG_MEDIA_ROOT:fixtures}});assert.equal(run.status,0);
+const buildCommit='a'.repeat(40);
+const run=spawnSync(process.execPath,['scripts/build.mjs','blog'],{stdio:'inherit',env:{...process.env,GITHUB_SHA:buildCommit,BLOG_CONTENT_DIR:postsDir,BLOG_MEDIA_ROOT:fixtures}});assert.equal(run.status,0);
 const output=path.resolve('dist-blog');
+const manifest=JSON.parse(fs.readFileSync(path.join(output,'notifications.json'),'utf8'));
+assert.deepEqual(Object.keys(manifest).sort(),['commit','posts','version']);
+assert.equal(manifest.version,1);assert.equal(manifest.commit,buildCommit);
+assert.equal(manifest.commit,JSON.parse(fs.readFileSync(path.join(output,'revision.json'),'utf8')).commit);
+assert.deepEqual(manifest.posts.map(p=>p.id).sort(),ids.slice(0,6).sort());
+for(const post of manifest.posts){
+  assert.deepEqual(Object.keys(post).sort(),['id','publishedAt','title','url']);
+  assert.equal(post.title,`Published ${ids.indexOf(post.id)+1}`);
+  assert.equal(post.publishedAt,'2026-10-12T18:00:00.000Z');
+  assert.equal(post.url,new URL(`posts/${post.id}/`,settings.publicUrl).href);
+}
+const manifestText=JSON.stringify(manifest);
+for(const privateValue of [ids[6],ids[7],'Readable public content',publicMedia,'Public artist','DRAFT_'])assert.ok(!manifestText.includes(privateValue),`Unexpected manifest data: ${privateValue}`);
 assert.ok(fs.existsSync(path.join(output,'page/2/index.html')));
 assert.ok(fs.existsSync(path.join(output,`posts/${ids[0]}/index.html`)));
 assert.ok(!fs.existsSync(path.join(output,`posts/${ids[6]}/index.html`)));
@@ -24,4 +39,4 @@ assert.ok(!fs.existsSync(path.join(output,`posts/${ids[7]}/index.html`)));
 assert.ok(fs.existsSync(path.join(output,publicMedia)));assert.ok(!fs.existsSync(path.join(output,draftMedia)));
 const walk=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(dir,e.name)):[path.join(dir,e.name)]);
 for(const file of walk(output).filter(f=>/\.(html|xml|json)$/.test(f))){const text=fs.readFileSync(file,'utf8');assert.ok(!text.includes('DRAFT_'),'Draft data leaked into '+file);}
-const html=fs.readFileSync(path.join(output,`posts/${ids[0]}/index.html`),'utf8');assert.ok(html.includes('Readable public content'));assert.ok(html.includes('&lt;tags&gt;'));assert.ok(!html.includes('ProseMirror'));console.log('PASS: individual routes, pagination, actual HTML text, escaping, RSS/sitemap, and draft text/photo exclusion.');
+const html=fs.readFileSync(path.join(output,`posts/${ids[0]}/index.html`),'utf8');assert.ok(html.includes('Readable public content'));assert.ok(html.includes('&lt;tags&gt;'));assert.ok(!html.includes('ProseMirror'));console.log('PASS: individual routes, pagination, actual HTML text, escaping, RSS/sitemap, published-only notification manifest/revision, and draft text/photo exclusion.');

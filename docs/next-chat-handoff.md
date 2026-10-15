@@ -1,5 +1,14 @@
 # bbyteeth continuation handoff
 
+## Gesture zoom and test-content cleanup — October 14, 2026
+
+Owner requested removing page-click zoom, using wheel and natural touch gestures, and clearing all test content including the published “test 1.” Page clicks and phone opening no longer auto-focus; wheel/trackpad and two-pointer pinch provide bounded, anchored camera zoom, with midpoint pan. Explicit zoom/reset keyboard controls and photo viewer remain. Book-only touch arbitration suppresses accidental clicks/turns and releases captures on cancellation/hide/resize/disposal. No dependency or document-format change.
+
+Fetched and fast-forwarded origin/main through owner publications 3341277/3cc9892 before cleanup. The only stored entry was test 1 (2f9ae24a-0af0-4c92-aeb5-b60a81e8c07b); its JSON and sole JPEG were removed and index reset. Historical Git commits retain recovery; browser/device-local recovery is not erased. Fictional developer fixtures remain local and excluded from normal deployment. Current actual-content build has zero entries/photos.
+
+Local checks:11 model tests; book-zoom (no page click/phone auto zoom, anchored/bounded wheel/reset/control exclusion, two-finger pinch in/out), book-interactions, book-navigation and book-motion passed in headless Edge/Chromium. Normal studio and actual-content reader builds passed. Initial native-pinch emulation did not establish working zoom; replaced it with explicit book-surface pinch and tested real CDP touch events. Actual iPad Safari hardware remains unverified. Deployment evidence follows after release.
+
+
 ## Public release completed — October 14, 2026
 
 The owner authorized going live after successful draft saving. Release code commit `9b2f5df5783add09dbc1d45629130fd8b6802955` is on main. The latest owner draft and JPEG from remote main were merged without changing their blobs; only the previously authorized retired v1 entry/index metadata was removed. The saved entry was not published automatically. All prior working changes are preserved in release commits.

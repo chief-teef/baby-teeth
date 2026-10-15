@@ -56,3 +56,5 @@
 .book-camera.gesture .notebook-page{cursor:grabbing}.book-scene .notebook-photo:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
 
 .book-corner{cursor:pointer}.book-corner:after{display:none}.page-fold{position:absolute;bottom:0;width:112px;height:112px;background:url('../../public/book/page-corner.png') center/contain no-repeat;image-rendering:pixelated;pointer-events:none}.page-fold.left{left:0;transform:scaleX(-1)}.page-fold.right{right:0}.book-corner:focus-visible{outline:3px solid var(--pink-shadow);outline-offset:-3px}
+
+.book-scene .book-rail{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;height:52px;touch-action:pan-x pinch-zoom}.book-scene .book-rail::-webkit-scrollbar{display:none}.book-scene .book-rail :is(button,a){flex:0 0 44px}

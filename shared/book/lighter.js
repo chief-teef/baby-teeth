@@ -18,7 +18,7 @@ export function mountLighter(root,base){
  function putDown(){held=false;clear();}
  const prop=movableProp(root,button,button,{pickup:light,release:putDown,move(v){wind=Math.max(-90,Math.min(90,v*70));const degrees=Math.max(-25,Math.min(25,v*16));tilt=degrees*Math.PI/180;button.style.setProperty('--tilt',degrees+'deg');}});
  async function lightPipe(pipe,onLight,signal){
-  if(signal.aborted)return;prop.cancel();const start=button.getBoundingClientRect(),target=pipe.getBoundingClientRect(),dx=target.left+target.width*.82-28-start.left,dy=target.top+target.height*.35-4-start.top;
+  if(signal.aborted)return;prop.cancel();const start=button.getBoundingClientRect(),target=pipe.getBoundingClientRect(),scale=start.width/button.offsetWidth,dx=(target.left+target.width*.82-28*scale-start.left)/scale,dy=(target.top+target.height*.35-4*scale-start.top)/scale;
   button.disabled=true;button.classList.add('automatic','held');button.setAttribute('aria-busy','true');
   const cancel=()=>{flight?.cancel();putDown();};signal.addEventListener('abort',cancel,{once:true});
   const travel=async frames=>{flight?.cancel();flight=button.animate(frames,{duration:380,easing:'cubic-bezier(.2,1.1,.35,1)',fill:'forwards'});await flight.finished;};const at=`translate(${dx}px,${dy}px)`,arc=`translate(${dx*.5}px,${dy*.5-70}px)`;

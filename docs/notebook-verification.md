@@ -1,5 +1,12 @@
 # Notebook implementation verification
 
+## Responsive overview spacing — October 14, 2026
+
+Owner requested zooming farther out on small screens instead of overlapping objects. camera.js now shares deskLayout between overview fitting and prop placement: phone top/bottom bands, short-landscape top shelf and larger-screen side columns. The book fits only the remaining rectangle, with no minimum overview scale. Prop art scales from half to full size with 44px hit regions; music switches to a compact housing/unscaled contained panel for smaller or shorter windows. Menu stays one row with horizontal scrolling. Resize cancels pickup and returns props to separated resting positions. Drag coordinates/clamps and automatic lighter flight account for rendered scale; the phone grinder parks its lid inward. Documents and stored entry geometry are unchanged.
+
+Passed locally:11 model tests; ten-size responsive non-overlap/bounds, compact player rows/panel, resize, scaled drag and phone lighter/bowl alignment; wheel/touch zoom; desk/gutter; herb sequence; photo interactions; physical navigation; book motion; music editor/player; normal studio and empty actual-content public builds. Gutter screenshot comparison now samples the interior spine: the old outside-edge crop changed one antialiased pixel column at the smaller camera scale; the interior has zero changed pixels. Gesture tests locate the resized paper rather than old fixed coordinates, and music tests explicitly open the compact player. Phone/short-landscape screenshots were inspected. No iPad Safari hardware acceptance is claimed. Deployment evidence pending.
+
+
 ## Gesture zoom and test-content cleanup — October 14, 2026
 
 Owner requested removing page-click zoom, using wheel and natural touch gestures, and clearing all test content including the published “test 1.” Page clicks and phone opening no longer auto-focus; wheel/trackpad and two-pointer pinch provide bounded, anchored camera zoom, with midpoint pan. Explicit zoom/reset keyboard controls and photo viewer remain. Book-only touch arbitration suppresses accidental clicks/turns and releases captures on cancellation/hide/resize/disposal. No dependency or document-format change.

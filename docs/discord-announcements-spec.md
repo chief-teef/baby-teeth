@@ -1,6 +1,6 @@
 # Discord announcements for Anna's blog
 
-Status: implementation authorized with delivery disabled. The owner accepted automatic retries with possible duplicates and catch-up of every missed entry in small batches. Secure channel setup, production initialization, activation, and Discord messages still require explicit authorization. Deployment evidence is recorded in `docs/next-chat-handoff.md`.
+Status: implemented, tested and deployed with delivery disabled. The owner accepted automatic retries with possible duplicates and catch-up of every missed entry in small batches. Secure channel setup, production initialization, activation, and Discord messages still require explicit authorization. Deployment evidence is recorded in `docs/next-chat-handoff.md`.
 
 ## Outcome and accepted decisions
 

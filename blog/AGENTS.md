@@ -1,6 +1,7 @@
 # Public reader
 - Read root AGENTS.md. Publish static reader pages only; never ship editor credentials, draft/trash documents, or draft-only media.
 - Preserve stable individual entry URLs, archive, RSS, sitemap, and configured project-path/custom-domain links.
+- `notifications.json` uses the existing published-post helpers and exposes only version, build revision, and public IDs/titles/canonical URLs/publication dates. Its commit must match `revision.json`; never emit bodies, media metadata, or draft/trash IDs.
 - Home starts closed; opening selects latest, while stable entry URLs open directly. Faces order oldest to newest with ID tie-break; overview turns spreads and focus advances entries. Notebook pages never use width-based reflow; accessibility reading mode reflows complete content.
 - Preserve semantic fallback HTML with JS disabled and `?reading=1`, printing, archive/RSS/sitemap and existing permalinks. Only visible faces enter accessibility navigation; animated copies remain inert.
 - `scripts/verify-notebook.mjs` measures only published v2 entries using production CSS/fonts before Astro output. Failure must stop the candidate build. No measurement files or draft media may enter `dist-blog`.

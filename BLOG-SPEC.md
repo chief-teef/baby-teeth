@@ -1,5 +1,13 @@
 # Blog specification and implementation plan
 
+## Discord announcement decisions — October 14, 2026
+
+Announce new public entries to one Discord text channel only after successful public deployment and live-permalink verification. The implementation uses an incoming webhook, GitHub Actions, a published-only manifest, and durable state on the separate `codex/discord-announcement-state` branch. It preserves RSS and existing publication behavior. The workflow requires both publishing and announcement enable variables; deployment with delivery disabled does not authorize webhook setup, state initialization or live messages.
+
+First activation explicitly and silently baselines the entire live public list. Baseline and confirmed IDs remain excluded across edits, date changes, unpublishing and republishing. Reconciliation catches every still-public missed entry, oldest publication date then ID, at most three eligible candidates per run. It runs hourly as well as after successful publication. Uncertain delivery retries automatically on later reconciliation; occasional duplicate messages are accepted, including a successful send whose confirmation could not be durably saved. There is no exactly-once or delivery-time guarantee. Pending absent entries wait until public again; existing Discord messages are not removed on unpublish.
+
+Missing/corrupt/conflicting history stops delivery instead of resetting state. Provider rate limits defer attempts; a definitively missing webhook suspends that exact URL until the secret changes. History survives webhook rotation. No bot, paid integration, studio UI, generated summary/image, multiple channels or synthetic production test entries are included. Detailed contract: `docs/discord-announcements-spec.md`; secure owner activation and repair: `SETUP.md`. Implementation and deployment verification are recorded in the handoff; live delivery requires separate owner authorization.
+
 ## Latest design direction — October 13, 2026
 
 See [bbyteeth design specification](BBYTEETH-DESIGN-SPEC.md) for the interviewed visual overhaul and implementation acceptance criteria. Confirmed target: lowercase `bbyteeth`; an apple-green/blush, glossy pixel-art diary with clasp and tooth/star/heart charms in animated outer space; closed on arrival, opening to the latest entry; physical page turns with optional sound; close, drag, and smooth page zoom. Public filler copy is removed; real entry titles/dates use uniform handwriting styling.

@@ -11,6 +11,7 @@
 - `worker/`: Cloudflare studio gate, GitHub OAuth, encrypted KV sessions, repository operations.
 - `blog/`: Astro static reader; `scripts/build.mjs` copies only published media.
 - `config/blog.json`: deployment identity and branding. `wrangler.jsonc`: Worker bindings. `.github/workflows/publish.yml`: public deployment.
+- `scripts/discord-announcements.mjs` and its workflow reconcile the published-only `notifications.json` after verified deployment. Announcement history lives only on `codex/discord-announcement-state`; all ledger writers require the `discord-announcements` workflow lock and file-SHA checks. Activation and silent initialization require explicit owner authorization.
 - `BLOG-SPEC.md`: product decisions and historical checkpoints; latest explicit decisions win. `SETUP.md`: operational steps. Read relevant scoped AGENTS files before editing.
 - `BBYTEETH-DESIGN-SPEC.md` supersedes older visual/layout decisions. `shared/notebook-format.js` and `shared/notebook-renderer.js` own the v2 fixed-page contract; `shared/book/` owns the camera, animation and reader interaction. Original artwork lives in `assets/book/`, exports/license/checksums in `public/book/`.
 

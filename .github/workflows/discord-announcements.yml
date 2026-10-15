@@ -1,0 +1,56 @@
+name: Discord announcements
+on:
+  workflow_run:
+    workflows: [Publish blog]
+    types: [completed]
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Silently initialize history, or reconcile public entries
+        type: choice
+        required: true
+        default: reconcile
+        options: [initialize, reconcile]
+permissions: {}
+concurrency:
+  group: discord-announcements
+  cancel-in-progress: false
+  queue: max
+jobs:
+  announce:
+    if: >-
+      vars.BLOG_PUBLISHING_ENABLED == 'true' &&
+      vars.DISCORD_ANNOUNCEMENTS_ENABLED == 'true' &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        (github.event.workflow_run.event == 'push' ||
+         github.event.workflow_run.event == 'workflow_dispatch')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Require trusted default branch
+        env:
+          EXPECTED_REF: refs/heads/${{ github.event.repository.default_branch }}
+        run: test "$GITHUB_REF" = "$EXPECTED_REF"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Reconcile verified public entries
+        run: node scripts/discord-announcements.mjs
+        env:
+          BLOG_PUBLISHING_ENABLED: ${{ vars.BLOG_PUBLISHING_ENABLED }}
+          DISCORD_ANNOUNCEMENTS_ENABLED: ${{ vars.DISCORD_ANNOUNCEMENTS_ENABLED }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          ANNOUNCEMENT_MODE: ${{ inputs.mode || 'reconcile' }}

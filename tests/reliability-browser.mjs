@@ -37,19 +37,19 @@ try{
   await page.evaluate(async()=>{
     const {load,save}=await import('/src/storage.js');const {uid}=await import('/src/model.js');const book=await load();
     const canvas=document.createElement('canvas');canvas.width=40;canvas.height=30;canvas.getContext('2d').fillRect(0,0,40,30);
-    book.posts[0].elements.push({id:uid(),type:'photo',src:canvas.toDataURL('image/jpeg'),alt:'Backup photo',x:10,y:300,w:200,h:150,rotation:4},{id:uid(),type:'drawing',x:10,y:500,w:100,h:100,sourceW:100,sourceH:100,rotation:0,strokes:[{color:'#ff00aa',size:4,points:[[10,10],[50,50]]}]});
+    book.posts[0].pages[0].elements.push({id:uid(),type:'photo',src:canvas.toDataURL('image/jpeg'),alt:'Backup photo',x:10,y:300,w:200,h:150,rotation:4},{id:uid(),type:'drawing',x:10,y:500,w:100,h:100,sourceW:100,sourceH:100,rotation:0,strokes:[{color:'#ff00aa',size:4,points:[[10,10],[50,50]]}]});
     await save(book);
   });
   await page.reload();await page.locator('.object.photo').waitFor();
   const downloadPromise=page.waitForEvent('download');await page.getByRole('button',{name:'Account & tools',exact:true}).click();await page.getByRole('button',{name:'Export backup ↓',exact:true}).click();
   const download=await downloadPromise;const backup=JSON.parse(await fs.readFile(await download.path(),'utf8'));
-  assert.equal(backup.posts[0].elements.length,3);
-  const original=structuredClone(backup.posts[0].elements);
+  assert.equal(backup.posts[0].pages[0].elements.length,3);
+  const original=structuredClone(backup.posts[0].pages[0].elements);
   await page.locator('#archive').setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});
   await page.getByText('Archive imported as additional entries. Existing entries are preserved.',{exact:true}).waitFor();
   assert.equal(await page.locator('.entry').count(),2);
   await page.waitForFunction(()=>document.querySelector('#status').textContent==='Saved on this device');
-  const restored=await page.evaluate(async()=>{const {load}=await import('/src/storage.js');return (await load()).posts.at(-1).elements;});
+  const restored=await page.evaluate(async()=>{const {load}=await import('/src/storage.js');return (await load()).posts.at(-1).pages[0].elements;});
   assert.deepEqual(restored,original,'backup restores text, original photo data, ink, and transforms');
   await page.getByRole('button',{name:'Save draft online',exact:true}).click();
   await page.getByText(/Upload interrupted/).waitFor();assert.equal(saves,0);

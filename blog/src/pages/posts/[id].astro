@@ -5,8 +5,9 @@ import Entry from '../../components/Entry.astro';
 import Book from '../../components/Book.astro';
 import {allPosts,postUrl,base} from '../../lib/posts.js';
 import {excerpt} from '../../../../shared/document.js';
+import {entryElements} from '../../../../shared/notebook-format.js';
 export function getStaticPaths(){return allPosts().map(post=>({params:{id:post.id},props:{post}}));}
 const {post}=Astro.props;
-const cover=post.elements.find(e=>e.type==='photo');
+const cover=entryElements(post).find(e=>e.type==='photo');
 ---
 <Page book title={`${post.title} · bbyteeth`} description={excerpt(post)} canonical={postUrl(post)} image={cover?`${base}${cover.src}`:undefined}><Book initialId={post.id}/><section class="reading-fallback"><Entry post={post}/><a class="page-link" href={`${blogBase}`}>Back to book</a><nav aria-label="Entry navigation">{allPosts().filter(p=>p.id!==post.id).map(p=><a href={postUrl(p)}>{p.title}</a>)}</nav></section></Page>

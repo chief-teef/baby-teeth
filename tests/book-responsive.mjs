@@ -7,7 +7,7 @@ const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Micr
 try{
  const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  for(const [width,height] of sizes){
-  await page.setViewportSize({width,height});await page.goto('http://127.0.0.1:5174/prototypes/diary.html');await page.waitForFunction(()=>window.bookScene);
+  await page.setViewportSize({width,height});await page.goto('http://127.0.0.1:5175/prototypes/diary.html');await page.waitForFunction(()=>window.bookScene);
   await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>bookScene.open());
   const props=await page.locator('.desk-prop').evaluateAll(items=>items.map(e=>{const b=e.getBoundingClientRect();return {name:e.className,x:b.x,y:b.y,width:b.width,height:b.height};}));
   const camera=await page.locator('.book-camera').evaluate(e=>{const m=new DOMMatrix(getComputedStyle(e).transform);return {x:m.e,y:m.f,width:1912*m.a,height:1280*m.a};});

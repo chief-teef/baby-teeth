@@ -5,8 +5,12 @@ A scrapbook blog whose authored entries can be read publicly after publication.
 ## Language
 
 **Entry**:
-An authored scrapbook page with a stable identity, whether draft, public, or trashed.
+An authored scrapbook containing one or more ordered pages published together under one stable identity, whether draft, public, or trashed.
 _Avoid_: Post when a distinction from an announcement matters.
+
+**Page**:
+A single paper face within an entry. An entry's pages stay together in the book.
+_Avoid_: Entry when referring to one face of a multi-page entry.
 
 **Public entry**:
 An entry currently available to readers at its public permalink.

@@ -27,6 +27,7 @@
   ],
   "vars": {
     "PRIVATE_VERIFICATION": "false",
+    "SCRAPBOOK_WRITES_ENABLED": "false",
     "GITHUB_CLIENT_ID": "Iv23liU5EJQDmpZLXU8Z"
   },
   "kv_namespaces": [

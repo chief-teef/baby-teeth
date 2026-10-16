@@ -23,7 +23,7 @@ test('notebook v2 survives cleaning, archive export/import and repeated server r
 });
 test('overflow drafts remain recoverable but cannot publish',()=>{const p=fixture();p.elements[0].y=1000;validateBook({version:1,posts:[p]});assert.equal(geometryOverflow(p).length,1);assert.throws(()=>assertPublicationGeometry(p));});
 test('physical faces, odd/even endpapers and a single pending navigation intent',()=>{
- assert.deepEqual([0,1,2,3,4].map(spreadFor),[0,1,1,2,2]);assert.deepEqual([0,1,2,3].map(sideFor),['right','left','right','left']);const c=new BookController([1,2,3,4],0);c.state='open-idle';assert.equal(c.spreadNeighbor(1),2);c.state='turning';c.request(1);c.request(3);assert.equal(c.pending,3);assert.equal(c.index,0);
+ assert.deepEqual([0,1,2,3,4].map(spreadFor),[0,1,1,2,2]);assert.deepEqual([0,1,2,3].map(sideFor),['right','left','right','left']);const c=new BookController(Array.from({length:4},(_,i)=>({...fixture(),id:`0000000${i+1}-1111-4111-8111-111111111111`})),0);assert.deepEqual(c.pages.map(page=>page.faceIndex),[0,1,2,3]);assert.equal(c.pages[0].entryId,c.entries[0].id);c.state='open-idle';assert.equal(c.spreadNeighbor(1),2);c.state='turning';c.request(1);c.request(3);assert.equal(c.pending,3);assert.equal(c.index,0);
 });
 test('old and unknown formats reject without mutating recovery input',()=>{
  const p=fixture();delete p.pageFormat;p.version=1;p.elements[0].y=2400;assert.throws(()=>cleanPost(p));

@@ -7,23 +7,48 @@
 .notebook-header time{position:absolute;top:112px;left:0;font:400 24px/32px Kalam,Georgia,serif}
 .notebook-composition{position:absolute;left:54px;top:220px;width:792px;height:920px}
 .notebook-object{position:absolute;transform-origin:center;box-sizing:border-box;color:var(--ink)}
-.notebook-text,.notebook-stage .ProseMirror{font:28px/38px Georgia,Gelasio,serif;padding:12px 14px;overflow-wrap:anywhere}
-.notebook-text p,.notebook-stage .ProseMirror p{margin:0 0 .7em}.notebook-text p:last-child,.notebook-stage .ProseMirror p:last-child{margin:0}
-.notebook-text h1,.notebook-stage .ProseMirror h1{font-size:44px;line-height:52px}.notebook-text h2,.notebook-stage .ProseMirror h2{font-size:38px;line-height:46px;margin:.2em 0 .6em}
-.notebook-text h3,.notebook-stage .ProseMirror h3{font-size:32px;line-height:40px}.notebook-text :is(h4,h5,h6),.notebook-stage .ProseMirror :is(h4,h5,h6){font-size:28px;line-height:38px}
-.notebook-text :is(ul,ol),.notebook-stage .ProseMirror :is(ul,ol){padding-left:40px}.notebook-text pre,.notebook-stage .ProseMirror pre{white-space:pre-wrap;font-size:24px;line-height:34px}.notebook-text code,.notebook-stage .ProseMirror code{font-size:24px}
-.notebook-text a,.notebook-stage .ProseMirror a{color:var(--ink);text-decoration:underline}.notebook-text blockquote,.notebook-stage .ProseMirror blockquote{margin:0 0 20px;padding-left:24px;border-left:4px solid var(--rule)}
+:is(.notebook-text,.public-text),.notebook-stage .ProseMirror{font:28px/38px Georgia,Gelasio,serif;padding:12px 14px;overflow-wrap:anywhere}
+:is(.notebook-text,.public-text) p,.notebook-stage .ProseMirror p{margin:0 0 .7em}:is(.notebook-text,.public-text) p:last-child,.notebook-stage .ProseMirror p:last-child{margin:0}
+:is(.notebook-text,.public-text) h1,.notebook-stage .ProseMirror h1{font-size:44px;line-height:52px}:is(.notebook-text,.public-text) h2,.notebook-stage .ProseMirror h2{font-size:38px;line-height:46px;margin:.2em 0 .6em}
+:is(.notebook-text,.public-text) h3,.notebook-stage .ProseMirror h3{font-size:32px;line-height:40px}:is(.notebook-text,.public-text) :is(h4,h5,h6),.notebook-stage .ProseMirror :is(h4,h5,h6){font-size:28px;line-height:38px}
+:is(.notebook-text,.public-text) :is(ul,ol),.notebook-stage .ProseMirror :is(ul,ol){padding-left:40px}:is(.notebook-text,.public-text) pre,.notebook-stage .ProseMirror pre{white-space:pre-wrap;font-size:24px;line-height:34px}:is(.notebook-text,.public-text) code,.notebook-stage .ProseMirror code{font-size:24px}
+:is(.notebook-text,.public-text) a,.notebook-stage .ProseMirror a{color:var(--ink);text-decoration:underline}:is(.notebook-text,.public-text) blockquote,.notebook-stage .ProseMirror blockquote{margin:0 0 20px;padding-left:24px;border-left:4px solid var(--rule)}
 .notebook-photo img,.notebook-drawing svg{width:100%;height:100%;display:block;object-fit:contain}.notebook-drawing svg{overflow:visible}
-.notebook-text[data-font],.notebook-stage .object[data-font] .ProseMirror{font-size:var(--text-size,28px);line-height:calc(var(--text-size,28px)*38/28)}
-.notebook-text[data-font=handwriting],.notebook-stage .object[data-font=handwriting] .ProseMirror{font-family:Caveat,Georgia,serif;line-height:1.25;font-synthesis:style}
-.notebook-text[data-font] h1,.notebook-stage .object[data-font] .ProseMirror h1{font-size:calc(var(--text-size,28px)*44/28);line-height:calc(var(--text-size,28px)*52/28)}
-.notebook-text[data-font] h2,.notebook-stage .object[data-font] .ProseMirror h2{font-size:calc(var(--text-size,28px)*38/28);line-height:calc(var(--text-size,28px)*46/28)}
-.notebook-text[data-font] h3,.notebook-stage .object[data-font] .ProseMirror h3{font-size:calc(var(--text-size,28px)*32/28);line-height:calc(var(--text-size,28px)*40/28)}
-.notebook-text[data-font] :is(h4,h5,h6),.notebook-stage .object[data-font] .ProseMirror :is(h4,h5,h6){font-size:var(--text-size,28px);line-height:calc(var(--text-size,28px)*38/28)}
-.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror{min-height:0;overflow:hidden}
-.notebook-text[data-text-fits=false]{outline:2px dashed #9b463b;outline-offset:2px}
-:is(.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) :is(ul,ol){padding-left:calc(var(--text-size,28px)*40/28);margin-block:.7em}
-:is(.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) pre{font-size:calc(var(--text-size,28px)*24/28);line-height:calc(var(--text-size,28px)*34/28);margin-block:.7em}
-:is(.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) code{font-size:calc(var(--text-size,28px)*24/28)}
-:is(.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) blockquote{padding-left:calc(var(--text-size,28px)*24/28);margin-bottom:calc(var(--text-size,28px)*20/28);border-left-width:calc(var(--text-size,28px)*4/28)}
-:is(.notebook-text[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) :is(h1,h3,h4,h5,h6){margin-block:.6em}
+:is(.notebook-text,.public-text)[data-font],.notebook-stage .object[data-font] .ProseMirror{font-size:var(--text-size,28px);line-height:calc(var(--text-size,28px)*38/28)}
+:is(.notebook-text,.public-text)[data-font=handwriting],.notebook-stage .object[data-font=handwriting] .ProseMirror{--text-font:Caveat;font-family:var(--text-font,Caveat);line-height:1.25;font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font] h1,.notebook-stage .object[data-font] .ProseMirror h1{font-size:calc(var(--text-size,28px)*44/28);line-height:calc(var(--text-size,28px)*52/28)}
+:is(.notebook-text,.public-text)[data-font] h2,.notebook-stage .object[data-font] .ProseMirror h2{font-size:calc(var(--text-size,28px)*38/28);line-height:calc(var(--text-size,28px)*46/28)}
+:is(.notebook-text,.public-text)[data-font] h3,.notebook-stage .object[data-font] .ProseMirror h3{font-size:calc(var(--text-size,28px)*32/28);line-height:calc(var(--text-size,28px)*40/28)}
+:is(.notebook-text,.public-text)[data-font] :is(h4,h5,h6),.notebook-stage .object[data-font] .ProseMirror :is(h4,h5,h6){font-size:var(--text-size,28px);line-height:calc(var(--text-size,28px)*38/28)}
+:is(.notebook-text,.public-text)[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror{min-height:0;overflow:hidden}
+:is(.notebook-text,.public-text)[data-text-fits=false]{outline:2px dashed #9b463b;outline-offset:2px}
+:is(:is(.notebook-text,.public-text)[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) :is(ul,ol){padding-left:calc(var(--text-size,28px)*40/28);margin-block:.7em}
+:is(:is(.notebook-text,.public-text)[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) pre{font-size:calc(var(--text-size,28px)*24/28);line-height:calc(var(--text-size,28px)*34/28);margin-block:.7em}
+:is(:is(.notebook-text,.public-text)[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) code{font-size:calc(var(--text-size,28px)*24/28)}
+:is(:is(.notebook-text,.public-text)[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) blockquote{padding-left:calc(var(--text-size,28px)*24/28);margin-bottom:calc(var(--text-size,28px)*20/28);border-left-width:calc(var(--text-size,28px)*4/28)}
+:is(:is(.notebook-text,.public-text)[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) :is(h1,h3,h4,h5,h6){margin-block:.6em}
+/* Canonical rich typography: synthesis is deliberate for single-face display fonts. */
+:is(.notebook-text,.public-text),.notebook-stage .object[data-font] .ProseMirror{font-family:var(--text-font,Georgia,Gelasio,serif);font-synthesis:weight style}
+.notebook-page[data-page-index]:not([data-page-index="0"]):before{top:60px}
+:is(.notebook-text,.public-text)[data-font] :is(p,li),.notebook-stage .object[data-font] .ProseMirror :is(p,li){line-height:inherit}
+
+
+:is(.notebook-text,.public-text)[data-font=fredoka],.notebook-stage .object[data-font=fredoka] .ProseMirror{--text-font:'Fredoka';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=rubik-dirt],.notebook-stage .object[data-font=rubik-dirt] .ProseMirror{--text-font:'Rubik Dirt';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=playfair-display],.notebook-stage .object[data-font=playfair-display] .ProseMirror{--text-font:'Playfair Display';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=orbitron],.notebook-stage .object[data-font=orbitron] .ProseMirror{--text-font:'Orbitron';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=lobster],.notebook-stage .object[data-font=lobster] .ProseMirror{--text-font:'Lobster';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=audiowide],.notebook-stage .object[data-font=audiowide] .ProseMirror{--text-font:'Audiowide';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=dm-serif-display],.notebook-stage .object[data-font=dm-serif-display] .ProseMirror{--text-font:'DM Serif Display';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=source-sans],.notebook-stage .object[data-font=source-sans] .ProseMirror{--text-font:'Source Sans 3';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=unifrakturmaguntia],.notebook-stage .object[data-font=unifrakturmaguntia] .ProseMirror{--text-font:'UnifrakturMaguntia';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=inter],.notebook-stage .object[data-font=inter] .ProseMirror{--text-font:'Inter';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=pacifico],.notebook-stage .object[data-font=pacifico] .ProseMirror{--text-font:'Pacifico';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=ibm-plex-mono],.notebook-stage .object[data-font=ibm-plex-mono] .ProseMirror{--text-font:'IBM Plex Mono';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=special-elite],.notebook-stage .object[data-font=special-elite] .ProseMirror{--text-font:'Special Elite';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=press-start-2p],.notebook-stage .object[data-font=press-start-2p] .ProseMirror{--text-font:'Press Start 2P';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=vt323],.notebook-stage .object[data-font=vt323] .ProseMirror{--text-font:'VT323';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=permanent-marker],.notebook-stage .object[data-font=permanent-marker] .ProseMirror{--text-font:'Permanent Marker';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=patrick-hand],.notebook-stage .object[data-font=patrick-hand] .ProseMirror{--text-font:'Patrick Hand';font-family:var(--text-font);font-synthesis:weight style}
+:is(.notebook-text,.public-text)[data-font=kalam],.notebook-stage .object[data-font=kalam] .ProseMirror{--text-font:Kalam;font-family:var(--text-font)}
+.notebook-page:has(>.notebook-composition[data-page-index]:not([data-page-index="0"])):before{top:60px}

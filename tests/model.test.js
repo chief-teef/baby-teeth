@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {validateBook,blankPost,uid,textDoc,bounds} from '../src/model.js';
 import {toothStamp} from '../shared/tooth-stamp.js';
 import {cleanPost} from '../shared/document.js';
-const fixture=()=>({version:1,posts:[{...blankPost(),elements:[{id:uid(),type:'text',x:20,y:30,w:200,h:100,rotation:0,doc:textDoc('hello')}]}]});
+const fixture=()=>({version:1,posts:[{version:2,pageFormat:'notebook-900x1200-v1',id:uid(),title:'',created:new Date().toISOString(),elements:[{id:uid(),type:'text',x:20,y:30,w:200,h:100,rotation:0,doc:textDoc('hello')}]}]});
 test('archive rejects unsafe drawings, photos, duplicate entries and ink',()=>{
  const book=fixture();assert.equal(validateBook(book),book);assert.throws(()=>validateBook({...book,posts:[book.posts[0],book.posts[0]]}));
  const p=book.posts[0];p.elements=[{...toothStamp(uid()),sourceW:'100 invalid attribute'}];assert.throws(()=>validateBook(book),/drawing/);

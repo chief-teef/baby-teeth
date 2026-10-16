@@ -1,7 +1,7 @@
 # Working on Baby Teeth
 
 ## Product constraints
-- A free, ad-free scrapbook blog; iPad Pro/Pencil and onscreen keyboard first, desktop second, phone reading supported.
+- A free, ad-free scrapbook blog; desktop-first authoring, with smaller-screen reading supported. The October 15 owner direction supersedes the earlier iPad/Pencil-first priority.
 - Preserve direct writing, Google Docs paste, freeform photos/text and retained legacy ink, and recoverable work. Notebook entries retain canonical coordinates at every width; accessibility reading reflows. General stickers, cropping, borders, and full offline reopening are deferred.
 - Public repository drafts are accepted. Draft/trash content must never enter the public site output.
 
@@ -13,7 +13,7 @@
 - `config/blog.json`: deployment identity and branding. `wrangler.jsonc`: Worker bindings. `.github/workflows/publish.yml`: public deployment.
 - `scripts/discord-announcements.mjs` and its workflow reconcile the published-only `notifications.json` after verified deployment. Announcement history lives only on `codex/discord-announcement-state`; all ledger writers require the `discord-announcements` workflow lock and file-SHA checks. Activation and silent initialization require explicit owner authorization.
 - `BLOG-SPEC.md`: product decisions and historical checkpoints; latest explicit decisions win. `SETUP.md`: operational steps. Read relevant scoped AGENTS files before editing.
-- `BBYTEETH-DESIGN-SPEC.md` supersedes older visual/layout decisions. `shared/notebook-format.js` and `shared/notebook-renderer.js` own the v2 fixed-page contract; `shared/book/` owns the camera, animation and reader interaction. Original artwork lives in `assets/book/`, exports/license/checksums in `public/book/`.
+- `docs/desktop-scrapbook-spec.md` records the latest confirmed product direction, reviewed engineering contracts and parallel implementation plan; the runtime implements these contracts; release evidence belongs in docs/desktop-scrapbook-verification.md. `BBYTEETH-DESIGN-SPEC.md` retains unaffected public visual/layout decisions. `shared/notebook-format.js` and `shared/notebook-renderer.js` own the compatible v2/v3 fixed-page contract; `shared/book/` owns the camera, animation and reader interaction. Original artwork lives in `assets/book/`, exports/license/checksums in `public/book/`.
 
 ## Change discipline
 - Inspect the working tree first; preserve unrelated changes and repository posts. Never force-push or rewrite content history as routine cleanup.

@@ -1,5 +1,9 @@
 # Blog specification and implementation plan
 
+## Desktop scrapbook direction — October 15, 2026
+
+Owner decisions now prioritize desktop authoring, multi-page entries, mode-free rich-text editing, automatic entry-color cycling, transparent PNGs, a loud Y2K editor, editor-only Otis, and repeated pixel-tooth stamping. These supersede conflicting earlier one-page/iPad-first/mode-based requirements. See [the reviewed specification and parallel work plan](docs/desktop-scrapbook-spec.md) for confirmed behavior, resolved engineering contracts, ownership and release gates. This is a specification handoff, not implemented or deployed behavior; implementation and verification are still pending. Existing IDs, URLs, recovery, publication privacy and save/conflict guarantees remain required.
+
 ## Discord announcement decisions — October 14, 2026
 
 Announce new public entries to one Discord text channel only after successful public deployment and live-permalink verification. The implementation uses an incoming webhook, GitHub Actions, a published-only manifest, and durable state on the separate `codex/discord-announcement-state` branch. It preserves RSS and existing publication behavior. The workflow requires both publishing and announcement enable variables; deployment with delivery disabled does not authorize webhook setup, state initialization or live messages.

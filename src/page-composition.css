@@ -1,0 +1,20 @@
+.studio .stage.paper-stack{position:relative;transform-origin:top left;background:transparent;isolation:isolate}
+.studio .stage.paper-stack:before,.studio .stage.paper-stack:after{display:none}
+.studio .paper-stack>.paper-page{position:absolute;width:900px;height:1200px;z-index:0;overflow:visible;box-shadow:0 0 0 2px #59783b,5px 8px 0 #20352460}
+.studio .paper-stack>.paper-page:focus-visible{outline:calc(3 * var(--screen-unit)) solid #203524;outline-offset:calc(5 * var(--screen-unit))}
+.studio .paper-stack .editor-page-number{position:absolute;left:0;top:calc(100% + 10px);font:calc(12 * var(--screen-unit))/1.3 Arial,sans-serif;background:#f6f2dc;color:#203524;padding:3px 6px;pointer-events:none;white-space:nowrap}
+.studio .paper-stack .candidate-page{opacity:.65;border:3px dashed #355c29;pointer-events:none}
+.studio .paper-stack .candidate-page .editor-page-number{top:40px;left:54px}
+.studio .paper-stack>.object{position:absolute;touch-action:pan-y}
+.studio .paper-stack>.object.photo,.studio .paper-stack>.object.drawing,.studio .paper-stack>.object .grab{touch-action:none}
+.studio .paper-stack .moving-object{pointer-events:none;will-change:left,top}
+.studio .paper-stack .object.text .ProseMirror{cursor:text}
+.studio .paper-stack .object.selected .grab{display:flex;cursor:grab;touch-action:none}
+.studio .paper-stack .object.selected .grab:active{cursor:grabbing}
+.studio .paper-stack .object.selected .resize-handle{display:block}
+.studio .paper-stack .object.selected .rotate-handle{display:flex}
+.studio #layers{padding:8px 12px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-height:180px;overflow:auto;grid-column:1}
+.studio #layers h2{font:16px Arial,sans-serif;margin:0 6px 0 0}
+.studio #layers button{min-height:44px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.studio #layers button[aria-pressed=true]{background:#cbe89a;border:2px solid #355c29}
+.studio .paper-stack.dragging-pages,.studio .paper-stack>.object.photo,.studio .paper-stack>.object.drawing,.studio .paper-stack .grab{user-select:none;-webkit-user-select:none}

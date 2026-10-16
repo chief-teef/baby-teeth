@@ -1,5 +1,7 @@
 # bbyteeth — pixel diary overhaul
 
+Latest owner direction (October 15, 2026): [reviewed desktop scrapbook specification](docs/desktop-scrapbook-spec.md) supersedes this document's one-page-only entries, iPad-first priority, manual paper colors, limited text styling, and editor-mode decisions. It adds multi-page navigation, transparent PNGs, and editor personality/stamping requirements. Confirmed product behavior is separated there from chosen engineering contracts and release gates; implementation is pending. Unaffected public book artwork, motion and preservation constraints below remain applicable.
+
 Specification date: October 13, 2026. Status: local implementation following the owner interview; not deployed. Desktop checks and remaining target-device acceptance are recorded in docs/notebook-verification.md. This document specifies the target, not the current behavior. Owner decisions below are confirmed; numerical values and technical choices are designer-selected implementation defaults. Change those defaults only for a demonstrated usability, compatibility, or performance reason, and record the reason here.
 
 ## 1. The intended experience

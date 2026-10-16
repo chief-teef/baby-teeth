@@ -1,8 +1,9 @@
 import {transitionEntry} from './lifecycle.js';
 import {spotifyPreview} from './spotify.js';
 import {spotifyUrl} from '../shared/music.js';
-import {validatePost,cleanPost,POST_ID,MEDIA_PATH,esc} from '../shared/document.js';
-import {assertPublicationGeometry} from '../shared/notebook-format.js';
+import {validatePost,cleanPost,parseMediaPath,esc} from '../shared/document.js';
+import {assertPublicationGeometry,entryElements} from '../shared/notebook-format.js';
+import {cleanPng,PNG_MAX_BYTES} from '../shared/png.js';
 import {base64,random,digest,seal,open,cookie,setCookie,HttpError,limitedBody,jsonBody,cleanJpeg} from './security.js';
 import {github,verifyRepository,snapshot,readPost,readIndex,commitPost,REPO,REPO_ID,OWNER_ID,postPath,PUBLIC_URL,BRANCH} from './github.js';
 const SESSION='__Host-bt-session',LOGIN='__Host-bt-oauth';
@@ -14,12 +15,19 @@ async function authorize(request,env,fetcher=fetch){const user=await session(req
 async function csrf(request,user){if(request.headers.get('origin')!==new URL(request.url).origin||request.headers.get('x-csrf-token')!==user.csrf)throw new HttpError(403,'This write request could not be verified. Reload the editor.');}
 async function limit(env,key){if(env.WRITE_LIMIT){const {success}=await env.WRITE_LIMIT.limit({key});if(!success)throw new HttpError(429,'Too many requests. Wait a minute before trying again.');}}
 function validation(fn){try{return fn();}catch(e){throw new HttpError(400,e.message);}}
+const capabilities=env=>({readVersions:[2,3],writeVersion:3,scrapbookWritesEnabled:env.SCRAPBOOK_WRITES_ENABLED==='true'});
+export function assertWriteContract(request,env,{version,png=false,previous}={}){
+  const enabled=env.SCRAPBOOK_WRITES_ENABLED==='true';
+  if(enabled&&request.headers.get('X-Studio-Contract')!=='3')throw new HttpError(409,'This editor tab is out of date. Export local work, then reload before saving online.');
+  if(!enabled&&(version===3||png||previous?.version===3))throw new HttpError(409,'Scrapbook online saves are temporarily disabled. Keep editing locally or export a backup and retry after the update.');
+  if(previous?.version===3&&version===2)throw new HttpError(409,'A multi-page entry cannot be replaced by an older format. Export local work and reload the editor.');
+}
 export function createHandler(fetcher=fetch){return async function handle(request,env){
   try{
     const url=new URL(request.url),path=url.pathname;
     if(path==='/api/session'){
-      if(!ready(env))return json({configured:false,signedIn:false,repository:REPO,publicUrl:PUBLIC_URL,branch:BRANCH});
-      const user=await session(request,env,fetcher);return json({configured:true,signedIn:!!user,repository:REPO,publicUrl:PUBLIC_URL,branch:BRANCH,...(user?{login:user.login,csrf:user.csrf}:{})});
+      if(!ready(env))return json({configured:false,signedIn:false,repository:REPO,publicUrl:PUBLIC_URL,branch:BRANCH,capabilities:capabilities(env)});
+      const user=await session(request,env,fetcher);return json({configured:true,signedIn:!!user,repository:REPO,publicUrl:PUBLIC_URL,branch:BRANCH,capabilities:capabilities(env),...(user?{login:user.login,csrf:user.csrf}:{})});
     }
     if(path.startsWith('/api/')||path.startsWith('/auth/')){if(!ready(env))throw new HttpError(503,'Online saving setup is not complete yet. Local editing and export still work.');}
     if(path==='/auth/login'&&request.method==='GET'){
@@ -60,6 +68,7 @@ export function createHandler(fetcher=fetch){return async function handle(reques
       if(!current)throw new HttpError(404,'Entry not found.');
       if(body.baseRevision!==current.sha)throw new HttpError(409,'Entry changed online. Refresh the CMS before retrying.');
       const previous=(await readPost(user.token,lifecycleMatch[1],fetcher,state.head)).post;
+      validation(()=>validatePost(previous));assertWriteContract(request,env,{previous});
       if(env.PRIVATE_VERIFICATION==='true'&&previous.status==='published')throw new HttpError(403,'Public entry changes are disabled during private verification.');
       const doc=transitionEntry(previous,lifecycleMatch[2],new Date().toISOString(),user.userId);
       const index=await readIndex(user.token,state,fetcher);
@@ -68,20 +77,25 @@ export function createHandler(fetcher=fetch){return async function handle(reques
     }
     if(path==='/api/assets'&&request.method==='POST'){
       const user=await authorize(request,env,fetcher);await csrf(request,user);await limit(env,`upload:${user.userId}`);await verifyRepository(user.token,fetcher);
-      if(request.headers.get('content-type')!=='image/jpeg')throw new HttpError(415,'Only processed JPEG photos can be uploaded.');
-      const bytes=cleanJpeg(await limitedBody(request,700000));const blob=await github(user.token,`/repos/${REPO}/git/blobs`,{method:'POST',body:{content:base64(bytes),encoding:'base64'},fetcher});
-      const path=`media/${blob.sha}.jpg`,receipt=await seal(env.SESSION_SECRET,'asset',{sha:blob.sha,path,userId:user.userId,exp:Date.now()+7200000});return json({path,receipt});
+      const mime=request.headers.get('content-type'),png=mime==='image/png';assertWriteContract(request,env,{png});
+      if(!png&&mime!=='image/jpeg')throw new HttpError(415,'Only processed JPEG or PNG photos can be uploaded.');
+      const input=await limitedBody(request,png?PNG_MAX_BYTES:700000);let bytes;
+      try{bytes=png?await cleanPng(input):cleanJpeg(input);}catch(error){throw new HttpError(400,error.message);}
+      const blob=await github(user.token,`/repos/${REPO}/git/blobs`,{method:'POST',body:{content:base64(bytes),encoding:'base64'},fetcher});
+      if(!/^[a-f0-9]{40}$/.test(blob.sha||''))throw new HttpError(503,'Photo upload did not return a valid revision. Retry the upload.');
+      const path=`media/${blob.sha}.${png?'png':'jpg'}`,receipt=await seal(env.SESSION_SECRET,'asset',{sha:blob.sha,path,userId:user.userId,exp:Date.now()+7200000});return json({path,receipt});
     }
     if(match&&request.method==='PUT'){
       const user=await authorize(request,env,fetcher);await csrf(request,user);await limit(env,`save:${user.userId}`);await verifyRepository(user.token,fetcher);
-      const body=await jsonBody(request);validation(()=>validatePost(body.post));if(body.post.id!==match[1]||!['save','publish','unpublish'].includes(body.action))throw new HttpError(400,'Invalid save request.');
+      const body=await jsonBody(request);assertWriteContract(request,env,{version:body.post?.version});validation(()=>validatePost(body.post));if(body.post.id!==match[1]||!['save','publish','unpublish'].includes(body.action))throw new HttpError(400,'Invalid save request.');
       const doc=cleanPost(body.post),state=await snapshot(user.token,fetcher);const current=state.entries.find(e=>e.path===postPath(doc.id));
       if((body.baseRevision||null)!==(current?.sha||null))throw new HttpError(409,'A newer version exists online. Load it or save your local work as a copy.',{currentRevision:current?.sha||null});
       let previous=null;if(current)previous=(await readPost(user.token,doc.id,fetcher,state.head)).post;
+      if(previous)validation(()=>validatePost(previous));assertWriteContract(request,env,{version:doc.version,previous,png:entryElements(doc).some(e=>e.type==='photo'&&parseMediaPath(e.src)?.extension==='png')});
       if(env.PRIVATE_VERIFICATION==='true'&&(body.action!=='save'||previous?.status==='published'))throw new HttpError(403,'Publishing is disabled during private verification. Save a draft instead.');
       if(previous?.status==='trashed')throw new HttpError(409,'This entry is in trash. Restore it in the CMS before editing.');
-      const paths=[...new Set(doc.elements.filter(e=>e.type==='photo').map(e=>e.src))];const assets=[];
-      for(const path of paths){const expected=path.slice(6,-4);const existing=state.entries.find(e=>e.path===path&&e.type==='blob');if(existing?.sha===expected)continue;const proof=await open(env.SESSION_SECRET,'asset',body.receipts?.[path]);if(!proof||proof.path!==path||proof.sha!==expected||proof.userId!==user.userId)throw new HttpError(400,'Photo upload expired or is missing. Upload the photo again.');assets.push({path,sha:expected});}
+      const paths=[...new Set(entryElements(doc).filter(e=>e.type==='photo').map(e=>e.src))];const assets=[];
+      for(const path of paths){const expected=parseMediaPath(path)?.sha;if(!expected)throw new HttpError(400,'Invalid photo path.');const existing=state.entries.find(e=>e.path===path&&e.type==='blob');if(existing?.sha===expected)continue;const proof=await open(env.SESSION_SECRET,'asset',body.receipts?.[path]);if(!proof||proof.path!==path||proof.sha!==expected||proof.userId!==user.userId)throw new HttpError(400,'Photo upload expired or is missing. Upload the photo again.');assets.push({path,sha:expected});}
       const now=new Date().toISOString();doc.status=body.action==='unpublish'?'draft':body.action==='publish'||previous?.status==='published'?'published':'draft';doc.publishedAt=previous?.publishedAt||(doc.status==='published'?now:null);doc.updatedAt=now;doc.updatedBy=user.userId;
       if(doc.status==='published')validation(()=>assertPublicationGeometry(doc));
       const index=await readIndex(user.token,state,fetcher);const result=await commitPost(user.token,state,doc,assets,fetcher,index);return json({...result,post:doc,publishing:doc.status==='published'||previous?.status==='published'});

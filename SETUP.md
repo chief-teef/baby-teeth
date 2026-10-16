@@ -1,5 +1,20 @@
 # Connect saving and publishing — $0 setup
 
+## Current desktop scrapbook operations
+
+The studio writes nested v3 pages while readers and the service retain v2 compatibility. Canonical dimensions remain 900×1200. Authoring is mode-free; page transfer, Layers, rich typography and transparent PNG tooth impressions use the same document/recovery/save pipeline. Entry colors derive from published ordering; draft/offline colors are marked provisional. Historical mode/v2-only/private-verification sections below describe earlier releases and are superseded by this section and the current configuration.
+
+Local recovery uses IndexedDB `book-v3`. First hydration validates legacy `book`, then atomically preserves its raw contents once at `book-before-v3` and initializes v3. It leaves `book` untouched. A changed legacy tab produces a notice; export current/original/legacy backups separately. Unknown selected recovery or snapshot-preservation failure blocks autosave. Never replace newer v3 with the old snapshot or auto-merge divergent legacy work. Imports add validated copied entries and validate resulting limits before mutation.
+
+The PNG path is static RGBA8 with preserved alpha. Free-runtime measurements reduced its processed bound to 512px per side / 262,144 pixels / 300,000 bytes; retry resampling stays transparent. JPEG retains its existing 700,000-byte / 2400px validation limits. The local workerd profile is an estimate, not production CPU telemetry. Keep full request JSON including receipts within 900,000 UTF-8 bytes; failures preserve local work/export. No paid service is needed.
+
+`SCRAPBOOK_WRITES_ENABLED` defaults false in Wrangler. Session capabilities expose readVersions `[2,3]`, writeVersion `3`, and the actual write flag. The new studio sends `X-Studio-Contract: 3`; this is compatibility, never authorization. With the flag false, legacy v2/JPEG writes remain available, while v3/PNG and lifecycle mutations of existing v3 are rejected. With it true, stale tabs are rejected before mutation and must export/reload. A current revision never permits downgrading existing v3 to v2. Preserve `PRIVATE_VERIFICATION=false` and all authentication/CSRF/repository-write checks.
+
+Release order: run unit/server/build/browser/privacy checks, restore real-content output, reconcile remote content without overwriting it, commit/push scoped code, then wait for successful Publish blog and exact SHA in live revision.json. Build the normal studio, deploy once with writes disabled, verify the gate/capabilities/version, then activate using `npm run deploy:worker -- --var SCRAPBOOK_WRITES_ENABLED:true` and verify again. A later ordinary deploy defaults back to disabled; explicitly activate only after the same compatibility gates. Never deploy fixture output or publish an owner draft as a test. Existing Discord settings and state are preserved.
+
+Rollback: after local v3 migration/edits retain a v3 read/export client; original recovery does not include newer edits. After any repository v3/PNG reference retain compatible readers/cleaners and forward-fix. Disabling new writes is safe; bulk down-conversion or resetting recovery is not. Current desktop verification commands/evidence and actual device/auth limitations are recorded in `docs/desktop-scrapbook-verification.md`.
+
+
 ## Fresh deployment checklist
 
 For another independently owned blog, use a separate checkout and repository. Update `config/blog.json` with its repository name, numeric repository ID, numeric owner account ID, branch, HTTPS public URL ending in `/`, title, and tagline. These settings are validated by the editor, public build, and saving service; incomplete identity fails before repository writes. The studio header and public link use this configuration. Numeric IDs must come from GitHub, not guesses.

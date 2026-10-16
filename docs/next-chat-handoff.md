@@ -1,5 +1,10 @@
 # bbyteeth continuation handoff
 
+## Current drag visibility release
+
+Code `a3c79d949968f4d45bb997010c996c7e5e0d541d` now serves both reader and studio. Dragged text/photos paint above stationary objects and retain preview positions through layout refreshes, then restore authored layer order on drop/cancel. Shared fitting compares integer scroll metrics with rounded bounds so fractional box dimensions do not collapse text toward 1px. New drag/fit regressions, transforms, canonical proof/capacity, compiled CSP checks, both builds and 69 unit tests passed. Pages run38851340724 succeeded and live revision matched; Worker `8cb7e1eb-fc24-438b-9534-38bfd749920d` deployed with v3 writes enabled and PRIVATE_VERIFICATION false. Live reader and signed-out studio gates passed. No owner entries changed during testing. This supersedes the runtime identities in earlier notes below; the tooth CSP correction remains included.
+
+
 ## Current studio stamping correction
 
 Studio code `1f758a6fdbc2ebeb7b9190fb904ccb551ff7cc29`, Worker `2b656c4e-2202-4561-b285-50448aaf6d7a`, fixes Failed to fetch when stamping: Vite's embedded PNG must be used directly rather than fetched under connect-src. The compiled production-CSP regression reproduced the failure before the fix and now passes repeated pointer/keyboard impressions, undo and existing mocked photo upload/save. Build and 69 unit tests passed; live capability/gates passed with writes enabled and PRIVATE_VERIFICATION false. No owner content or security policy changed. Public reader remains at desktop release SHA below. Refresh only after recovery reports Saved on this device. No authenticated live stamp was added to an owner entry as a test.

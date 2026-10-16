@@ -2,6 +2,14 @@
 
 October 15, 2026. The owner authorized implementation and the compatible public/studio rollout through docs/desktop-scrapbook-execution-prompt.md. No owner entry, draft, trash item, media or announcement state was modified as a test. Initial local and remote code heads both were 672f8f23ab88b4d2b97cb1c6d27788f4bcec8e71; the pre-existing interview/review documentation was preserved.
 
+## Production release
+
+Code `558b735e28e13e2755c782784e36bfb39493924e` is live at https://chief-teef.github.io/baby-teeth/ and https://baby-teeth-studio.aucourantfilms.workers.dev. [Publish blog run 38849451934](https://github.com/chief-teef/baby-teeth/actions/runs/38849451934) completed successfully; live revision.json and notifications.json both matched that exact SHA, with zero public entries. Live desktop 1440×900 and narrow 390×844 empty-book closed/open/overview checks passed without page errors.
+
+Compatible Worker/studio first deployed with writes disabled as version `63850c7b-78ff-4804-ae2e-b4dd7ae49b09`; its live capability flag and signed-out gates passed. Activation deployed version `c82670c4-baa2-4c23-b587-1939fb4ffcaa`, tagged `558b735e28e1-active`. Live session capabilities then reported readVersions [2,3], writeVersion 3 and scrapbookWritesEnabled true. PRIVATE_VERIFICATION remained false. Actual compiled JS, HTML, PNG/SVG and font requests stayed gated, and unsigned posts/asset APIs returned 401. The connected in-app browser also showed the sign-in gate after activation; there was no existing authenticated session.
+
+No synthetic or owner-authored entry was saved/published remotely. Repository content and the initialized announcement ledger/configuration were preserved. Normal studio assets were deployed; prototype/verification artifacts were absent. A later documentation-only commit records these identities and does not replace the deployed code SHA above.
+
 ## Local release gates
 
 - Bundled Node 24.19.0 used; the shell default Node 20 was rejected by Wrangler. Baseline: 43 unit tests, 19 server tests, normal editor and real-content public builds passed.

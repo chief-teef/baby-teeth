@@ -1,5 +1,14 @@
 # bbyteeth continuation handoff
 
+## Current desktop scrapbook release — October 15, 2026
+
+The reviewed desktop overhaul is implemented and deployed under owner authorization. Runtime code SHA `558b735e28e13e2755c782784e36bfb39493924e`; [Pages run 38849451934](https://github.com/chief-teef/baby-teeth/actions/runs/38849451934) succeeded and live revision/notifications matched exactly. Public reader: https://chief-teef.github.io/baby-teeth/ ; authenticated studio: https://baby-teeth-studio.aucourantfilms.workers.dev. Worker `c82670c4-baa2-4c23-b587-1939fb4ffcaa` is active with v3/PNG writes enabled and PRIVATE_VERIFICATION false, after disabled-write version `63850c7b-78ff-4804-ae2e-b4dd7ae49b09` passed its gates. Wrangler's committed write flag intentionally defaults false; future deployment activation must follow SETUP rather than accidentally enabling a candidate.
+
+New documents/recovery use nested v3 pages and book-v3; v2 remains readable. Immutable book-before-v3 and legacy book are retained. Mode-free text/photos, curated fonts, Layers/page transfer, repeating entry colors, Otis and transparent tooth impressions are present; legacy ink/music/IDs/URLs and atomic revision/receipt checks remain. PNG uses the measured Free-runtime 512px/300KB bound; JPEG retains its limits. Do not down-convert or reset v3 recovery/repository entries for rollback.
+
+69 unit tests, 19 server tests, 14 desktop/browser suites, canonical fit/capacity, real local workerd negative/resource tests, published-only fixture builds and existing navigation/motion/responsive checks passed. Real-content public output was rebuilt after fixtures and currently has zero public entries. Live desktop/narrow empty-reader and activated studio capability/gate/401 checks passed; no owner content or announcement state was modified. Independent review findings were fixed and regressed. Details and remaining actual-device/Docs/IME/CSS-zoom/authenticated-save limitations are in docs/desktop-scrapbook-verification.md. No signed-in browser session or designated intended draft was available; mocked local saves are not real GitHub write evidence. Prior mode/v2/private-only descriptions below are historical.
+
+
 ## Discord activation — October 15, 2026
 
 The owner authorized setup for **BBY TEETH → #oh-no-my-teeth-fell-out**, using the existing **the town crier** webhook. Its Discord settings confirmed that exact channel. The initially stored repository secret failed URL validation before state creation or any Discord request; delivery was paused, the correct URL was copied directly into GitHub's secret field, and the owner completed GitHub's email verification. No webhook URL/token was printed, committed, or stored in local files; temporary browser clipboard/memory copies were cleared.

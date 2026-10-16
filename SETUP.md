@@ -77,6 +77,8 @@ The workflow is gated until this explicit activation. This preserves the current
 
 ## Discord announcements: secure setup and activation
 
+Current deployment: the owner authorized activation on October 15, 2026. The existing **the town crier** webhook targets **BBY TEETH → #oh-no-my-teeth-fell-out**; its URL is stored only in the repository Actions secret. Announcements are enabled and the empty public site was silently initialized with zero sends. Do not initialize again. The next real publication is the remaining live-delivery acceptance check; deployment/run evidence is in `docs/next-chat-handoff.md`.
+
 The public `/notifications.json` manifest contains only public entry IDs, titles, permalinks and publication dates, with the same build revision as `/revision.json`. **Discord announcements** runs after successful **Publish blog**, hourly at minute 23, and manually. It verifies deployment provenance and live permalinks before delivery. Leave the repository Actions variable `DISCORD_ANNOUNCEMENTS_ENABLED` absent or `false` while deploying and verifying the manifest. `BLOG_PUBLISHING_ENABLED` must also be `true` for initialization or delivery; existing publishing is otherwise unchanged.
 
 Activation and live Discord testing require the owner's explicit authorization. Never paste a webhook URL into chat, command arguments, source, logs or screenshots.

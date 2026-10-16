@@ -1,6 +1,6 @@
 # Discord announcements for Anna's blog
 
-Status: implemented, tested and deployed with delivery disabled. The owner accepted automatic retries with possible duplicates and catch-up of every missed entry in small batches. Secure channel setup, production initialization, activation, and Discord messages still require explicit authorization. Deployment evidence is recorded in `docs/next-chat-handoff.md`.
+Status: implemented, tested, deployed and activated with owner authorization on October 15, 2026. The configured destination is BBY TEETH → #oh-no-my-teeth-fell-out through the existing **the town crier** webhook. Silent initialization succeeded with zero public entries and zero sends. The next authorized real publication remains the live-delivery acceptance check; synthetic entries/test messages are not authorized. The owner accepted automatic retries with possible duplicates and catch-up of every missed entry in small batches. Deployment evidence is recorded in `docs/next-chat-handoff.md`.
 
 ## Outcome and accepted decisions
 
@@ -13,7 +13,7 @@ Announce new public blog entries in one chosen Discord text channel after their 
 - Unpublishing does not remove an existing Discord message. An unconfirmed entry is retried only while public; if it returns later, retry remains eligible.
 - No hard delivery-time guarantee: Actions scheduling, provider availability, rate limits, and Pages propagation can delay delivery. An entry removed before processing may never be announced.
 
-Use a Discord incoming webhook named **Anna's Blog**, executed by GitHub Actions. No persistent bot, bot login/token, Gateway connection, SDK, paid service, or studio UI is needed. [Discord incoming webhooks](https://docs.discord.com/developers/resources/webhook)
+Use the owner's configured Discord incoming webhook, executed by GitHub Actions. The current deployment uses **the town crier**; new deployments may use **Anna's Blog**. No persistent bot, bot login/token, Gateway connection, SDK, paid service, or studio UI is needed. [Discord incoming webhooks](https://docs.discord.com/developers/resources/webhook)
 
 ## Message
 

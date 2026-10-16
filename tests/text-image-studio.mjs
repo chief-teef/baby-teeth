@@ -3,14 +3,14 @@ import assert from 'node:assert/strict';
 const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
 const page=await browser.newPage({viewport:{width:1400,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
 const shape=loc=>loc.evaluate(el=>({w:parseFloat(el.style.width),h:parseFloat(el.style.height),x:parseFloat(el.style.left),y:parseFloat(el.style.top)}));
-async function drag(loc,dx,dy){await loc.scrollIntoViewIfNeeded();const r=await loc.boundingBox();await page.mouse.move(r.x+r.width/2,r.y+r.height/2);await page.mouse.down();await page.mouse.move(r.x+r.width/2+dx,r.y+r.height/2+dy,{steps:8});await page.mouse.up();}
+async function drag(loc,dx,dy){await loc.evaluate(el=>el.scrollIntoView({block:'center',inline:'center'}));const r=await loc.boundingBox();await page.mouse.move(r.x+r.width/2,r.y+r.height/2);await page.mouse.down();await page.mouse.move(r.x+r.width/2+dx,r.y+r.height/2+dy,{steps:8});await page.mouse.up();}
 try{
- await page.goto(process.argv[2]||'http://127.0.0.1:5175/');assert.equal(await page.locator('[data-mode="draw"],#tooth-stamp').count(),0);
+ await page.goto(process.argv[2]||'http://127.0.0.1:5175/');assert.equal(await page.locator('[data-mode="draw"],#tooth-stamp').count(),0);await page.getByRole('textbox',{name:'Entry title'}).fill('Text and photo transforms');
  await page.getByRole('button',{name:'+ Text box',exact:true}).click();const text=page.locator('.object.text');await page.locator('.tiptap').fill('A handwritten afternoon. '.repeat(24));assert.equal(await text.getAttribute('data-font'),'handwriting');await page.getByRole('button',{name:'Delete',exact:true}).isVisible();
  await text.click({position:{x:20,y:20}});assert.equal(await text.locator('.resize-handle').count(),8);
  const a=await shape(text);await drag(text.locator('.resize-e'),80,0);const b=await shape(text);assert.ok(b.w>a.w+60);assert.equal(b.h,a.h);
  await drag(text.locator('.resize-s'),0,55);const c=await shape(text);assert.equal(c.w,b.w);assert.ok(c.h>b.h+40);
- await page.getByRole('button',{name:'Properties',exact:true}).click();await page.getByRole('spinbutton',{name:'Rotate of selected object'}).fill('30');await page.getByRole('spinbutton',{name:'Rotate of selected object'}).press('Tab');
+ await page.getByRole('button',{name:'Properties',exact:true}).click();await page.getByRole('spinbutton',{name:'Rotate of selected object'}).fill('30');await page.getByRole('spinbutton',{name:'Rotate of selected object'}).press('Tab');await page.waitForTimeout(250);
  const before=await shape(text);await drag(text.locator('.resize-e'),Math.cos(Math.PI/6)*60,Math.sin(Math.PI/6)*60);const after=await shape(text);assert.ok(after.w>before.w+45);assert.ok(Math.abs(after.h-before.h)<1);
  assert.equal(await page.getByRole('button',{name:'Fit text',exact:true}).count(),0);assert.equal((await shape(text)).h,after.h);assert.ok(Number(await text.getAttribute('data-fitted-size'))<32);assert.match(await text.textContent(),/handwritten afternoon/);
  await page.getByRole('button',{name:'Reset rotation',exact:true}).click();assert.match(await text.getAttribute('style'),/rotate\(0deg\)/);

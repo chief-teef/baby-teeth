@@ -7,7 +7,7 @@
 .studio .paper-stack .candidate-page .editor-page-number{top:40px;left:54px}
 .studio .paper-stack>.object{position:absolute;touch-action:pan-y}
 .studio .paper-stack>.object.photo,.studio .paper-stack>.object.drawing,.studio .paper-stack>.object .grab{touch-action:none}
-.studio .paper-stack .moving-object{pointer-events:none;will-change:left,top}
+.studio .paper-stack .moving-object{pointer-events:none;will-change:left,top;z-index:1000!important}
 .studio .paper-stack .object.text .ProseMirror{cursor:text}
 .studio .paper-stack .object.selected .grab{display:flex;cursor:grab;touch-action:none}
 .studio .paper-stack .object.selected .grab:active{cursor:grabbing}

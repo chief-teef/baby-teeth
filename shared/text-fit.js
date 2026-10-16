@@ -12,7 +12,7 @@ export function fitTextBox(element,model){
  if(cached&&cached.doc===model.doc&&cached.w===model.w&&cached.h===model.h&&cached.font===model.font&&cached.preferred===preferred&&cached.generation===fontGeneration)return apply(cached.result);
  if(!content.getClientRects().length){const host=document.createElement('div');host.className='notebook-stage';host.style.cssText=`position:fixed;left:-100000px;top:0;width:${model.w}px;visibility:hidden;pointer-events:none`;const clone=element.cloneNode(true);clone.style.display='block';clone.style.position='relative';clone.style.left=clone.style.top='0';clone.style.transform='none';clone.style.width=model.w+'px';host.append(clone);document.body.append(host);try{return apply(fitTextBox(clone,model));}finally{host.remove();}}
  apply({fontSize:preferred,scale:1,fits:true,small:false});
- const test=scale=>{element.style.setProperty('--text-size',preferred*scale+'px');element.style.setProperty('--text-scale',String(scale));return content.scrollHeight<=model.h&&content.scrollWidth<=model.w;};
+ const test=scale=>{element.style.setProperty('--text-size',preferred*scale+'px');element.style.setProperty('--text-scale',String(scale));return content.scrollHeight<=Math.round(model.h)&&content.scrollWidth<=Math.round(model.w);};
  const minRun=smallestRun(content,preferred),minimum=1/minRun;let scale=1,fits=test(1);
  if(!fits){let low=minimum,high=1;fits=test(minimum);if(fits){while((high-low)*Math.max(preferred,144)>.25){const mid=(low+high)/2;if(test(mid))low=mid;else high=mid;}scale=low;}else scale=minimum;}
  fits=test(scale)&&fits;const result={fontSize:preferred*scale,scale,fits,small:minRun*scale<12};

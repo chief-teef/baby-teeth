@@ -8,7 +8,7 @@ export function mountEditorProps({root,getEntry,getActivePageId,placeStamp,notif
  const cursor=document.createElement('img');cursor.className='stamp-cursor';cursor.src=toothUrl;cursor.alt='';cursor.hidden=true;cursor.draggable=false;
  (root.querySelector('.toolbar')||root).append(props);root.append(cursor);
  const holder=props.querySelector('.stamp-pickup'),keyboard=props.querySelector('.stamp-keyboard'),cat=props.querySelector('.editor-otis');
- const motion=matchMedia('(prefers-reduced-motion: reduce)');let active=true,armed=false,down=null,disposed=false,source;
+ const motion=matchMedia('(prefers-reduced-motion: reduce)');let active=true,armed=false,down=null,disposed=false,source=toothUrl.startsWith('data:image/png;base64,')?toothUrl:undefined;
  const controller=new AbortController(),on=(target,event,fn,options={})=>target.addEventListener(event,fn,{...options,signal:controller.signal});
  function sync(){const shown=active&&!document.hidden;props.hidden=!active;cursor.hidden=!shown||!armed;cat.classList.toggle('otis-paused',!shown||motion.matches);if(!shown)down=null;}
  function arm(value){armed=Boolean(value);down=null;holder.setAttribute('aria-pressed',String(armed));holder.querySelector('span').textContent=armed?'Put stamp away':'Tooth stamp';keyboard.hidden=!armed;root.classList.toggle('stamp-armed',armed);sync();}

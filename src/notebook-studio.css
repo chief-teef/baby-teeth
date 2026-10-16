@@ -55,3 +55,5 @@ body.studio{background:var(--space-deep);color:var(--ink);--accent:var(--cover-s
 .studio .notebook-stage .resize-handle:focus-visible,.studio .notebook-stage .rotate-handle:focus-visible{outline:calc(3 * var(--screen-unit)) solid #537951;outline-offset:0}
 .studio button[hidden]{display:none!important}
 @media(min-width:600px) and (max-width:999px){.studio .toolbar{padding:6px 10px;gap:5px}.studio .toolbar button{font-size:12px;padding:6px 8px;gap:5px}.studio .toolbar .tool-icon{width:18px;height:18px}.studio .segmented{padding:3px;gap:2px}.studio .context-row{padding-block:4px}}
+
+.studio #layers-panel{flex-basis:100%;border-top:1px dashed #7b576b}.studio #layers-panel>summary{min-height:44px;padding:12px;cursor:pointer;font:14px/20px Arial,sans-serif}.studio #layers-panel>summary:focus-visible{outline:3px solid #493844;outline-offset:1px}

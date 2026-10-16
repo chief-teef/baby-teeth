@@ -4,8 +4,8 @@ import {OPEN_MS,CLOSE_MS,TURN_MS} from '../shared/book/timing.js';
 const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true}),page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];
 page.on('pageerror',e=>errors.push(e.message));
 try{
- await page.goto('http://127.0.0.1:5174/prototypes/book.html');await page.waitForFunction(()=>window.fixture);
- await page.evaluate(async()=>{fixture.turn.dispose();const {mountBook}=await import('/shared/book/scene.js');const {blankPost,textDoc}=await import('/src/model.js');const posts=Array.from({length:3},(_,i)=>({...blankPost(),title:`Motion study ${i+1}`,created:`2026-10-13T12:00:0${i}Z`,elements:[{id:crypto.randomUUID(),type:'text',x:20,y:20,w:700,h:120,rotation:0,doc:textDoc('Sharp, selectable text stays with the paper.')}]}));document.body.replaceChildren();window.root=document.createElement('div');document.body.append(root);window.scene=mountBook(root,posts,{history:false});});
+ await page.goto('http://127.0.0.1:5175/prototypes/book.html');await page.waitForFunction(()=>window.fixture);
+ await page.evaluate(async()=>{fixture.turn.dispose();const {mountBook}=await import('/shared/book/scene.js');const {blankPost,textDoc}=await import('/src/model.js');const posts=Array.from({length:3},(_,i)=>({version:2,pageFormat:'notebook-900x1200-v1',id:crypto.randomUUID(),title:`Motion study ${i+1}`,created:`2026-10-13T12:00:0${i}Z`,elements:[{id:crypto.randomUUID(),type:'text',x:20,y:20,w:700,h:120,rotation:0,doc:textDoc('Sharp, selectable text stays with the paper.')}]}));document.body.replaceChildren();window.root=document.createElement('div');document.body.append(root);window.scene=mountBook(root,posts,{history:false});});
  await page.waitForTimeout(100);
  const attachments=()=>page.evaluate(()=>{
   const svg=document.querySelector('.book-charms'),matrix=svg.getScreenCTM(),mount=svg.querySelector('.charm-mount').getBBox(),edge=document.querySelector('.back-right').getBoundingClientRect().right;

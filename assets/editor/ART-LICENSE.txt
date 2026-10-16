@@ -1,0 +1,10 @@
+Original pixel artwork: Otis (public/editor/otis.svg) and tooth impression
+(assets/editor/tooth-stamp.svg, public/editor/tooth-stamp.png).
+Created for Baby Teeth, 2026. Dedicated to the public domain under CC0 1.0.
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Font licenses are separate and accompany every downloaded font in
+public/editor/fonts/. Source URLs, files, sizes and SHA-256 checksums are in
+assets/editor/font-inventory.json. Font binaries are unmodified Google Fonts
+Latin WOFF2 regular (400 normal) files; styles absent from these source files
+use the canonical renderer's explicit synthesis policy.

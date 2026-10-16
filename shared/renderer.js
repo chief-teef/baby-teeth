@@ -1,5 +1,7 @@
 import {esc,renderText,MEDIA_PATH} from './document.js';
 import {bounds} from '../src/model.js';
+import {entryPages} from './notebook-format.js';
+import {fontFamily} from './font-registry.js';
 import {MUSIC_SLOTS,validateMusic} from './music.js';
 export function renderMusic(post,base='/'){
  if(!post.music)return '';const music=validateMusic(post.music);if(!music.artists.length&&!music.songs.length)return '';
@@ -8,7 +10,10 @@ export function renderMusic(post,base='/'){
 function ink(e){const paths=e.strokes.map(s=>`<path d="${s.points.map((p,i)=>`${i?'L':'M'}${p[0]},${p[1]}`).join(' ')}" fill="none" stroke="${s.color}" stroke-width="${s.size}" stroke-linecap="round" stroke-linejoin="round"/>`).join('');return `<svg viewBox="0 0 ${e.sourceW} ${e.sourceH}" aria-hidden="true">${paths}</svg>`;}
 const layout=e=>esc(JSON.stringify({x:e.x,y:e.y,w:e.w,h:e.h,rotation:e.rotation}));
 export function renderComposition(post,base='/'){
-  const units=[],groups=new Map();post.elements.forEach(e=>{const key=e.group||e.id;if(!groups.has(key)){const unit=[];groups.set(key,unit);units.push(unit);}groups.get(key).push(e);});
+ return entryPages(post).map((page,index)=>`<section class="reading-page" aria-label="Page ${index+1} of ${entryPages(post).length}">${renderPageComposition(page,base)}</section>`).join('');
+}
+function renderPageComposition(page,base){
+  const units=[],groups=new Map();page.elements.forEach(e=>{const key=e.group||e.id;if(!groups.has(key)){const unit=[];groups.set(key,unit);units.push(unit);}groups.get(key).push(e);});
   return `<div class="public-canvas" data-canvas>${units.map(unit=>{
     const media=unit.filter(e=>e.type!=='text');let html='';
     if(media.length){const b=media.map(bounds),x=Math.min(...b.map(b=>b.x)),y=Math.min(...b.map(b=>b.y)),w=Math.max(...b.map(b=>b.x+b.w))-x,h=Math.max(...b.map(b=>b.y+b.h))-y;
@@ -17,6 +22,6 @@ export function renderComposition(post,base='/'){
         return `<div class="public-object public-${e.type}" data-layout="${layout(e)}" data-phone="${esc(style)}" style="${style}">${e.type==='photo'?`<img src="${esc(MEDIA_PATH.test(e.src)?base+e.src:e.src)}" alt="${esc(e.alt)}" width="${Math.round(e.w)}" height="${Math.round(e.h)}" loading="lazy" decoding="async">`:ink(e)}</div>`;
       }).join('')}</div>`;
     }
-    html+=unit.filter(e=>e.type==='text').map(e=>`<div class="public-object public-text" data-layout="${layout(e)}"${e.font!==undefined||e.fontSize!==undefined?` data-font="${e.font??'serif'}" style="font-family:${e.font==='handwriting'?'Caveat,Georgia,serif':'Georgia,Gelasio,serif'};font-synthesis:style;font-size:${e.fontSize??28}px;line-height:${e.font==='handwriting'?1.25:38/28}"`:''}>${renderText(e.doc)}</div>`).join('');return html;
+    html+=unit.filter(e=>e.type==='text').map(e=>`<div class="public-object public-text" data-layout="${layout(e)}" data-font="${e.font??'serif'}" style="font-family:${esc(fontFamily(e.font))};font-synthesis:weight style;font-size:${e.fontSize??28}px;line-height:${e.font==='handwriting'?1.25:38/28};--text-size:${e.fontSize??28}px;--text-font:${esc(fontFamily(e.font))};--text-scale:1">${renderText(e.doc)}</div>`).join('');return html;
   }).join('')}</div>`;
 }

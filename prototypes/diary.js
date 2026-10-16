@@ -48,5 +48,5 @@ const music={
     }
   ]
 };
-const posts=titles.map((title,i)=>{const p=blankPost();p.id=`0000000${i+1}-dddd-4ddd-8ddd-dddddddddddd`;p.title=title;p.created=`2026-10-${String(9+i).padStart(2,'0')}T18:00:00Z`;p.music=structuredClone(music);p.elements=[{id:uid(),type:'text',x:12,y:10,w:740,h:150,rotation:0,doc:textDoc(notes[i])},{id:uid(),type:'photo',x:48,y:200,w:600,h:400,rotation:i%2?4:-3,src:study(i),alt:'Original landscape illustration for this fictional local demo'}, {...toothStamp(uid()),x:640,y:660,rotation:i%2?-8:8}];return p;});
+const posts=titles.map((title,i)=>{const p=blankPost();p.id=`0000000${i+1}-dddd-4ddd-8ddd-dddddddddddd`;p.title=title;p.created=`2026-10-${String(9+i).padStart(2,'0')}T18:00:00Z`;p.music=structuredClone(music);p.pages[0].elements=[{id:uid(),type:'text',x:12,y:10,w:740,h:150,rotation:0,doc:textDoc(notes[i])},{id:uid(),type:'photo',x:48,y:200,w:600,h:400,rotation:i%2?4:-3,src:study(i),alt:'Original landscape illustration for this fictional local demo'}, {...toothStamp(uid()),x:640,y:660,rotation:i%2?-8:8}];return p;});
 window.bookScene=mountBook(document.querySelector('#demo'),posts,{history:false});

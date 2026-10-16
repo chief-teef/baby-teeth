@@ -13,7 +13,7 @@ await page.keyboard.type(' A bold little ending.');
 await page.waitForFunction(()=>document.querySelector('#status').textContent==='Saved on this device');
 await page.reload();await page.waitForSelector('.tiptap');
 assert.match(await page.locator('.tiptap').textContent(),/afternoon/);
-await page.getByRole('button',{name:'Move & resize',exact:true}).click();
+
 await page.locator('.object.text').click();
 const textObject=page.locator('.object.text');
 const beforeMove=await textObject.evaluate(e=>parseFloat(e.style.left));

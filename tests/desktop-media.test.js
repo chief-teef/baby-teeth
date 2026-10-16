@@ -1,0 +1,41 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import sharp from 'sharp';
+import {cleanPng,PNG_MAX_BYTES,PNG_MAX_SIDE} from '../shared/png.js';
+import {mediaFixtures} from './desktop-media-fixtures.js';
+import {assertWriteContract,createHandler} from '../worker/index.js';
+import {seal,digest} from '../worker/security.js';
+import {createHash} from 'node:crypto';
+const fixtures=await mediaFixtures();
+test('PNG canonical encoding preserves transparent and semitransparent RGBA edges',async()=>{const clean=await cleanPng(fixtures.valid),image=await sharp(clean).raw().toBuffer();assert.deepEqual([...image],[255,0,0,0,0,255,0,128,0,0,255,255,255,255,255,80]);assert.deepEqual(await cleanPng(clean),clean);});
+test('PNG metadata is removed and maximal dimensions/byte-bound decode completes',async()=>{assert.equal(Buffer.from(await cleanPng(fixtures.metadata)).includes(Buffer.from('private metadata')),false);assert.ok(fixtures.maximal.length<=PNG_MAX_BYTES);const clean=await cleanPng(fixtures.maximal),meta=await sharp(clean).metadata();assert.equal(meta.width,PNG_MAX_SIDE);assert.equal(meta.height,PNG_MAX_SIDE);});
+for(const [name,bytes] of fixtures.invalid)test(`PNG rejects ${name}`,async()=>{await assert.rejects(cleanPng(bytes));});
+test('write contract blocks staged v3/PNG and stale clients without downgrading existing v3',()=>{const old=new Request('https://studio.example'),modern=new Request('https://studio.example',{headers:{'X-Studio-Contract':'3'}}),off={},on={SCRAPBOOK_WRITES_ENABLED:'true'};assert.doesNotThrow(()=>assertWriteContract(old,off,{version:2}));for(const context of [{version:3},{png:true},{previous:{version:3}}])assert.throws(()=>assertWriteContract(modern,off,context));assert.throws(()=>assertWriteContract(old,on,{version:2}));assert.throws(()=>assertWriteContract(modern,on,{version:2,previous:{version:3}}));assert.doesNotThrow(()=>assertWriteContract(modern,on,{version:3}));});
+test('session advertises compatible reader and default-disabled v3 writer capabilities',async()=>{for(const enabled of [false,true]){const response=await createHandler()(new Request('https://studio.example/api/session'),{SCRAPBOOK_WRITES_ENABLED:String(enabled)});assert.deepEqual((await response.json()).capabilities,{readVersions:[2,3],writeVersion:3,scrapbookWritesEnabled:enabled});}});
+test('v3 PNG upload/save traverses later pages, binds Git blob receipts and rejects bad MIME/stale writes',async()=>{
+  const userId=341668853,sessionId='x'.repeat(43),secret='testing-only-secret-with-enough-length',csrf='testing-csrf',id='11111111-1111-4111-8111-111111111111',element='22222222-2222-4222-8222-222222222222',page='33333333-3333-4333-8333-333333333333';
+  const session=await seal(secret,'session',{token:'test-token',userId,csrf,exp:Date.now()+60000}),key=`session:${await digest(sessionId)}`;let blobBytes,tree,document;
+  const env={SCRAPBOOK_WRITES_ENABLED:'true',GITHUB_CLIENT_ID:'test',GITHUB_CLIENT_SECRET:'test',SESSION_SECRET:secret,SESSIONS:{get:async k=>k===key?session:null}};
+  const fetcher=async(url,options={})=>{const path=new URL(url).pathname,body=options.body&&JSON.parse(options.body);
+    if(path==='/repos/chief-teef/baby-teeth')return Response.json({id:1416133666,permissions:{push:true}});
+    if(path.endsWith('/git/blobs')){blobBytes=Buffer.from(body.content,'base64');return Response.json({sha:createHash('sha1').update(`blob ${blobBytes.length}\0`).update(blobBytes).digest('hex')});}
+    if(path.endsWith('/git/ref/heads/main'))return Response.json({object:{sha:'a'.repeat(40)}});
+    if(path.includes('/git/commits/')&&!body)return Response.json({tree:{sha:'b'.repeat(40)}});
+    if(path.includes('/git/trees/')&&!body)return Response.json({tree:[],truncated:false});
+    if(path.endsWith('/git/trees')){tree=body.tree;document=JSON.parse(tree.find(item=>item.path.startsWith('content/posts/')).content);return Response.json({sha:'c'.repeat(40)});}
+    if(path.endsWith('/git/commits'))return Response.json({sha:'d'.repeat(40)});
+    if(path.endsWith('/git/refs/heads/main')){assert.equal(body.force,false);return Response.json({object:{sha:body.sha}});}
+    if(path.includes('/contents/content/posts/'))return Response.json({sha:'e'.repeat(40),content:Buffer.from(JSON.stringify(document)).toString('base64')});
+    throw Error(`Unexpected fixture endpoint: ${path}`);
+  };
+  const handler=createHandler(fetcher),request=async(path,body,mime='application/json',contract='3')=>handler(new Request(`https://studio.example${path}`,{method:path==='/api/assets'?'POST':'PUT',headers:{cookie:`__Host-bt-session=${sessionId}`,Origin:'https://studio.example','X-CSRF-Token':csrf,'X-Studio-Contract':contract,'Content-Type':mime},body:mime==='application/json'?JSON.stringify(body):body}),env);
+  assert.equal((await request('/api/assets',fixtures.valid,'image/jpeg')).status,400);
+  assert.equal((await request('/api/assets',fixtures.valid,'image/png','2')).status,409);
+  const uploaded=await request('/api/assets',fixtures.valid,'image/png');assert.equal(uploaded.status,200);const asset=await uploaded.json();assert.ok(asset.path.endsWith('.png'));assert.deepEqual(blobBytes,Buffer.from(fixtures.valid));
+  const post={version:3,pageFormat:'notebook-900x1200-v1',id,title:'All pages',created:'2026-10-15T18:00:00.000Z',pages:[{id,elements:[{id:'44444444-4444-4444-8444-444444444444',type:'text',x:40,y:40,w:200,h:100,rotation:0,doc:{type:'doc',content:[{type:'paragraph',content:[{type:'text',text:'First page'}]}]}}]},{id:page,elements:[{id:element,type:'photo',src:asset.path,alt:'Alpha',x:40,y:40,w:100,h:100,rotation:0}]}]};
+  assert.equal((await request(`/api/posts/${id}`,{post,action:'save',receipts:{}})).status,400);
+  const saved=await request(`/api/posts/${id}`,{post,action:'save',receipts:{[asset.path]:asset.receipt}});assert.equal(saved.status,200);assert.equal(document.pages[1].elements[0].src,asset.path);assert.ok(tree.some(item=>item.path===asset.path));
+  env.SCRAPBOOK_WRITES_ENABLED='false';assert.equal((await request(`/api/posts/${id}`,{post,action:'save'})).status,409);
+});
+
+ test('client bounds complete UTF-8 save JSON including receipts before sending',async()=>{const {createCloudClient}=await import('../src/cloud.js'),previousFetch=globalThis.fetch;let calls=0;globalThis.fetch=async()=>{calls++;return Response.json({ok:true});};try{const client=createCloudClient();await assert.rejects(client.save('fixture',{post:{text:'é'.repeat(450000)},receipts:{upload:'receipt'}}),/900,000 bytes/);assert.equal(calls,0);await client.save('fixture',{post:{text:'hello'},receipts:{upload:'receipt'}});assert.equal(calls,1);}finally{globalThis.fetch=previousFetch;}});

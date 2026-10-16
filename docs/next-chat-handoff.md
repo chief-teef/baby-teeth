@@ -1,8 +1,13 @@
 # bbyteeth continuation handoff
 
+## Current studio stamping correction
+
+Studio code `1f758a6fdbc2ebeb7b9190fb904ccb551ff7cc29`, Worker `2b656c4e-2202-4561-b285-50448aaf6d7a`, fixes Failed to fetch when stamping: Vite's embedded PNG must be used directly rather than fetched under connect-src. The compiled production-CSP regression reproduced the failure before the fix and now passes repeated pointer/keyboard impressions, undo and existing mocked photo upload/save. Build and 69 unit tests passed; live capability/gates passed with writes enabled and PRIVATE_VERIFICATION false. No owner content or security policy changed. Public reader remains at desktop release SHA below. Refresh only after recovery reports Saved on this device. No authenticated live stamp was added to an owner entry as a test.
+
+
 ## Current desktop scrapbook release — October 15, 2026
 
-The reviewed desktop overhaul is implemented and deployed under owner authorization. Runtime code SHA `558b735e28e13e2755c782784e36bfb39493924e`; [Pages run 38849451934](https://github.com/chief-teef/baby-teeth/actions/runs/38849451934) succeeded and live revision/notifications matched exactly. Public reader: https://chief-teef.github.io/baby-teeth/ ; authenticated studio: https://baby-teeth-studio.aucourantfilms.workers.dev. Worker `c82670c4-baa2-4c23-b587-1939fb4ffcaa` is active with v3/PNG writes enabled and PRIVATE_VERIFICATION false, after disabled-write version `63850c7b-78ff-4804-ae2e-b4dd7ae49b09` passed its gates. Wrangler's committed write flag intentionally defaults false; future deployment activation must follow SETUP rather than accidentally enabling a candidate.
+The reviewed desktop overhaul is implemented and deployed under owner authorization. Runtime code SHA `558b735e28e13e2755c782784e36bfb39493924e`; [Pages run 38849451934](https://github.com/chief-teef/baby-teeth/actions/runs/38849451934) succeeded and live revision/notifications matched exactly. Public reader: https://chief-teef.github.io/baby-teeth/ ; authenticated studio: https://baby-teeth-studio.aucourantfilms.workers.dev. Original activation Worker `c82670c4-baa2-4c23-b587-1939fb4ffcaa` was deployed with v3/PNG writes enabled and PRIVATE_VERIFICATION false, after disabled-write version `63850c7b-78ff-4804-ae2e-b4dd7ae49b09` passed its gates. Wrangler's committed write flag intentionally defaults false; future deployment activation must follow SETUP rather than accidentally enabling a candidate.
 
 New documents/recovery use nested v3 pages and book-v3; v2 remains readable. Immutable book-before-v3 and legacy book are retained. Mode-free text/photos, curated fonts, Layers/page transfer, repeating entry colors, Otis and transparent tooth impressions are present; legacy ink/music/IDs/URLs and atomic revision/receipt checks remain. PNG uses the measured Free-runtime 512px/300KB bound; JPEG retains its limits. Do not down-convert or reset v3 recovery/repository entries for rollback.
 

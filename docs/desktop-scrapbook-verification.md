@@ -38,3 +38,9 @@ Ignored `test-results/` contains desktop-integrated-evidence.json, desktop-integ
 Production identities and live smoke evidence are recorded in the ignored desktop-release.json artifact after rollout and reported in the delivery response. SETUP documents disabled-first deployment, explicit activation, stale-client errors and rollback cutoffs. The committed Wrangler default remains disabled so a future deploy cannot accidentally activate an unverified candidate.
 
 Live authenticated saving requires a designated intended draft; no owner draft was used as a test. No existing authenticated session was available in the connected browser. Mocked API saves and local workerd tests do not prove a real GitHub write. No physical iPad/Pencil, actual Google Docs clipboard, hardware IME or browser-chrome zoom acceptance is claimed. Synthetic paste/IME, desktop touch emulation and CSS zoom are explicitly local evidence. Optional stamp sound was omitted. The live public repository currently has no published entries, so live empty-book evidence and local multi-page fixture evidence are separate.
+
+## Bundled tooth CSP regression
+
+The first production stamping attempt reported Failed to fetch: Vite embedded the tiny PNG as a data URL, and editor-props tried fetch(dataURL), which connect-src correctly rejects. Development-only shell tests had not reproduced that compiled-asset behavior. editor-props now uses an embedded PNG data URL directly, while retaining the same-origin asset fetch for non-inlined development URLs. CSP is unchanged.
+
+The expanded compiled tests/cloud-csp.mjs reproduced the original failure, then passed repeated keyboard and pointer impressions, shared PNG source and one-step undo after the fix. The existing compiled PNG upload/mocked draft-save checks, normal editor build and all 69 unit tests passed. No live entry was changed to test this fix.

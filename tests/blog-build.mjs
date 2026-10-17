@@ -18,7 +18,7 @@ fs.mkdirSync(path.join(fixtures,'r2'),{recursive:true});fs.writeFileSync(path.jo
 const ids=[];
 for(let i=0;i<8;i++){
   const id=`${String(i+1).padStart(8,'0')}-1111-4111-8111-111111111111`;ids.push(id);
-  const post={version:2,pageFormat:'notebook-900x1200-v1',id,title:i>=6?'DRAFT_TITLE_SECRET':`Published ${i+1}`,created:'2026-10-12T18:00:00.000Z',status:i===7?'trashed':i>=6?'draft':'published',publishedAt:i>=6?null:'2026-10-12T18:00:00.000Z',elements:[{id:'22222222-2222-4222-8222-222222222222',type:'text',x:50,y:50,w:300,h:100,rotation:0,doc:{type:'doc',content:[{type:'paragraph',content:[{type:'text',text:i>=6?'DRAFT_TEXT_SECRET':'Readable public content & escaped <tags>.'}]}]}},{id:'33333333-3333-4333-8333-333333333333',type:'photo',x:100,y:200,w:300,h:200,rotation:5,src:i>=6?draftMedia:publicMedia,alt:'Photo fixture'}]};
+  const post={version:2,pageFormat:'notebook-900x1200-v1',id,title:i>=6?'DRAFT_TITLE_SECRET':i===4?'':`Published ${i+1}`,created:'2026-10-12T18:00:00.000Z',status:i===7?'trashed':i>=6?'draft':'published',publishedAt:i>=6?null:'2026-10-12T18:00:00.000Z',elements:[{id:'22222222-2222-4222-8222-222222222222',type:'text',x:50,y:50,w:300,h:100,rotation:0,doc:{type:'doc',content:[{type:'paragraph',content:[{type:'text',text:i>=6?'DRAFT_TEXT_SECRET':'Readable public content & escaped <tags>.'}]}]}},{id:'33333333-3333-4333-8333-333333333333',type:'photo',x:100,y:200,w:300,h:200,rotation:5,src:i>=6?draftMedia:publicMedia,alt:'Photo fixture'}]};
   if(i===5){post.version=3;post.pages=Array.from({length:6},(_,pageIndex)=>({id:crypto.randomUUID(),elements:post.elements.map(e=>({...structuredClone(e),id:crypto.randomUUID(),...(e.type==='photo'?{src:pageIndex===5?publicR2:pageIndex===4?largePng:publicPng}:{}),...(e.type==='text'?{doc:{type:'doc',content:[{type:'paragraph',content:[{type:'text',text:`Page ${pageIndex+1}: all page content survives.`,marks:[{type:'textStyle',attrs:{font:'orbitron',fontSize:24,color:'#402E35'}}]}]}]}}:{})}))}));delete post.elements;}
   post.music={artists:[{name:i>=6?'DRAFT_MUSIC_SECRET':`Public artist ${i+1}`}],songs:[]};
   fs.writeFileSync(path.join(postsDir,`${id}.json`),JSON.stringify(post));
@@ -40,7 +40,7 @@ assert.deepEqual(mediaManifest,{version:1,commit:buildCommit,media:[{key:publicR
 assert.deepEqual(manifest.posts.map(p=>p.id).sort(),ids.slice(0,6).sort());
 for(const post of manifest.posts){
   assert.deepEqual(Object.keys(post).sort(),['id','publishedAt','title','url']);
-  assert.equal(post.title,`Published ${ids.indexOf(post.id)+1}`);
+  assert.equal(post.title,post.id===ids[4]?'':`Published ${ids.indexOf(post.id)+1}`);
   assert.equal(post.publishedAt,'2026-10-12T18:00:00.000Z');
   assert.equal(post.url,new URL(`posts/${post.id}/`,settings.publicUrl).href);
 }
@@ -55,5 +55,10 @@ assert.ok(!fs.existsSync(path.join(output,`posts/${ids[7]}/index.html`)));
 assert.ok(fs.existsSync(path.join(output,publicMedia)));assert.ok(!fs.existsSync(path.join(output,draftMedia)));
 const walk=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(dir,e.name)):[path.join(dir,e.name)]);
 for(const file of walk(output).filter(f=>/\.(html|xml|json)$/.test(f))){const text=fs.readFileSync(file,'utf8');assert.ok(!text.includes('DRAFT_'),'Draft data leaked into '+file);}
+// G1: a published blank-titled entry is labelled by its date and never by a placeholder or an empty label.
+const blankHtml=fs.readFileSync(path.join(output,`posts/${ids[4]}/index.html`),'utf8'),rss=fs.readFileSync(path.join(output,'rss.xml'),'utf8'),archive=fs.readFileSync(path.join(output,'archive/index.html'),'utf8');
+assert.match(blankHtml,/<title>oct 12, 2026 · bbyteeth<\/title>/);assert.match(blankHtml,/<h2><a href="[^"]*posts\/00000005-[^"]*"><time datetime="2026-10-12T18:00:00.000Z">October 12, 2026<\/time><\/a><\/h2>/);
+assert.ok(rss.includes(`<item><title>oct 12, 2026</title><link>${new URL(`posts/${ids[4]}/`,settings.publicUrl).href}</link>`));assert.match(archive,/<a href="[^"]*posts\/00000005-[^"]*"><time datetime="2026-10-12T18:00:00.000Z">oct 12, 2026<\/time><\/a>/);
+for(const file of walk(output).filter(f=>/\.(html|xml|json)$/.test(f))){const text=fs.readFileSync(file,'utf8');assert.ok(!/untitled/i.test(text),'Placeholder title in '+file);assert.ok(!/<(a|button|h2|title)\b[^>]*>\s*<\/\1>/.test(text),'Empty label in '+file);assert.ok(!/<title>\s*·/.test(text),'Empty tab title in '+file);}
 const html=fs.readFileSync(path.join(output,`posts/${ids[0]}/index.html`),'utf8');assert.ok(html.includes('Readable public content'));assert.ok(html.includes('&lt;tags&gt;'));assert.ok(!html.includes('ProseMirror'));
-console.log('PASS: malformed published PNG fails the build, byte-identical 1600px PNG, individual routes, pagination, actual HTML text, escaping, RSS/sitemap, published-only notification manifest/revision, and draft text/photo exclusion.');
+console.log('PASS: malformed published PNG fails the build, byte-identical 1600px PNG, individual routes, pagination, actual HTML text, escaping, RSS/sitemap, published-only notification manifest/revision, date-labelled blank title (G1), and draft text/photo exclusion.');

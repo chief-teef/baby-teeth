@@ -2,6 +2,7 @@
 import {base as blogBase, siteOrigin} from '../lib/posts.js';
 import Page from '../layouts/Page.astro';
 import {allPosts,postUrl} from '../lib/posts.js';
+import {entryDate} from '../../../shared/notebook-format.js';
 const posts=allPosts();
 ---
-<Page title="Archive · bbyteeth" canonical={`${blogBase}archive/`}><section class="reader-head"><h1>Archive</h1><ul class="archive-list">{posts.map(post=><li><time datetime={post.publishedAt}>{post.publishedAt.slice(0,10)}</time> <a href={postUrl(post)}>{post.title}</a></li>)}</ul>{!posts.length&&<p>No entries yet.</p>}</section></Page>
+<Page title="Archive · bbyteeth" canonical={`${blogBase}archive/`}><section class="reader-head"><h1>Archive</h1><ul class="archive-list">{posts.map(post=><li>{post.title.trim()?<><time datetime={post.publishedAt}>{post.publishedAt.slice(0,10)}</time> <a href={postUrl(post)}>{post.title}</a></>:<a href={postUrl(post)}><time datetime={post.publishedAt}>{entryDate(post)}</time></a>}</li>)}</ul>{!posts.length&&<p>No entries yet.</p>}</section></Page>

@@ -2,7 +2,7 @@ import {fontFamily} from '../shared/font-registry.js';
 import {fitTextBox} from '../shared/text-fit.js';
 
 import {musicEditor} from './music-editor.js';
-import {PAGE,geometryOverflow,OVERFLOW_MESSAGE,entryDate,entryPages,entryElements,pageGeometry} from '../shared/notebook-format.js';
+import {PAGE,geometryOverflow,OVERFLOW_MESSAGE,entryDate,entryLabel,entryPages,entryElements,pageGeometry} from '../shared/notebook-format.js';
 import {renderNotebook,measureNotebook} from '../shared/notebook-renderer.js';
 import rawSettings from '../config/blog.json';
 import {validateSettings} from '../shared/settings.js';
@@ -35,7 +35,6 @@ let activePageId=null,composition=null,textToolbar=null,editorProps=null;
 let propertiesOpen=false,mutationRevision=0,storageTicket=0,matLeft=0,matTop=0;
 let previewScroll={x:0,y:0};
 let previewFocus=null,lastEditorFocus=null;
-const titleTouched=new Set();
 let publicContext=null,colorProvisional=true,previewEntryIndex=0;
 let previewBook=null,fitTimer,fitErrors=[],fitGeneration=0,recoveryBlocked=false,unreadRecovery=null;
 const post=()=>book.posts.find(p=>p.id===activeId);
@@ -120,7 +119,7 @@ function updateCloudControls(){
 async function checkCloud(){cloudSession=await cloud.check();if(cloudSession.publicUrl)$('#public-blog').href=cloudSession.publicUrl;cloudMessage=cloudSession.unavailable?'Online saving unavailable · local drafts are safe':cloudSession.configured?(cloudSession.signedIn?'Signed in · local changes need an online save':'Sign in to save across devices'):'Local editor · online saving setup pending';updateCloudControls();}
 async function saveOnline(action){
   if(cloudBusy)return;await refreshColorContext();await persist();const target=post(),snapshot=clone(target),savedVersion=target.localVersion||0;
-  if((action==='publish'||action==='save'&&snapshot.cloud?.status==='published')){titleTouched.add(target.id);const errors=await checkFit(snapshot);if(errors.length){fitErrors=errors;showFit();focusFitIssue();return;}}
+  if((action==='publish'||action==='save'&&snapshot.cloud?.status==='published')){const errors=await checkFit(snapshot);if(errors.length){fitErrors=errors;showFit();focusFitIssue();return;}}
   cloudBusy=true;cloudMessage='Preparing online save…';updateCloudControls();
   try{
     const receipts={};let count=0;const photos=entryElements(snapshot).filter(e=>e.type==='photo'),staged=new Map(photos.filter(e=>MEDIA_PATH.test(e.assetPath||'')).map(e=>[e.src,{path:e.assetPath,receipt:e.assetReceipt}]));
@@ -147,6 +146,8 @@ async function monitorDeployment(id,commit){
   finally{deploymentChecks.delete(id);const target=book.posts.find(p=>p.id===id);if(target?.cloud?.publishing&&target.cloud.commit!==commit)monitorDeployment(id,target.cloud.commit);}
 }
 let cmsView='active';
+// shortcut: the repository index has no created date, so online drafts label by last save; add created to the index if this matters.
+const onlineLabel=entry=>entryLabel({...entry,created:entry.updatedAt});
 async function openOnlineEntries(){
   if($('#entries-dialog').open)$('#entries-dialog').close();
   if(cloudBusy)return;cloudBusy=true;cloudMessage='Opening online entries…';updateCloudControls();
@@ -155,7 +156,7 @@ async function openOnlineEntries(){
     if(!entries.length)list.textContent=cmsView==='trash'?'Trash is empty.':'No online entries yet.';
     for(const entry of entries){
       const row=document.createElement('div'),open=document.createElement('button'),action=document.createElement('button');
-      open.textContent=`${entry.title||'Untitled entry'} · ${entry.status||'draft'}`;
+      open.textContent=`${onlineLabel(entry)} · ${entry.status||'draft'}`;
       open.disabled=entry.status==='trashed';open.onclick=()=>loadOnlineEntry(entry.id);
       action.textContent=entry.status==='trashed'?'Restore as draft':'Move to trash';action.className=entry.status==='trashed'?'':'danger';
       action.onclick=()=>manageEntry(entry);row.append(open,action);list.append(row);
@@ -165,7 +166,7 @@ async function openOnlineEntries(){
 }
 async function manageEntry(entry){
   const action=entry.status==='trashed'?'restore':'trash';
-  if(!confirm(action==='trash'?`Move “${entry.title||'Untitled entry'}” to trash? Its content will be retained for restoration.`:'Restore this entry as a draft? It will need publishing to appear publicly.'))return;
+  if(!confirm(action==='trash'?`Move “${onlineLabel(entry)}” to trash? Its content will be retained for restoration.`:'Restore this entry as a draft? It will need publishing to appear publicly.'))return;
   cloudBusy=true;updateCloudControls();
   try{
     const result=await cloud.lifecycle(entry.id,action,entry.revision);await refreshColorContext();
@@ -186,7 +187,7 @@ async function loadOnlineEntry(id){
   }catch(error){toast(error.message);}finally{cloudBusy=false;cloudMessage='Signed in · online entries available';updateCloudControls();}
 }
 function entryState(p){const c=p.cloud;if(c?.conflict)return 'Conflict · local work preserved';if(c?.status==='trashed')return 'Trash';if(c?.publishing)return 'Update pending';if(c?.deployment&&c.deployment!=='success')return 'Site update failed or unconfirmed';if(!c?.revision)return 'Device draft';if(c.savedVersion!==(p.localVersion||0))return 'Local changes';if(c.status==='published')return c.deployment==='success'?'Live · this revision is published':'Published · revision unconfirmed';return 'Online draft saved';}
-function renderEntries(){const root=$('#entries');root.replaceChildren();[...book.posts].filter(p=>p.cloud?.status!=='trashed').sort((a,b)=>new Date(a.created)-new Date(b.created)).forEach(p=>{const b=document.createElement('button');b.className=`entry ${p.id===activeId?'selected':''}`;if(p.id===activeId)b.setAttribute('aria-current','true');const t=document.createElement('span');t.textContent=p.title||'Untitled entry';const s=document.createElement('small');s.textContent=`${entryDate(p)} · ${entryState(p)}`;b.append(t,s);b.onclick=()=>{activeId=p.id;selection.clear();closeProperties();render();$('#entries-dialog').close();};root.append(b);});}
+function renderEntries(){const root=$('#entries');root.replaceChildren();[...book.posts].filter(p=>p.cloud?.status!=='trashed').sort((a,b)=>new Date(a.created)-new Date(b.created)).forEach(p=>{const b=document.createElement('button');b.className=`entry ${p.id===activeId?'selected':''}`;if(p.id===activeId)b.setAttribute('aria-current','true');const t=document.createElement('span');t.textContent=entryLabel(p);const s=document.createElement('small');s.textContent=p.title.trim()?`${entryDate(p)} · ${entryState(p)}`:entryState(p);b.append(t,s);b.onclick=()=>{activeId=p.id;selection.clear();closeProperties();render();$('#entries-dialog').close();};root.append(b);});}
 function render(){calculateColorContext();editors.forEach(e=>e.destroy());editors.clear();resizeObserver?.disconnect();renderEntries();$('#title').value=post().title;const stage=$('#stage');stage.querySelectorAll('.object').forEach(e=>{interaction(e).unset();e.remove();});composition?.renderPages();entryElements(post()).forEach(mount);resizeObserver=new ResizeObserver(entries=>{for(const entry of entries){if(!entry.target.getClientRects().length)continue;const e=entryElements(post()).find(e=>e.id===entry.target.dataset.id);if(e?.type==='text'&&!e.fixedHeight){const next=Math.ceil(entry.target.querySelector('.ProseMirror').scrollHeight);if(Math.abs(e.h-next)>1){e.h=next;updateStage();changed();}}}});stage.querySelectorAll('.object.text').forEach(el=>resizeObserver.observe(el));updateMode();updateSelection();updateStage();updateCounts();updateHistory();updateCloudControls();if(pendingTextState){const text=pendingTextState;pendingTextState=null;for(const item of text){const editor=editors.get(item.id);if(!editor)continue;const end=editor.state.doc.content.size;editor.commands.setTextSelection({from:Math.min(item.from,end),to:Math.min(item.to,end)});editor.view.dispatch(editor.state.tr.setStoredMarks(item.marks?.map(mark=>editor.schema.markFromJSON(mark))??null));}}}
 function updateCounts(){const p=post();$('#count').textContent=`${entryElements(p).filter(e=>e.type==='photo').length} photos · ${entryElements(p).filter(e=>e.type==='text').length} text boxes`;$('#empty').classList.toggle('hidden',!!entryElements(p).length);$('#notice').hidden=!entryElements(p).length;}
 function updateStage(){if(!composition)return;composition.layout();scale=composition.getScale();entryElements(post()).forEach(e=>setObjectStyle($('#stage [data-id="'+CSS.escape(e.id)+'"]'),e));scheduleFit();}
@@ -246,12 +247,12 @@ async function showPreview(){
  try{const {mountBook}=await import('../shared/book/scene.js');if(view!=='reader')return;previewBook?.dispose();const root=$('#reader');root.replaceChildren();previewBook=mountBook(root,[post()],{base:'',initialId:post().id,history:false,preview:true,entryIndex:previewEntryIndex,provisionalColor:colorProvisional,onRead:p=>showReadingPreview(p,root)});}catch{returnToEditor();toast('Preview could not load. Your unsaved work is preserved; retry when connected.');}
 }
 function returnToEditor(){editorProps?.setActive(true);previewBook?.dispose();previewBook=null;view='editor';$('#reader').classList.add('hidden');$('#reader').replaceChildren();$('#editor-view').classList.remove('hidden');$('#preview').textContent='Reading preview ↗';if(previewFocus?.entry===activeId&&previewFocus.propertiesOpen){propertiesOpen=true;presentProperties();}updateStage();updateKeyboardViewport();requestAnimationFrame(()=>{const target=previewFocus?.entry===activeId&&previewFocus.node?.isConnected&&previewFocus.node.getClientRects().length?previewFocus.node:$('#title');target.focus({preventScroll:true});if(target===previewFocus?.node&&previewFocus.selection)try{target.setSelectionRange(...previewFocus.selection);}catch{}window.scrollTo(previewScroll.x,previewScroll.y);});}
-function showReadingPreview(p,root){previewBook?.dispose();previewBook=null;root.classList.remove('book-scene');const entry=document.createElement('article');entry.className='reader-entry';const header=document.createElement('header'),title=document.createElement('h2'),date=document.createElement('time');title.textContent=p.title;date.textContent=entryDate(p);header.append(title,date);entry.append(header);entry.insertAdjacentHTML('beforeend',renderComposition(p,'')+renderMusic(p,''));root.replaceChildren(entry);layoutReading(entry.querySelector('[data-canvas]'));}
+function showReadingPreview(p,root){previewBook?.dispose();previewBook=null;root.classList.remove('book-scene');const entry=document.createElement('article');entry.className='reader-entry';const header=document.createElement('header'),title=document.createElement('h2'),date=document.createElement('time');title.textContent=entryLabel(p);date.textContent=entryDate(p);header.append(title);if(p.title.trim())header.append(date);entry.append(header);entry.insertAdjacentHTML('beforeend',renderComposition(p,'')+renderMusic(p,''));root.replaceChildren(entry);layoutReading(entry.querySelector('[data-canvas]'));}
 async function checkFit(p=post()){
  const errors=geometryOverflow(p);for(let pageIndex=0;pageIndex<entryPages(p).length;pageIndex++){const node=document.createElement('article');node.className='notebook-page fit-measure';node.innerHTML=renderNotebook(p,'',{pageIndex});document.body.append(node);try{errors.push(...await measureNotebook(p,node,{pageIndex}));}catch{return ['fonts'];}finally{node.remove();}}return [...new Set(errors)];
 }
 function focusFitIssue(){if(fitErrors.includes('fonts')){$('#fit-status').scrollIntoView({block:'center'});$('#fit-status button').focus();return;}if(fitErrors.includes('title')){$('#title').focus();$('#title').scrollIntoView({block:'center'});return;}const id=fitErrors.find(id=>entryElements(post()).some(e=>e.id===id));if(id){selection=new Set([id]);updateSelection();$('#stage [data-id="'+CSS.escape(id)+'"]').scrollIntoView({block:'center',inline:'center'});}}
-function showFit(){const errors=fitErrors,neutral=errors.length===1&&errors[0]==='title'&&!post().title.trim()&&!titleTouched.has(activeId),root=$('#fit-status');root.hidden=!errors.length;root.classList.toggle('readiness',neutral);$('#title').classList.toggle('title-error',errors.includes('title')&&!neutral);root.replaceChildren();if(!errors.length)return;if(neutral){root.textContent='Add a title before publishing';return;}const message=document.createElement('span');message.textContent=errors.includes('fonts')?'Notebook fonts are unavailable. Drafts remain recoverable.':errors.includes('title')?'A title is required and must fit two lines at 44px before publishing.':OVERFLOW_MESSAGE;const action=document.createElement('button');action.textContent=errors.includes('fonts')?'Retry fonts':errors.includes('title')?'Edit title':'View overflowing object';action.onclick=()=>{if(errors.includes('fonts'))document.fonts.load('44px Kalam').then(scheduleFit).catch(scheduleFit);else focusFitIssue();};root.append(message,action);}
+function showFit(){const errors=fitErrors,root=$('#fit-status');root.hidden=!errors.length;$('#title').classList.toggle('title-error',errors.includes('title'));root.replaceChildren();if(!errors.length)return;const message=document.createElement('span');message.textContent=errors.includes('fonts')?'Notebook fonts are unavailable. Drafts remain recoverable.':errors.includes('title')?'The title must fit two lines at 44px before publishing.':OVERFLOW_MESSAGE;const action=document.createElement('button');action.textContent=errors.includes('fonts')?'Retry fonts':errors.includes('title')?'Edit title':'View overflowing object';action.onclick=()=>{if(errors.includes('fonts'))document.fonts.load('44px Kalam').then(scheduleFit).catch(scheduleFit);else focusFitIssue();};root.append(message,action);}
 function scheduleFit(){clearTimeout(fitTimer);const generation=++fitGeneration;fitTimer=setTimeout(async()=>{const p=post(),errors=await checkFit(p);if(generation!==fitGeneration||p!==post())return;fitErrors=errors;showFit();document.querySelectorAll('#stage .object').forEach(el=>el.classList.toggle('overflow-object',errors.includes(el.dataset.id)));},100);}
 
 async function exportBook(){if(recoveryBlocked&&!unreadRecovery){try{const copies=await recoveryCopies();unreadRecovery=copies.current??copies.legacy;}catch(error){return toast(`Recovery export failed: ${error.message}`);}}const a=document.createElement('a');const url=URL.createObjectURL(new Blob([JSON.stringify(recoveryBlocked?unreadRecovery:book)],{type:'application/json'}));a.href=url;a.download=`baby-teeth-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
@@ -267,7 +268,7 @@ $('#new-entry').onclick=()=>{
  checkpoint();if(book.posts.length>=100)return toast('This archive already has 100 entries. Export a backup before starting another archive.');const p=blankPost();book.posts.push(p);activeId=p.id;selection.clear();render();changed();
 };
 $('#title').oninput=()=>{if(Date.now()-typingAt>800)checkpoint();typingAt=Date.now();post().title=$('#title').value;renderEntries();updateStage();changed();};
-$('#title').onblur=()=>{titleTouched.add(activeId);scheduleFit();};
+$('#title').onblur=()=>scheduleFit();
 $('#delete-selection').onclick=deleteSelection;$('#add-text').onclick=()=>addText();$('#add-photo').onclick=()=>{$('#photos').click();};$('#undo').onclick=()=>history('undo');$('#redo').onclick=()=>history('redo');
 document.querySelectorAll('[data-format]').forEach(b=>{b.onpointerdown=ev=>ev.preventDefault();b.onclick=()=>{const editor=editors.get([...selection][0]);if(!editor)return toast('Tap inside a text box first.');const chain=editor.chain().focus();switch(b.dataset.format){case 'bold':chain.toggleBold().run();break;case 'italic':chain.toggleItalic().run();break;case 'heading':chain.toggleHeading({level:2}).run();break;case 'bulletList':chain.toggleBulletList().run();break;case 'link':{const url=prompt('Link address (https://…)');if(url===null)return;if(!url.trim())chain.unsetLink().run();else if(/^https?:\/\//i.test(url))chain.setLink({href:url}).run();else toast('Use an https:// or http:// link.');}}};});
 $('#preview').onclick=()=>view==='editor'?showPreview():returnToEditor();

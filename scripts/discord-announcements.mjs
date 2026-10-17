@@ -2,6 +2,7 @@ import {readFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
 import {validateSettings} from '../shared/settings.js';
+import {entryLabel} from '../shared/notebook-format.js';
 
 const SHA=/^[a-f0-9]{40}$/;
 const ID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
@@ -37,7 +38,7 @@ export function webhookUrl(value){
   url.searchParams.set('wait','true');return url;
 }
 export function message(post){
-  const title=Array.from(post.title.replace(/\s+/gu,' ').replace(/[\p{Cc}\p{Cf}]/gu,'').trim()).slice(0,200).join('').replace(/[\\`*_{}\[\]()<>#+\-.!|~]/g,'\\$&');
+  const title=entryLabel({title:Array.from(post.title.replace(/\s+/gu,' ').replace(/[\p{Cc}\p{Cf}]/gu,'').trim()).slice(0,200).join(''),publishedAt:post.publishedAt}).replace(/[\\`*_{}\[\]()<>#+\-.!|~]/g,'\\$&');
   const content=`Anna just posted a new blog entry!\n\n${title}\n\nGo read it here: ${post.url}`;
   if(content.length>2000)throw Error('Announcement exceeds Discord message limit.');
   return {content,allowed_mentions:{parse:[]}};

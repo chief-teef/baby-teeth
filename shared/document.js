@@ -51,7 +51,7 @@ export function cleanPost(post){
     if(e.type==='drawing'){result.sourceW=e.sourceW;result.sourceH=e.sourceH;result.strokes=structuredClone(e.strokes);}
     return result;
   });
-  return {version:post.version,pageFormat:post.pageFormat,id:post.id,title:post.title,created:post.created,...(post.music?{music:validateMusic(post.music)}:{}),...(post.version===2?{elements:cleanElements(post.elements)}:{pages:post.pages.map(page=>({id:page.id,elements:cleanElements(page.elements)}))})};
+  return {version:post.version,pageFormat:post.pageFormat,id:post.id,title:post.title.trim()?post.title:'',created:post.created,...(post.music?{music:validateMusic(post.music)}:{}),...(post.version===2?{elements:cleanElements(post.elements)}:{pages:post.pages.map(page=>({id:page.id,elements:cleanElements(page.elements)}))})};
 }
 export const textContent=node=>node.type==='text'?node.text:(node.content||[]).map(textContent).join(node.type==='doc'?' ':'');
 export function excerpt(post){return entryElements(post).filter(e=>e.type==='text').map(e=>textContent(e.doc)).join(' ').replace(/\s+/g,' ').trim().slice(0,180);}

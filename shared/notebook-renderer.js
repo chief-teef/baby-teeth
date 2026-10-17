@@ -4,7 +4,7 @@ import {fontFamily,fontById} from './font-registry.js';
 import {fitTextBox} from './text-fit.js';
 export function renderNotebook(post,base='/',{deferMedia=false,pageIndex=0}={}){
  const page=entryPages(post)[pageIndex],geometry=pageGeometry(pageIndex);if(!page)throw Error('Page index out of range.');
- const header=pageIndex===0?`<header class="notebook-header"><h2>${esc(post.title)}</h2><time datetime="${esc(post.publishedAt||post.created)}">${esc(entryDate(post))}</time></header>`:'';
+ const header=pageIndex===0?`<header class="notebook-header">${post.title.trim()?`<h2>${esc(post.title)}</h2>`:''}<time datetime="${esc(post.publishedAt||post.created)}">${esc(entryDate(post))}</time></header>`:'';
  return header+`<div class="notebook-composition" data-page-index="${pageIndex}" style="top:${geometry.y}px;height:${geometry.height}px">${page.elements.map(e=>{
  const style=`left:${e.x}px;top:${e.y}px;width:${e.w}px;${e.type==='text'&&!e.fixedHeight?'min-height':'height'}:${e.h}px;transform:rotate(${e.rotation}deg)${e.type==='text'?`;--text-size:${e.fontSize??28}px;--text-font:${fontFamily(e.font)}`:''}`;
  let html;if(e.type==='text')html=renderText(e.doc);else if(e.type==='photo')html=`<img ${deferMedia?'data-src':'src'}="${esc(resolveMediaUrl(e.src,base))}" alt="${esc(e.alt)}" draggable="false" loading="lazy" decoding="async" width="${Math.round(e.w)}" height="${Math.round(e.h)}">`;
@@ -15,14 +15,14 @@ export function renderNotebook(post,base='/',{deferMedia=false,pageIndex=0}={}){
 // Browser-only canonical measurement; imported by studio and build verifier.
 export async function measureNotebook(post,element,{pageIndex=0}={}){
  const page=entryPages(post)[pageIndex],geometry=pageGeometry(pageIndex);if(!page)throw Error('Page index out of range.');
- if(pageIndex===0){const faces=await document.fonts.load('44px Kalam',post.title||'bbyteeth');if(!faces.length)throw Error('Title font unavailable.');}
+ if(pageIndex===0){const faces=await document.fonts.load('44px Kalam',post.title.trim()||'bbyteeth');if(!faces.length)throw Error('Title font unavailable.');}
  for(const e of page.elements.filter(e=>e.type==='text'))await loadTextFonts(e);
  // Force layout before waiting, so hidden studio measurements request any
  // body fallback/italic faces required by this entry as well.
  void element.offsetHeight;
  await document.fonts.ready;
  const failures=geometryOverflow(post,{pageIndex});const title=element.querySelector('.notebook-header h2');
- if(pageIndex===0&&(!post.title.trim()||!title||title.scrollHeight>104.5))failures.push('title');
+ if(pageIndex===0&&title&&title.scrollHeight>104.5)failures.push('title');
  for(const object of element.querySelectorAll('.notebook-object')){
   const model=page.elements.find(e=>e.id===object.dataset.objectId);let h=model.h;
   if(model.type==='text'){

@@ -99,6 +99,25 @@ test('uploaded photos require signed receipts and are committed with their entry
   const saved=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'save',receipts:{[photo.path]:photo.receipt}}});assert.equal(saved.status,200);assert.ok(f.files.has(photo.path));assert.ok(f.files.has(`content/posts/${ID}.json`));
 });
 
+test('private R2 media requires current repository access and verified metadata',async()=>{
+  const f=fixture(),digest='a'.repeat(64),key=`r2/${digest}.png`,requests=[];
+  const checksum=Uint8Array.from({length:32},()=>0xaa).buffer;
+  f.env.MEDIA_BUCKET={get:async value=>{requests.push(value);return {body:new Uint8Array([1,2,3]),httpMetadata:{contentType:'image/png'},checksums:{sha256:checksum}};}};
+  let response=await f.request(`/api/media/${digest}.png`,{cookie:false});assert.equal(response.status,401);assert.deepEqual(requests,[]);
+  await f.signedIn();response=await f.request(`/api/media/${digest}.png`);assert.equal(response.status,200);assert.deepEqual(new Uint8Array(await response.arrayBuffer()),new Uint8Array([1,2,3]));assert.equal(response.headers.get('content-type'),'image/png');assert.equal(response.headers.get('cache-control'),'private, no-store');assert.equal(response.headers.get('x-content-type-options'),'nosniff');assert.deepEqual(requests,[key]);
+  const removed=fixture(false);await removed.signedIn();removed.env.MEDIA_BUCKET={get:async()=>{throw Error('must not read private media');}};assert.equal((await removed.request(`/api/media/${digest}.png`)).status,401);
+  f.env.MEDIA_BUCKET.get=async()=>({body:new Uint8Array([1]),httpMetadata:{contentType:'image/jpeg'},checksums:{sha256:checksum}});assert.equal((await f.request(`/api/media/${digest}.png`)).status,503);
+  f.env.MEDIA_BUCKET.get=async()=>({body:new Uint8Array([1]),httpMetadata:{contentType:'image/png'}});assert.equal((await f.request(`/api/media/${digest}.png`)).status,503);
+  f.env.MEDIA_BUCKET.get=async()=>null;assert.equal((await f.request(`/api/media/${digest}.png`)).status,404);
+  delete f.env.MEDIA_BUCKET;assert.equal((await f.request(`/api/media/${digest}.png`)).status,503);
+  assert.equal((await f.request(`/api/media/${'A'.repeat(64)}.png`)).status,404);
+});
+
+test('R2 references cannot enter Git before private uploads are enabled',async()=>{
+  const f=fixture();await f.signedIn();const p=doc();p.elements.push({id:'33333333-3333-4333-8333-333333333333',type:'photo',x:10,y:200,w:100,h:100,rotation:0,src:`r2/${'a'.repeat(64)}.jpg`,alt:'A private photo'});
+  const response=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:p,action:'save'}});assert.equal(response.status,409);assert.equal(f.files.has(`content/posts/${ID}.json`),false);
+});
+
 test('trash preserves content, prevents stale resurrection, and restores as draft',async()=>{
   const f=fixture();await f.signedIn();
   let response=await f.request(`/api/posts/${ID}`,{method:'PUT',body:{post:doc(),action:'publish'}});

@@ -6,7 +6,7 @@ export const REPO=settings.repository,REPO_ID=settings.repositoryId,OWNER_ID=set
 export const PUBLIC_URL=settings.publicUrl, BRANCH=settings.branch;
 export const postPath=id=>`content/posts/${id}.json`;
 export async function github(token,path,{method='GET',body,fetcher=fetch}={}){
-  const response=await fetcher(`https://api.github.com${path}`,{method,headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${token}`,'User-Agent':'Baby-Teeth-Studio','X-GitHub-Api-Version':'2022-11-28',...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
+  const response=await fetcher(`https://api.github.com${path}`,{method,headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${token}`,'User-Agent':'Baby-Teeth-Studio','X-GitHub-Api-Version':'2022-11-28',...(body?{'Content-Type':'application/json'}:{})},...(body?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
   if(!response.ok){if(response.status===401)throw new HttpError(401,'GitHub sign-in expired. Sign in again; your local work is safe.');if(response.status===403||response.status===429)throw new HttpError(503,'GitHub denied or rate-limited this operation. Retry later; local work is safe.');if(response.status===404)throw new HttpError(404,'Repository entry not found.');throw new HttpError(response.status===422||response.status===409?409:502,response.status===422||response.status===409?'The repository changed while saving. Reload the latest entry before retrying.':'GitHub could not complete this operation.');}
   return response.status===204?null:response.json();
 }

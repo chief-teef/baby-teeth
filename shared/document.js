@@ -2,8 +2,9 @@ import {fontById,fontFamily} from './font-registry.js';
 import {entryPages,entryElements,validateFormat} from './notebook-format.js';
 import {validateMusic} from './music.js';
 export const POST_ID = /^[a-f0-9-]{36}$/i;
-export const MEDIA_PATH = /^media\/([a-f0-9]{40})\.(jpg|png)$/;
-export function parseMediaPath(path){const m=typeof path==='string'&&path.match(MEDIA_PATH);return m?{sha:m[1],extension:m[2],mime:m[2]==='png'?'image/png':'image/jpeg'}:null;}
+export const MEDIA_PATH = /^(media\/([a-f0-9]{40})|r2\/([a-f0-9]{64}))\.(jpg|png)$/;
+export function parseMediaPath(path){const m=typeof path==='string'&&path.match(MEDIA_PATH);return m?{storage:m[2]?'git':'r2',sha:m[2]||m[3],extension:m[4],mime:m[4]==='png'?'image/png':'image/jpeg'}:null;}
+export function resolveMediaUrl(path,base='/'){return parseMediaPath(path)?base+path:path;}
 export const esc = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function validatePost(post,{local=false}={}){
   if(post)validateFormat(post);

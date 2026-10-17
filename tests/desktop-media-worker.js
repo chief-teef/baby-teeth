@@ -1,2 +1,4 @@
-import {cleanPng} from '../shared/png.js';
-export default {async fetch(request){try{const bytes=await cleanPng(new Uint8Array(await request.arrayBuffer()));return new Response(bytes,{headers:{'Content-Type':'image/png'}});}catch(error){return new Response(error.message,{status:400});}}};
+import {cleanPng,joinBytes} from '../shared/png.js';
+import {Buffer} from 'node:buffer';
+// Mirrors the production /api/assets PNG path: native body read, structural-only checks, string-built base64 GitHub body. ?sha=1 adds a conservative local Git blob SHA-1.
+export default {async fetch(request){try{const input=new Uint8Array(await request.arrayBuffer()),bytes=await cleanPng(input,{inflate:false,crc:false});let sha=0;if(new URL(request.url).searchParams.has('sha'))sha=(await crypto.subtle.digest('SHA-1',joinBytes([new TextEncoder().encode(`blob ${bytes.length}\0`),bytes]))).byteLength;const body=`{"content":"${Buffer.from(bytes.buffer,bytes.byteOffset,bytes.byteLength).toString('base64')}","encoding":"base64"}`;return new Response(String(body.length+sha));}catch(error){return new Response(error.message,{status:400});}}};

@@ -1,4 +1,4 @@
-import {esc,renderText,MEDIA_PATH} from './document.js';
+import {esc,renderText,resolveMediaUrl} from './document.js';
 import {bounds} from '../src/model.js';
 import {entryPages} from './notebook-format.js';
 import {fontFamily} from './font-registry.js';
@@ -19,7 +19,7 @@ function renderPageComposition(page,base){
     if(media.length){const b=media.map(bounds),x=Math.min(...b.map(b=>b.x)),y=Math.min(...b.map(b=>b.y)),w=Math.max(...b.map(b=>b.x+b.w))-x,h=Math.max(...b.map(b=>b.y+b.h))-y;
       html+=`<div class="media-group" style="aspect-ratio:${w}/${h};max-width:${Math.min(900,w)}px">${media.map(e=>{
         const style=`left:${(e.x-x)/w*100}%;top:${(e.y-y)/h*100}%;width:${e.w/w*100}%;height:${e.h/h*100}%;transform:rotate(${e.rotation}deg)`;
-        return `<div class="public-object public-${e.type}" data-layout="${layout(e)}" data-phone="${esc(style)}" style="${style}">${e.type==='photo'?`<img src="${esc(MEDIA_PATH.test(e.src)?base+e.src:e.src)}" alt="${esc(e.alt)}" width="${Math.round(e.w)}" height="${Math.round(e.h)}" loading="lazy" decoding="async">`:ink(e)}</div>`;
+        return `<div class="public-object public-${e.type}" data-layout="${layout(e)}" data-phone="${esc(style)}" style="${style}">${e.type==='photo'?`<img src="${esc(resolveMediaUrl(e.src,base))}" alt="${esc(e.alt)}" width="${Math.round(e.w)}" height="${Math.round(e.h)}" loading="lazy" decoding="async">`:ink(e)}</div>`;
       }).join('')}</div>`;
     }
     html+=unit.filter(e=>e.type==='text').map(e=>`<div class="public-object public-text" data-layout="${layout(e)}" data-font="${e.font??'serif'}" style="font-family:${esc(fontFamily(e.font))};font-synthesis:weight style;font-size:${e.fontSize??28}px;line-height:${e.font==='handwriting'?1.25:38/28};--text-size:${e.fontSize??28}px;--text-font:${esc(fontFamily(e.font))};--text-scale:1">${renderText(e.doc)}</div>`).join('');return html;

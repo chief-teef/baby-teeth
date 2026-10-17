@@ -7,4 +7,4 @@ const {post}=Astro.props;
 const entryIndex=orderedEntries(allPosts()).findIndex(entry=>entry.id===post.id);
 const date=new Date(post.publishedAt).toLocaleDateString('en-US',{timeZone:'America/Chicago',month:'long',day:'numeric',year:'numeric'});
 ---
-<article class="reader-entry" style={`--entry-paper:${paperColor(entryIndex)}`}><header><h2><a href={postUrl(post)}>{post.title||'Untitled entry'}</a></h2><time datetime={post.publishedAt}>{date}</time></header><Fragment set:html={renderComposition(post,base)+renderMusic(post,base)}/></article>
+<article class="reader-entry" style={`--entry-paper:${paperColor(entryIndex)}`}><header>{post.title.trim()?<><h2><a href={postUrl(post)}>{post.title}</a></h2><time datetime={post.publishedAt}>{date}</time></>:<h2><a href={postUrl(post)}><time datetime={post.publishedAt}>{date}</time></a></h2>}</header><Fragment set:html={renderComposition(post,base)+renderMusic(post,base)}/></article>

@@ -17,5 +17,7 @@ export function entryPages(post){validateFormat(post);return post.version===2?[{
 export function entryElements(post){return entryPages(post).flatMap(page=>page.elements);}
 export function pageGeometry(pageIndex=0){if(!Number.isInteger(pageIndex)||pageIndex<0)throw Error('Invalid page index.');return {x:54,y:pageIndex===0?220:60,width:792,height:pageIndex===0?920:1080};}
 export function geometryOverflow(post,{pageIndex}={}){validateFormat(post);return entryPages(post).flatMap((page,index)=>{if(pageIndex!==undefined&&index!==pageIndex)return [];const g=pageGeometry(index);return page.elements.filter(e=>{const b=elementBounds(e);return b.x<-.01||b.y<-.01||b.x+b.w>g.width+.01||b.y+b.h>g.height+.01;}).map(e=>e.id);});}
-export function assertPublicationGeometry(post){validateFormat(post);if(!post.title.trim())throw Error('A title is required before publishing.');if(geometryOverflow(post).length)throw Error(OVERFLOW_MESSAGE);}
+export function assertPublicationGeometry(post){validateFormat(post);if(geometryOverflow(post).length)throw Error(OVERFLOW_MESSAGE);}
 export function entryDate(post){return new Date(post.publishedAt||post.cloud?.publishedAt||post.created).toLocaleDateString('en-US',{timeZone:'America/Chicago',month:'short',day:'numeric',year:'numeric'}).toLowerCase();}
+// Titles may be blank; wherever a name is needed, the entry's date stands in.
+export function entryLabel(post){return (post.title||'').trim()||entryDate(post);}

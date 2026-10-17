@@ -97,7 +97,7 @@ Backup and Help are normal user tools. Rename “How to test” to Help. Keep un
 
 Keep `checkFit()` as the single fit proof used by existing save/publication boundaries. Do not suppress actual validation, drop pasted content or weaken server/build checks.
 
-For an untouched blank draft, show a neutral readiness hint such as “Add a title before publishing” outside the paper. Do not show a red title outline/banner on first load. Missing-title readiness becomes an actionable error after an explicit Publish/Save & update site attempt, or a title interaction followed by leaving that input. A nonempty oversized title, font failure, or overflowing authored object still gets timely visible feedback.
+*Superseded October 17, 2026 (`docs/specs/blank-titles/SPEC.md`): blank titles are valid and get no readiness hint or error.* A nonempty oversized title, font failure, or overflowing authored object still gets timely visible feedback.
 
 Implement a small view-only disclosure/touched state keyed to the active entry ID; it does not belong in post JSON, recovery or undo. `scheduleFit()` still updates the real error set and object overflow marks. Only the message treatment changes. At an explicit publish/update attempt, await a fresh fit check, reveal/focus or scroll to the first relevant issue, and block the write as today. Draft save and export remain enabled for overflow. Do not turn every fit result into an alert that interrupts typing.
 

@@ -81,6 +81,7 @@ test('message is exact, mention-safe, whitespace-normalized and markdown-escaped
   const result=message({...post(1),title:'  *hello*\n\t@everyone\u0000  [x]  '});
   assert.ok(result.content.includes('\\*hello\\* @everyone'));
   assert.ok(!result.content.includes('\u0000'));
+  for(const title of ['',' \n\t ','\u0000'])assert.equal(message({...post(16),title}).content,`Anna just posted a new blog entry!\n\noct 15, 2026\n\nGo read it here: ${post(16).url}`);
   const long=message({...post(1),title:'😀'.repeat(300)}).content;
   assert.equal([...long.split('\n\n')[1]].length,200);assert.ok(long.endsWith(post(1).url));assert.ok(long.length<=2000);
 });

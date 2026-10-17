@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {validatePost,cleanPost} from '../shared/document.js';
 import {validateBook,textDoc} from '../src/model.js';
-import {geometryOverflow,assertPublicationGeometry} from '../shared/notebook-format.js';
+import {geometryOverflow,assertPublicationGeometry,entryLabel,entryDate} from '../shared/notebook-format.js';
 import {spreadFor,sideFor,BookController} from '../shared/book/controller.js';
 import {fitCamera,clampBook} from '../shared/book/camera.js';
 import {spotifyUrl,spotifyImage,validateMusic} from '../shared/music.js';
@@ -21,6 +21,7 @@ test('entry music survives cleaning and backup; rejects unsafe, mismatched and m
 test('notebook v2 survives cleaning, archive export/import and repeated server round trips',()=>{
  const p=fixture();assert.deepEqual(cleanPost(cleanPost(p)),p);assert.equal(validateBook({version:1,posts:[JSON.parse(JSON.stringify(p))]}).posts[0].pageFormat,p.pageFormat);
 });
+test('blank and whitespace titles publish, clean to empty and label by date',()=>{for(const title of ['','  \t\n ']){const p={...fixture(),title};assert.doesNotThrow(()=>assertPublicationGeometry(p));assert.equal(cleanPost(p).title,'');assert.equal(entryLabel(p),'oct 13, 2026');assert.equal(entryLabel({...p,publishedAt:'2026-10-16T18:00:00Z'}),'oct 16, 2026');}assert.equal(cleanPost({...fixture(),title:' Remember '}).title,' Remember ');assert.equal(entryLabel(fixture()),'Remember');assert.equal(entryDate(fixture()),'oct 13, 2026');});
 test('overflow drafts remain recoverable but cannot publish',()=>{const p=fixture();p.elements[0].y=1000;validateBook({version:1,posts:[p]});assert.equal(geometryOverflow(p).length,1);assert.throws(()=>assertPublicationGeometry(p));});
 test('physical faces, odd/even endpapers and a single pending navigation intent',()=>{
  assert.deepEqual([0,1,2,3,4].map(spreadFor),[0,1,1,2,2]);assert.deepEqual([0,1,2,3].map(sideFor),['right','left','right','left']);const c=new BookController(Array.from({length:4},(_,i)=>({...fixture(),id:`0000000${i+1}-1111-4111-8111-111111111111`})),0);assert.deepEqual(c.pages.map(page=>page.faceIndex),[0,1,2,3]);assert.equal(c.pages[0].entryId,c.entries[0].id);c.state='open-idle';assert.equal(c.spreadNeighbor(1),2);c.state='turning';c.request(1);c.request(3);assert.equal(c.pending,3);assert.equal(c.index,0);

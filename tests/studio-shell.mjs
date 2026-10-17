@@ -12,12 +12,12 @@ const settled=()=>page.waitForFunction(()=>document.querySelector('#status').tex
 const menu=label=>page.getByRole('button',{name:label,exact:true}).click();
 try{
  await page.goto(process.argv[2]||'http://127.0.0.1:5175/');await page.waitForTimeout(500);
- assert.equal(await page.locator('.title-error').count(),0);assert.match(await page.locator('#fit-status').textContent(),/Add a title/);
+ assert.equal(await page.locator('.title-error').count(),0);assert.equal(await page.locator('#fit-status').isHidden(),true,'blank titles need no warning');
  assert.equal(await page.locator('#format').isVisible(),false);assert.equal(await page.locator('[data-format=bold]').isDisabled(),true);
  assert.ok((await page.locator('#stage').boundingBox()).y<=260,'756px blank page starts within 260px');
  await page.screenshot({animations:'disabled',path:'test-results/studio-after-756.png'});
  await page.setViewportSize({width:834,height:1194});await page.waitForTimeout(100);assert.ok((await page.locator('#stage').boundingBox()).y<=240,'834px blank page starts within 240px');
- await menu('Publication');await menu('Publish entry');await page.waitForTimeout(150);assert.equal(writes,0);assert.ok(await page.locator('#title').evaluate(e=>e===document.activeElement));assert.equal(await page.locator('.title-error').count(),1);
+ await menu('Publication');await menu('Publish entry');for(let i=0;i<60&&!writes;i++)await page.waitForTimeout(50);assert.equal(writes,1,'a blank-titled entry publishes');assert.equal(await page.locator('.title-error').count(),0);
  await page.locator('#title').fill('Presentation integrity');await page.locator('#add-text').click();await page.locator('.tiptap').fill('Keep this selection and its structured text.');
  await page.keyboard.press('Control+a');await menu('Bold');assert.equal(await page.locator('[data-format=bold]').getAttribute('aria-pressed'),'true');
  await settled();

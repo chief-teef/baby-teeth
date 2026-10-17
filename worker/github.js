@@ -1,6 +1,7 @@
 import {HttpError,base64,unbase64} from './security.js';
 import rawSettings from '../config/blog.json' with {type:'json'};
 import {validateSettings} from '../shared/settings.js';
+import {entryLabel} from '../shared/notebook-format.js';
 const settings=validateSettings(rawSettings);
 export const REPO=settings.repository,REPO_ID=settings.repositoryId,OWNER_ID=settings.ownerId;
 export const PUBLIC_URL=settings.publicUrl, BRANCH=settings.branch;
@@ -19,7 +20,7 @@ export async function readIndex(token,state,fetcher){if(!state.entries.some(e=>e
 export async function commitPost(token,state,doc,assets,fetcher,index={}){
   const nextIndex={...index,[doc.id]:{title:doc.title,status:doc.status,updatedAt:doc.updatedAt,publishedAt:doc.publishedAt,trashedAt:doc.trashedAt}};
   const tree=await github(token,`/repos/${REPO}/git/trees`,{method:'POST',body:{base_tree:state.tree,tree:[{path:postPath(doc.id),mode:'100644',type:'blob',content:JSON.stringify(doc)},{path:'content/index.json',mode:'100644',type:'blob',content:JSON.stringify(nextIndex)},...assets.map(a=>({path:a.path,mode:'100644',type:'blob',sha:a.sha}))]},fetcher});
-  const commit=await github(token,`/repos/${REPO}/git/commits`,{method:'POST',body:{message:`${doc.status==='trashed'?'Trash':doc.status==='published'?'Publish':'Save draft'}: ${doc.title||'Untitled entry'}`,tree:tree.sha,parents:[state.head]},fetcher});
+  const commit=await github(token,`/repos/${REPO}/git/commits`,{method:'POST',body:{message:`${doc.status==='trashed'?'Trash':doc.status==='published'?'Publish':'Save draft'}: ${entryLabel(doc)}`,tree:tree.sha,parents:[state.head]},fetcher});
   // Never force the ref. A competing save creates a sibling commit and the
   // non-fast-forward update fails instead of overwriting it.
   await github(token,`/repos/${REPO}/git/refs/heads/${BRANCH}`,{method:'PATCH',body:{sha:commit.sha,force:false},fetcher});

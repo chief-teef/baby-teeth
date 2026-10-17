@@ -88,7 +88,7 @@ Title and date are live text, not rasterized. Self-host Kalam Regular after reco
 
 No per-letter random rotation, jitter, or handwriting animation. The uniform font and placement provide the scribbled appearance. Body default: Georgia, 28px/38px, ink-green. Retain supported rich-text marks, headings, links, lists, and code with shared deterministic styles. Do not impose handwriting on long body paragraphs. Smallest newly authored body text is 24 logical pixels; custom text scaling is outside this change.
 
-Title is required for new publication. If it cannot fit two lines at 44px, show a studio error and require editing it; do not truncate, shrink, or invent a public title. Preserve the raw title in drafts and recovery regardless of fit. Oversized titles remain recoverable in drafts and cannot publish.
+*Superseded October 17, 2026 by `docs/specs/blank-titles/SPEC.md`: titles may be blank, including when published; the header keeps an empty title line above the date, and label sites use the date.* If a nonempty title cannot fit two lines at 44px, show a studio error and require editing it; do not truncate, shrink, or invent a public title. Preserve the raw title in drafts and recovery regardless of fit. Oversized titles remain recoverable in drafts and cannot publish.
 
 ## 4. One page means one page
 

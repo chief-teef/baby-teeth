@@ -1,6 +1,8 @@
 # Shared contracts
 - Read root AGENTS.md. These modules serve both studio and public reader; avoid browser-only dependencies in server/build imports.
 - Validation is a security boundary: allow supported types/marks/URLs only, bound input complexity, and escape rendered user content.
+- Media references accept existing `media/<40-hex>.(jpg|png)` Git blobs and reader-first `r2/<64-hex>.(jpg|png)` SHA-256 keys. `parseMediaPath` owns this distinction and `resolveMediaUrl` owns public path resolution; R2 writes remain disabled until the storage gates are proven.
+- `png.js` owns PNG bounds (1600px / 3MB) and `cleanPng`. The default is a full decode (browser, publish build); `{inflate:false,crc:false}` is the Worker's structural-only path. Bound changes require the local workerd gate and the build negatives.
 - Keep editor preview and public rendering consistent. Preserve readable HTML, logical reading order, transformed bounds, group attachment, and reduced-motion behavior.
 - Schema changes require explicit compatibility decisions and tests for imports, server validation, and published output.
 - Read v2 and nested-page v3 with notebook-900x1200-v1. Archive envelope stays 1. entryPages/entryElements enumerate compatibility; writes target real page arrays. pageGeometry owns first/continuation origins. Reject unknown versions/formats without mutating recovery.

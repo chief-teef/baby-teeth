@@ -20,8 +20,8 @@ import './desktop-shell.css';
 import {mountEditorProps} from './editor-props.js';
 import {orderedEntries,paperColor} from '../shared/paper-colors.js';
 import './cloud.css';
-import {createCloudClient,jpegForUpload,dataUrl} from './cloud.js';
-import {MEDIA_PATH} from '../shared/document.js';
+import {createCloudClient,jpegForUpload,dataUrl,mediaForRecovery,storageNotice} from './cloud.js';
+import {MEDIA_PATH,parseMediaPath} from '../shared/document.js';
 import {renderComposition,renderMusic} from '../shared/renderer.js';
 import {layoutReading} from '../shared/reading-layout.js';
 import '../blog/src/reader.css';
@@ -77,7 +77,7 @@ $('#app').innerHTML=`
 <dialog id="entries-dialog" aria-label="Entries"></dialog><dialog id="properties-dialog" aria-label="Properties"></dialog>
 <div class="keyboard-actions" id="keyboard-actions" hidden><span id="keyboard-status"></span><button id="keyboard-save">Save draft online</button></div><section id="reader" class="reader hidden"></section><input id="photos" type="file" accept="image/*" multiple hidden><input id="archive" type="file" accept="application/json,.json" hidden><div class="toast hidden" id="toast" role="status"></div>
 <dialog id="help-dialog"><h2 tabindex="-1" autofocus>Your scrapbook studio</h2><p><b>Text:</b> add text boxes and type or paste from Google Docs.<br><b>Arrange:</b> drag a photo, text box, or its Drag label. Select an object and drag its edges to reshape. Use the round handle above it to rotate.<br><b>Group:</b> select objects together to keep existing objects together.</p><p><b>On this device:</b> automatic recovery.<br><b>Save draft online:</b> available on your other signed-in devices.<br><b>Publish:</b> makes a new entry public after the site build.<br><b>Save & update site:</b> updates an already published entry.<br>Export a backup before clearing browser data. Offline reopening is still pending.</p><div class="actions"><button id="close-help" class="primary">Got it</button></div></dialog>
-<dialog id="online-dialog"><h2>Manage entries</h2><div class="actions"><button id="cms-active">Entries</button><button id="cms-trash">Trash</button></div><p>Your current local entries stay on this device. Open an online entry as a separate working copy.</p><div id="online-list"></div><div class="actions"><button id="close-online">Close</button></div></dialog>`;
+<dialog id="online-dialog"><h2>Manage entries</h2><div class="actions"><button id="cms-active">Entries</button><button id="cms-trash">Trash</button></div><p>Your current local entries stay on this device. Open an online entry as a separate working copy.</p><p id="storage-meter" role="status" hidden></p><div id="online-list"></div><div class="actions"><button id="close-online">Close</button></div></dialog>`;
 
 const iconPaths={text:'M4 5h16M12 5v14M8 19h8',photo:'M3 4h18v16H3zM3 16l5-5 4 4 3-3 6 6M16 8h.01',move:'M12 2v20M2 12h20M8 6l4-4 4 4M8 18l4 4 4-4M6 8l-4 4 4 4M18 8l4 4-4 4',trash:'M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7',undo:'M8 4L3 9l5 5M3 9h10a7 7 0 0 1 0 14',redo:'M16 4l5 5-5 5M21 9H11a7 7 0 0 0 0 14',settings:'M4 6h16M4 12h16M4 18h16M8 3v6M16 9v6M10 15v6'};
 function labelIcon(button,key,label){button.setAttribute('aria-label',label);button.innerHTML='<svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="'+iconPaths[key]+'"/></svg><span>'+label+'</span>';}
@@ -99,7 +99,9 @@ function resumeDeployments(){
   for(const p of book.posts)if(p.cloud?.commit&&(p.cloud.publishing||p.cloud.deployment==='unknown'))monitorDeployment(p.id,p.cloud.commit);
 }
 let contextFresh=false;
-async function refreshColorContext(){try{if(!cloudSession.signedIn)throw Error('offline');const result=await cloud.list();if(!Array.isArray(result.posts))throw Error('No context');publicContext=result.posts;contextFresh=true;}catch{contextFresh=false;}calculateColorContext();}
+async function refreshColorContext(){try{if(!cloudSession.signedIn)throw Error('offline');const result=await cloud.list();if(!Array.isArray(result.posts))throw Error('No context');publicContext=result.posts;contextFresh=true;showStorage(result.storageBytes);}catch{contextFresh=false;}calculateColorContext();}
+let storageWarned=false;
+function showStorage(bytes){const notice=storageNotice(bytes),meter=$('#storage-meter');meter.hidden=!notice;if(!notice)return;meter.textContent=notice.text;meter.classList.toggle('warning',notice.warning);if(notice.warning&&!storageWarned){storageWarned=true;toast(notice.text);}}
 function calculateColorContext(){const p=post(),prior=publicContext?.find(e=>e.id===p.id),published=!!prior&&(p.cloud?.status||p.status)==='published',active={...p,publishedAt:p.publishedAt||p.cloud?.publishedAt||prior?.publishedAt||new Date().toISOString()};const entries=(publicContext||[]).filter(e=>e.status==='published'&&e.id!==p.id);entries.push(active);previewEntryIndex=orderedEntries(entries).findIndex(e=>e.id===p.id);colorProvisional=!contextFresh||!published;$('#stage').style.setProperty('--page-color',paperColor(previewEntryIndex));$('#stage').dataset.colorProvisional=String(colorProvisional);const label=$('#color-context');if(label)label.textContent=colorProvisional?'Paper color provisional':'';}
 function updateCloudControls(){
   if(!$('#cloud-state'))return;
@@ -148,7 +150,7 @@ let cmsView='active';
 async function openOnlineEntries(){
   if($('#entries-dialog').open)$('#entries-dialog').close();
   if(cloudBusy)return;cloudBusy=true;cloudMessage='Opening online entries…';updateCloudControls();
-  try{const result=await cloud.list();const list=$('#online-list');list.replaceChildren();if(!result.posts.length)list.textContent='No online entries yet. Save a draft to create the first one.';
+  try{const result=await cloud.list();showStorage(result.storageBytes);const list=$('#online-list');list.replaceChildren();if(!result.posts.length)list.textContent='No online entries yet. Save a draft to create the first one.';
     const entries=result.posts.filter(e=>cmsView==='trash'?e.status==='trashed':e.status!=='trashed');
     if(!entries.length)list.textContent=cmsView==='trash'?'Trash is empty.':'No online entries yet.';
     for(const entry of entries){
@@ -177,7 +179,7 @@ async function loadOnlineEntry(id){
   if(cloudBusy)return;cloudBusy=true;cloudMessage='Loading online entry…';updateCloudControls();
   try{const result=await cloud.get(id),loaded=migratePost(result.post);
     if(loaded.status==='trashed')throw Error('Restore this entry from Trash before opening it.');
-    for(const e of entryElements(loaded).filter(e=>e.type==='photo')){if(!MEDIA_PATH.test(e.src))throw Error('Invalid online photo reference.');e.assetPath=e.src;const response=await fetch(`https://raw.githubusercontent.com/${cloudSession.repository}/${cloudSession.branch||'main'}/${e.src}`);if(!response.ok)throw Error('An online photo could not be loaded. Retry later.');e.src=await dataUrl(await response.blob());}
+    for(const e of entryElements(loaded).filter(e=>e.type==='photo')){if(!parseMediaPath(e.src))throw Error('Invalid online photo reference.');e.assetPath=e.src;e.src=await dataUrl(await mediaForRecovery(e.src,cloudSession));}
     validateBook({version:1,posts:[loaded]});const existing=book.posts.find(p=>p.id===id),candidate=clone(book);
     if(existing){const copy=clone(existing);copy.id=uid();copy.title=`${copy.title} (local recovery copy)`;delete copy.cloud;candidate.posts.push(copy);candidate.posts=candidate.posts.filter(p=>p.id!==id);}
     loaded.localVersion=0;loaded.cloud={revision:result.revision,status:loaded.status,savedVersion:0,publishedAt:loaded.publishedAt};candidate.posts.push(loaded);validateBook(candidate);if(new TextEncoder().encode(JSON.stringify(candidate)).length>100*1024*1024)throw Error('The resulting archive exceeds 100 MB. Export local work first.');runCommand('Open online entry',()=>{book=candidate;activeId=loaded.id;selection.clear();});await persist();$('#online-dialog').close();toast(existing?'Online entry opened. Your previous local version is kept as a recovery copy.':'Online entry opened on this device.');

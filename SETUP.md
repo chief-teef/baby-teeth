@@ -6,7 +6,9 @@ The studio writes nested v3 pages while readers and the service retain v2 compat
 
 Local recovery uses IndexedDB `book-v3`. First hydration validates legacy `book`, then atomically preserves its raw contents once at `book-before-v3` and initializes v3. It leaves `book` untouched. A changed legacy tab produces a notice; export current/original/legacy backups separately. Unknown selected recovery or snapshot-preservation failure blocks autosave. Never replace newer v3 with the old snapshot or auto-merge divergent legacy work. Imports add validated copied entries and validate resulting limits before mutation.
 
-The PNG path is static RGBA8 with preserved alpha. Free-runtime measurements reduced its processed bound to 512px per side / 262,144 pixels / 300,000 bytes; retry resampling stays transparent. JPEG retains its existing 700,000-byte / 2400px validation limits. The local workerd profile is an estimate, not production CPU telemetry. Keep full request JSON including receipts within 900,000 UTF-8 bytes; failures preserve local work/export. No paid service is needed.
+The PNG path is static RGBA8 with preserved alpha, up to 1600px per side / 2,560,000 pixels / 3,000,000 bytes; oversize results step down in dimensions and stay transparent PNG. The Worker checks PNG structure only. The publish build fully decodes every published Git PNG (CRC, inflate, filters, exact size), so a malformed upload fails the Pages build and the site stays on its previous revision. To recover, open the entry, remove or re-add that photo, and save again. JPEG retains its existing 700,000-byte / 2400px validation limits. The local workerd profile is an estimate, not production CPU telemetry. Keep full request JSON including receipts within 900,000 UTF-8 bytes; failures preserve local work/export. No paid service is needed.
+
+JPEG and WebP imports now create their bounded durable JPEG once and reuse the exact bytes for Git upload, recovery and publication; this avoids the previous second lossy browser encode. PNGs added before the 1600px change remain 512px derivatives; re-add the ones that matter from their originals. Do not raise PNG bounds or add Worker-side PNG work without rerunning `node tests/desktop-media-workerd.mjs`. "Manage entries" shows approximate repository storage (the summed current Git tree, excluding history) and warns at 500 MB without blocking saves.
 
 `SCRAPBOOK_WRITES_ENABLED` defaults false in Wrangler. Session capabilities expose readVersions `[2,3]`, writeVersion `3`, and the actual write flag. The new studio sends `X-Studio-Contract: 3`; this is compatibility, never authorization. With the flag false, legacy v2/JPEG writes remain available, while v3/PNG and lifecycle mutations of existing v3 are rejected. With it true, stale tabs are rejected before mutation and must export/reload. A current revision never permits downgrading existing v3 to v2. Preserve `PRIVATE_VERIFICATION=false` and all authentication/CSRF/repository-write checks.
 
@@ -27,7 +29,9 @@ The implementation is prepared locally. The current public editor remains usable
 
 ## 1. Connect Cloudflare Free
 
-Create and verify a Cloudflare account. Keep **Workers Free**; do not enable a paid Workers plan, R2, Images, paid builds, or any subscription. No custom domain is needed. Public readers stay on GitHub Pages; the authenticated studio uses a free `workers.dev` address.
+Create and verify a Cloudflare account. Keep **Workers Free**; do not enable a paid Workers plan, Images, paid builds, or any subscription. R2 reader compatibility exists locally, but do not create or bind R2 resources until the separately authorized zero-charge activation gates in `docs/specs/r2-media-storage/SPEC.md` are proven. No custom domain is needed. Public readers stay on GitHub Pages; the authenticated studio uses a free `workers.dev` address.
+
+Current provider documentation does not offer a hard R2 spend cap, and budget alerts do not stop usage. It also does not support the required full-object SHA-256 checksum on a single S3 `PutObject`. Keep R2 writes disabled; do not start the R2 checkout, create credentials/resources, or deploy bindings until both blockers have an approved replacement.
 
 With Node.js 22.12+ available, the implementation agent can run:
 

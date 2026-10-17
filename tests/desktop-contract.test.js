@@ -32,7 +32,8 @@ test('rich typography is cleaned recursively and rendered through trusted styles
  assert.throws(()=>cleanText({type:'doc',content:[{type:'text',text:'invalid block'}]}));assert.equal(FONT_REGISTRY.length,20);
 });
 test('media paths bind exact canonical extension and SHA',()=>{
- assert.deepEqual(parseMediaPath('media/'+'a'.repeat(40)+'.png'),{sha:'a'.repeat(40),extension:'png',mime:'image/png'});assert.equal(parseMediaPath('media/'+'a'.repeat(40)+'.jpg').mime,'image/jpeg');for(const bad of ['media/x.png','media/'+'A'.repeat(40)+'.png','https://evil/image.png','media/'+'a'.repeat(40)+'.svg'])assert.equal(parseMediaPath(bad),null);
+ assert.deepEqual(parseMediaPath('media/'+'a'.repeat(40)+'.png'),{storage:'git',sha:'a'.repeat(40),extension:'png',mime:'image/png'});assert.equal(parseMediaPath('media/'+'a'.repeat(40)+'.jpg').mime,'image/jpeg');assert.deepEqual(parseMediaPath('r2/'+'b'.repeat(64)+'.jpg'),{storage:'r2',sha:'b'.repeat(64),extension:'jpg',mime:'image/jpeg'});for(const bad of ['media/x.png','media/'+'A'.repeat(40)+'.png','r2/'+'b'.repeat(63)+'.jpg','r2/'+'B'.repeat(64)+'.png','https://evil/image.png','media/'+'a'.repeat(40)+'.svg'])assert.equal(parseMediaPath(bad),null);
+ const post=migratePost(legacy()),src='r2/'+'c'.repeat(64)+'.png';post.pages[0].elements.push({id:id(5),type:'photo',src,alt:'R2 photo',x:0,y:0,w:100,h:100,rotation:0});assert.equal(validatePost(post),post);assert.match(renderNotebook(post,'/baby-teeth/'),new RegExp('/baby-teeth/'+src));assert.match(renderComposition(post,'/baby-teeth/'),new RegExp('/baby-teeth/'+src));
 });
 test('recovery migrates transactionally without replacing active or original data',async()=>{
  const records=new Map();let failKey;

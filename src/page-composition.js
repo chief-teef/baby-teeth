@@ -66,7 +66,7 @@ export function createPageComposition({root,wrap,workspace,getEntry,getPage,getA
  }
  function start(ev,id){
   const page=pageFor(id);if(!page)return;const selected=expandSelection(page,id);setActivePageId(page.id);setSelection(selected.map(e=>e.id));refreshSelection();beginGesture();
-  const r=root.getBoundingClientRect(),x=ev.x0??ev.clientX,y=ev.y0??ev.clientY;drag={sourceId:page.id,sourceIndex:pages().indexOf(page),geometry:pageGeometry(pages().indexOf(page)),original:selected.map(e=>structuredClone(e)),start:[(x-r.left)/scale,(y-r.top)/scale],clientX:ev.clientX,clientY:ev.clientY,dx:0,dy:0,candidate:false,moved:false,pointerId:ev.pointerId??lastPointerId,interaction:ev.interaction};root.classList.add('dragging-pages');lastFrame=0;frame=requestAnimationFrame(edgeTick);
+  const r=root.getBoundingClientRect(),x=ev.clientX0??ev.clientX,y=ev.clientY0??ev.clientY;drag={sourceId:page.id,sourceIndex:pages().indexOf(page),geometry:pageGeometry(pages().indexOf(page)),original:selected.map(e=>structuredClone(e)),start:[(x-r.left)/scale,(y-r.top)/scale],clientX:ev.clientX,clientY:ev.clientY,dx:0,dy:0,candidate:false,moved:false,pointerId:ev.pointerId??lastPointerId,interaction:ev.interaction};root.classList.add('dragging-pages');lastFrame=0;frame=requestAnimationFrame(edgeTick);
  }
  function finish(){
   if(!drag)return;const state=drag;drag=null;cancelAnimationFrame(frame);root.classList.remove('dragging-pages');root.querySelector('.candidate-page')?.remove();

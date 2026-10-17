@@ -51,12 +51,22 @@ export function createHandler(fetcher=fetch){return async function handle(reques
     }
     if(path==='/api/posts'&&request.method==='GET'){
       const user=await authorize(request,env,fetcher),state=await snapshot(user.token,fetcher),index=await readIndex(user.token,state,fetcher);
-      return json({posts:state.entries.filter(e=>/^content\/posts\/[a-f0-9-]{36}\.json$/i.test(e.path)&&e.type==='blob').map(e=>{const id=e.path.split('/').at(-1).slice(0,-5);return {id,revision:e.sha,...index[id]};}),head:state.head});
+      return json({posts:state.entries.filter(e=>/^content\/posts\/[a-f0-9-]{36}\.json$/i.test(e.path)&&e.type==='blob').map(e=>{const id=e.path.split('/').at(-1).slice(0,-5);return {id,revision:e.sha,...index[id]};}),head:state.head,storageBytes:state.entries.reduce((sum,e)=>sum+(e.type==='blob'&&Number.isSafeInteger(e.size)?e.size:0),0)});
     }
     if(path==='/api/spotify'&&request.method==='GET'){
       const user=await authorize(request,env,fetcher);await limit(env,`spotify:${user.userId}`);
       const link=validation(()=>spotifyUrl(url.searchParams.get('url')));
       try{return json(await spotifyPreview(link,fetcher));}catch{throw new HttpError(502,'Spotify preview unavailable. Enter the name manually or retry.');}
+    }
+    const mediaMatch=path.match(/^\/api\/media\/([a-f0-9]{64})\.(jpg|png)$/);
+    if(mediaMatch&&request.method==='GET'){
+      await authorize(request,env,fetcher);
+      if(!env.MEDIA_BUCKET)throw new HttpError(503,'Private photo storage is not configured.');
+      const key=`r2/${mediaMatch[1]}.${mediaMatch[2]}`,mime=mediaMatch[2]==='png'?'image/png':'image/jpeg',object=await env.MEDIA_BUCKET.get(key);
+      if(!object)throw new HttpError(404,'Photo not found.');
+      const checksum=object.checksums?.sha256,stored=checksum&&[...new Uint8Array(checksum)].map(byte=>byte.toString(16).padStart(2,'0')).join('');
+      if(object.httpMetadata?.contentType!==mime||stored!==mediaMatch[1])throw new HttpError(503,'Private photo metadata could not be verified.');
+      return new Response(object.body,{headers:{'Content-Type':mime,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
     }
     const match=path.match(/^\/api\/posts\/([a-f0-9-]{36})$/i);
     if(match&&request.method==='GET'){const user=await authorize(request,env,fetcher);const result=await readPost(user.token,match[1],fetcher);validation(()=>validatePost(result.post));return json(result);}
@@ -80,8 +90,10 @@ export function createHandler(fetcher=fetch){return async function handle(reques
       const mime=request.headers.get('content-type'),png=mime==='image/png';assertWriteContract(request,env,{png});
       if(!png&&mime!=='image/jpeg')throw new HttpError(415,'Only processed JPEG or PNG photos can be uploaded.');
       const input=await limitedBody(request,png?PNG_MAX_BYTES:700000);let bytes;
-      try{bytes=png?await cleanPng(input):cleanJpeg(input);}catch(error){throw new HttpError(400,error.message);}
-      const blob=await github(user.token,`/repos/${REPO}/git/blobs`,{method:'POST',body:{content:base64(bytes),encoding:'base64'},fetcher});
+      // PNG: structural checks only within Free CPU; CRC, inflate and filters are verified by the publish build before anything is public.
+      try{bytes=png?await cleanPng(input,{inflate:false,crc:false}):cleanJpeg(input);}catch(error){throw new HttpError(400,error.message);}
+      // Base64 needs no JSON escaping; building the string avoids re-scanning a multi-megabyte value.
+      const blob=await github(user.token,`/repos/${REPO}/git/blobs`,{method:'POST',body:`{"content":"${base64(bytes)}","encoding":"base64"}`,fetcher});
       if(!/^[a-f0-9]{40}$/.test(blob.sha||''))throw new HttpError(503,'Photo upload did not return a valid revision. Retry the upload.');
       const path=`media/${blob.sha}.${png?'png':'jpg'}`,receipt=await seal(env.SESSION_SECRET,'asset',{sha:blob.sha,path,userId:user.userId,exp:Date.now()+7200000});return json({path,receipt});
     }
@@ -95,7 +107,7 @@ export function createHandler(fetcher=fetch){return async function handle(reques
       if(env.PRIVATE_VERIFICATION==='true'&&(body.action!=='save'||previous?.status==='published'))throw new HttpError(403,'Publishing is disabled during private verification. Save a draft instead.');
       if(previous?.status==='trashed')throw new HttpError(409,'This entry is in trash. Restore it in the CMS before editing.');
       const paths=[...new Set(entryElements(doc).filter(e=>e.type==='photo').map(e=>e.src))];const assets=[];
-      for(const path of paths){const expected=parseMediaPath(path)?.sha;if(!expected)throw new HttpError(400,'Invalid photo path.');const existing=state.entries.find(e=>e.path===path&&e.type==='blob');if(existing?.sha===expected)continue;const proof=await open(env.SESSION_SECRET,'asset',body.receipts?.[path]);if(!proof||proof.path!==path||proof.sha!==expected||proof.userId!==user.userId)throw new HttpError(400,'Photo upload expired or is missing. Upload the photo again.');assets.push({path,sha:expected});}
+      for(const path of paths){const media=parseMediaPath(path);if(!media)throw new HttpError(400,'Invalid photo path.');if(media.storage==='r2')throw new HttpError(409,'Private photo uploads are not enabled yet. Keep this entry local and retry after the storage update.');const expected=media.sha,existing=state.entries.find(e=>e.path===path&&e.type==='blob');if(existing?.sha===expected)continue;const proof=await open(env.SESSION_SECRET,'asset',body.receipts?.[path]);if(!proof||proof.path!==path||proof.sha!==expected||proof.userId!==user.userId)throw new HttpError(400,'Photo upload expired or is missing. Upload the photo again.');assets.push({path,sha:expected});}
       const now=new Date().toISOString();doc.status=body.action==='unpublish'?'draft':body.action==='publish'||previous?.status==='published'?'published':'draft';doc.publishedAt=previous?.publishedAt||(doc.status==='published'?now:null);doc.updatedAt=now;doc.updatedBy=user.userId;
       if(doc.status==='published')validation(()=>assertPublicationGeometry(doc));
       const index=await readIndex(user.token,state,fetcher);const result=await commitPost(user.token,state,doc,assets,fetcher,index);return json({...result,post:doc,publishing:doc.status==='published'||previous?.status==='published'});

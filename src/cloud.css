@@ -1,2 +1,2 @@
 /* Repository status lives beside the existing entry save action. */
-.studio #online-list{display:grid;gap:10px;margin-bottom:20px}.studio #online-list>div{display:flex;gap:8px;flex-wrap:wrap}.studio #online-list button{flex:1;text-align:left}
+.studio #storage-meter.warning{color:#8a3b12;font-weight:600}.studio #online-list{display:grid;gap:10px;margin-bottom:20px}.studio #online-list>div{display:flex;gap:8px;flex-wrap:wrap}.studio #online-list button{flex:1;text-align:left}

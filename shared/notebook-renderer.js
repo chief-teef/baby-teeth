@@ -1,4 +1,4 @@
-import {esc,renderText,MEDIA_PATH} from './document.js';
+import {esc,renderText,resolveMediaUrl} from './document.js';
 import {entryDate,geometryOverflow,entryPages,pageGeometry} from './notebook-format.js';
 import {fontFamily,fontById} from './font-registry.js';
 import {fitTextBox} from './text-fit.js';
@@ -7,7 +7,7 @@ export function renderNotebook(post,base='/',{deferMedia=false,pageIndex=0}={}){
  const header=pageIndex===0?`<header class="notebook-header"><h2>${esc(post.title)}</h2><time datetime="${esc(post.publishedAt||post.created)}">${esc(entryDate(post))}</time></header>`:'';
  return header+`<div class="notebook-composition" data-page-index="${pageIndex}" style="top:${geometry.y}px;height:${geometry.height}px">${page.elements.map(e=>{
  const style=`left:${e.x}px;top:${e.y}px;width:${e.w}px;${e.type==='text'&&!e.fixedHeight?'min-height':'height'}:${e.h}px;transform:rotate(${e.rotation}deg)${e.type==='text'?`;--text-size:${e.fontSize??28}px;--text-font:${fontFamily(e.font)}`:''}`;
- let html;if(e.type==='text')html=renderText(e.doc);else if(e.type==='photo')html=`<img ${deferMedia?'data-src':'src'}="${esc(MEDIA_PATH.test(e.src)?base+e.src:e.src)}" alt="${esc(e.alt)}" draggable="false" loading="lazy" decoding="async" width="${Math.round(e.w)}" height="${Math.round(e.h)}">`;
+ let html;if(e.type==='text')html=renderText(e.doc);else if(e.type==='photo')html=`<img ${deferMedia?'data-src':'src'}="${esc(resolveMediaUrl(e.src,base))}" alt="${esc(e.alt)}" draggable="false" loading="lazy" decoding="async" width="${Math.round(e.w)}" height="${Math.round(e.h)}">`;
  else html=`<svg viewBox="0 0 ${e.sourceW} ${e.sourceH}" aria-hidden="true">${e.strokes.map(s=>`<path d="${s.points.map((p,i)=>`${i?'L':'M'}${p[0]},${p[1]}`).join(' ')}" fill="none" stroke="${s.color}" stroke-width="${s.size}" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}</svg>`;
  return `<div class="notebook-object notebook-${e.type}" data-object-id="${e.id}"${e.type==='text'?` data-font="${e.font??'serif'}"${e.fixedHeight?' data-fixed-height="true"':''}`:''} style="${style}">${html}</div>`;
  }).join('')}</div>`;

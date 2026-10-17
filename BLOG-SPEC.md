@@ -61,7 +61,7 @@ Updated: October 12, 2026.
 
 - Cloudflare Workers Free hosts the connected editor and API at one origin. KV Free stores short-lived encrypted GitHub sessions; browser cookies contain random session identifiers only. Keep the account on Free and do not enable chargeable products.
 - A private GitHub App uses state plus PKCE, expiring user access tokens restricted to repository ID `1416133666`, and a fixed owner account-ID check. Initial permission requirements: Contents read/write, Actions read, and Metadata read; only `baby-teeth` is installed. Future collaborator access remains deferred.
-- Photos are processed on the device and uploaded individually as bounded JPEGs. Server checks dimensions/structure and strips EXIF/comments; uploaded blobs are staged until a signed receipt is included in the atomic document/tree save. The public build fully decodes referenced JPEGs before deployment.
+- Photos are processed on the device and uploaded individually: JPEG/WebP as bounded JPEGs, PNGs as lossless transparent PNGs up to 1600px / 3 MB (October 16 owner decision; older PNGs stay 512px, with no migration). The studio shows approximate storage and warns at 500 MB without blocking saves. Server checks dimensions/structure and strips EXIF/comments; uploaded blobs are staged until a signed receipt is included in the atomic document/tree save. The public build fully decodes referenced JPEGs before deployment.
 - Draft saving remains separate from first publication. Saving a published entry requests a site update; unpublishing keeps a repository draft but removes its public output on successful deployment. Stable URLs use immutable post IDs.
 - Per-entry revisions and non-forced Git ref updates reject stale or racing saves. The editor preserves work, offers a new-copy fallback, and retains a recovery copy when opening a newer online entry.
 - Astro generates the feed (five full entries/page), stable post pages, About, archive, RSS, sitemap, and 404. Editor preview and public reader share document HTML/layout code. Narrow screens stack readable text and anchored media; widths below 800 pixels use the readable flow.
@@ -128,7 +128,7 @@ Produce responsive derivatives and explicit image dimensions. At 30–50 photos/
 
 The monthly estimate above is separate from the 20-photo per-entry capacity target. If 20 photos were uploaded daily, at 200–500 KB each that would add approximately 1.46–3.65 GB/year before derivatives and Git history. Do not assume that frequency; monitor actual usage and define a zero-cost storage migration or archival plan before capacity is exhausted.
 
-For a 20-photo entry, process uploads with bounded concurrency rather than decoding all full-resolution images at once. Use smaller editor previews, release unused decoded images, show per-file progress/failures, and allow failed files to be retried without restarting the batch. Keep the whole composition editable without requiring all photos to be loaded at original resolution.
+For a 20-photo entry, process uploads with bounded concurrency rather than decoding all full-resolution images at once. Use bounded, quality-preserving image assets that stay sharp at the normal 330-canonical-pixel photo size after cloud save/reload and publication; release unused decoded images, show per-file progress/failures, and allow failed files to be retried without restarting the batch. Keep the whole composition editable without requiring all full-resolution source photos to remain decoded at once.
 
 ## Deferred stickers
 

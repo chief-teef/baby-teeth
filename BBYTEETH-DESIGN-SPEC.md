@@ -74,8 +74,8 @@ All dimensions here are logical book units, independent of screen size and devic
 |---|---|
 | Single paper page | 900 × 1200 |
 | Header | x=54, y=48, w=792, h=152 |
-| Title | x=54, y=48, w=792; 44px/52px Kalam Regular, at most 2 lines |
-| Date | x=54, y=160; 24px/32px Kalam Regular |
+| Title | x=54, y=48, w=792; 52px/52px VT323, Georgia/Gelasio fallback, at most 2 lines (superseded Kalam 44px/52px on October 17, 2026; see BLOG-SPEC "Pixel notebook title") |
+| Date | x=54, y=160; 28px/32px VT323, Georgia/Gelasio fallback (superseded Kalam 24px/32px) |
 | Composition region | x=54, y=220, w=792, h=920 |
 | Bottom paper margin | 60 |
 | Facing paper origins | left=(44,40), right=(968,40) |
@@ -84,7 +84,7 @@ All dimensions here are logical book units, independent of screen size and devic
 
 Composition element positions for the new format are relative to the composition region, not the full page. Preserve that distinction in all serialization and pointer conversion functions. Share constants between studio, reader, and validators.
 
-Title and date are live text, not rasterized. Self-host Kalam Regular after recording its distribution license. Use the actual title unchanged; do not lowercase or embellish it automatically. The date uses `publishedAt`, existing America/Chicago date semantics, English abbreviated lowercase month, numeric day and year. Editing an entry does not change its original date. Draft preview uses the created date until publication; label that distinction in the studio only.
+Title and date are live text, not rasterized. They use the self-hosted VT323 face in ink color (October 17, 2026; the earlier self-hosted Kalam Regular rule is superseded). Use the actual title unchanged; do not lowercase or embellish it automatically. The date uses `publishedAt`, existing America/Chicago date semantics, English abbreviated lowercase month, numeric day and year. Editing an entry does not change its original date. Draft preview uses the created date until publication; label that distinction in the studio only.
 
 No per-letter random rotation, jitter, or handwriting animation. The uniform font and placement provide the scribbled appearance. Body default: Georgia, 28px/38px, ink-green. Retain supported rich-text marks, headings, links, lists, and code with shared deterministic styles. Do not impose handwriting on long body paragraphs. Smallest newly authored body text is 24 logical pixels; custom text scaling is outside this change.
 

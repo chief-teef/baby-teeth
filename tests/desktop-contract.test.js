@@ -1,4 +1,5 @@
 import {test} from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {validatePost,cleanPost,cleanText,renderText,excerpt,parseMediaPath} from '../shared/document.js';
 import {blankPost,textDoc,migratePost,validateBook} from '../src/model.js';
@@ -47,4 +48,10 @@ test('recovery migrates transactionally without replacing active or original dat
  const unknown={version:99,keep:'raw'};records.set('book-v3',unknown);assert.deepEqual(await load(),unknown);assert.deepEqual(records.get('book-v3'),unknown);
  records.delete('book-v3');records.set('book',unknown);assert.deepEqual(await load(),unknown);assert.equal(records.has('book-v3'),false);assert.deepEqual(records.get('book-before-v3'),old);
  delete globalThis.indexedDB;
+});
+test('notebook header uses VT323 at the agreed sizes with a serif, never handwriting, fallback',()=>{
+ const css=readFileSync(new URL('../shared/notebook.css',import.meta.url),'utf8'),rule=s=>css.match(new RegExp(`\.notebook-header ${s}\{([^}]*)\}`))[1];
+ assert.match(rule('h2'),/font:400 52px\/52px VT323,Georgia,Gelasio,serif;/);assert.match(rule('time'),/top:112px;.*font:400 28px\/32px VT323,Georgia,Gelasio,serif/);
+ for(const s of ['h2','time'])assert.doesNotMatch(rule(s),/Kalam|Caveat|cursive/);
+ assert.match(readFileSync(new URL('../shared/book/theme.css',import.meta.url),'utf8'),/font-family:'VT323';src:url\('..\/..\/public\/editor\/fonts\/vt323\.woff2'\)/);
 });

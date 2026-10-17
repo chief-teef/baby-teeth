@@ -3,8 +3,8 @@
 .notebook-page:before{content:'';position:absolute;inset:220px 0 60px;pointer-events:none;background:repeating-linear-gradient(transparent 0 35px,#b6c5a030 35px 36px);border-left:1px solid #edb5c840;margin-left:44px}
 .notebook-page:after{content:'';position:absolute;inset:0;pointer-events:none;background:url('../public/book/grain.png');opacity:.02}
 .notebook-header{position:absolute;left:54px;top:48px;width:792px;height:152px;color:var(--ink)}
-.notebook-header h2{font:400 44px/52px Kalam,Georgia,serif;margin:0;padding:0;overflow-wrap:anywhere}
-.notebook-header time{position:absolute;top:112px;left:0;font:400 24px/32px Kalam,Georgia,serif}
+.notebook-header h2{font:400 52px/52px VT323,Georgia,Gelasio,serif;margin:0;padding:0;overflow-wrap:anywhere}
+.notebook-header time{position:absolute;top:112px;left:0;font:400 28px/32px VT323,Georgia,Gelasio,serif}
 .notebook-composition{position:absolute;left:54px;top:220px;width:792px;height:920px}
 .notebook-object{position:absolute;transform-origin:center;box-sizing:border-box;color:var(--ink)}
 :is(.notebook-text,.public-text),.notebook-stage .ProseMirror{font:28px/38px Georgia,Gelasio,serif;padding:12px 14px;overflow-wrap:anywhere}

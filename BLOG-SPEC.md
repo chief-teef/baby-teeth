@@ -343,3 +343,7 @@ The owner clarified definitive text boxes: fixed-height text now automatically s
 ## Blank entry titles — October 17, 2026
 
 Owner decision: an entry may have no title, including when published, and is never called "Untitled". The first notebook page keeps the empty title space and shows only the date. Wherever a name is needed (archive, contents, reading heading, tab title, RSS, screen-reader announcement, studio lists, trash confirmation, commit message, Discord), a blank title uses the entry's date in the house format. Whitespace-only titles save as an empty title. Titled entries, document format, IDs and URLs are unchanged. Detail: `docs/specs/blank-titles/SPEC.md`.
+
+## Pixel notebook title — October 17, 2026
+
+Owner decision: the title and date on every entry's first notebook page use VT323, the MP3 player screen font, in the existing ink color (no LCD colors). Title 52px on 52px lines, keeping the two-line limit and header geometry; date 28px on 32px lines at its existing position. Missing characters fall back to Georgia/Gelasio, never a handwriting font. This applies only to the public book and the studio editor header (the same canonical renderer and fit check); reading mode, archive, RSS, tab title and the studio title input are unchanged. There is no per-entry option or document field. Detail: `docs/specs/pixel-title/SPEC.md`.

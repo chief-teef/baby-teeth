@@ -7,6 +7,7 @@ import sharp from 'sharp';
 import settings from '../config/blog.json' with {type:'json'};
 import {encodePng} from '../shared/png.js';
 import {mediaFixtures} from './desktop-media-fixtures.js';
+import {verifyNotebooks} from '../scripts/verify-notebook.mjs';
 const fixtures=path.resolve('test-results/blog-fixtures'),postsDir=path.join(fixtures,'content/posts');fs.mkdirSync(postsDir,{recursive:true});fs.mkdirSync(path.join(fixtures,'media'),{recursive:true});
 const publicMedia=`media/${'c'.repeat(40)}.jpg`,draftMedia=`media/${'d'.repeat(40)}.jpg`;
 fs.writeFileSync(path.join(fixtures,publicMedia),await sharp({create:{width:32,height:32,channels:3,background:{r:255,g:100,b:200}}}).jpeg().toBuffer());fs.writeFileSync(path.join(fixtures,draftMedia),'DRAFT_PHOTO_SECRET');
@@ -60,5 +61,9 @@ const blankHtml=fs.readFileSync(path.join(output,`posts/${ids[4]}/index.html`),'
 assert.match(blankHtml,/<title>oct 12, 2026 · bbyteeth<\/title>/);assert.match(blankHtml,/<h2><a href="[^"]*posts\/00000005-[^"]*"><time datetime="2026-10-12T18:00:00.000Z">October 12, 2026<\/time><\/a><\/h2>/);
 assert.ok(rss.includes(`<item><title>oct 12, 2026</title><link>${new URL(`posts/${ids[4]}/`,settings.publicUrl).href}</link>`));assert.match(archive,/<a href="[^"]*posts\/00000005-[^"]*"><time datetime="2026-10-12T18:00:00.000Z">oct 12, 2026<\/time><\/a>/);
 for(const file of walk(output).filter(f=>/\.(html|xml|json)$/.test(f))){const text=fs.readFileSync(file,'utf8');assert.ok(!/untitled/i.test(text),'Placeholder title in '+file);assert.ok(!/<(a|button|h2|title)\b[^>]*>\s*<\/\1>/.test(text),'Empty label in '+file);assert.ok(!/<title>\s*·/.test(text),'Empty tab title in '+file);}
+// G2 (pixel title): canonical VT323 52px/52px fit keeps the two-line limit; blank titles still pass.
+const fitPost=title=>({version:2,pageFormat:'notebook-900x1200-v1',id:ids[0],title,created:'2026-10-12T18:00:00.000Z',elements:[]}),fitTitle='a summer day at the lake w'.repeat(4);
+await verifyNotebooks([fitPost(fitTitle.slice(0,60)),fitPost('')],process.cwd());
+await assert.rejects(verifyNotebooks([fitPost(fitTitle.slice(0,90))],process.cwd()),/does not fit: title\./);
 const html=fs.readFileSync(path.join(output,`posts/${ids[0]}/index.html`),'utf8');assert.ok(html.includes('Readable public content'));assert.ok(html.includes('&lt;tags&gt;'));assert.ok(!html.includes('ProseMirror'));
-console.log('PASS: malformed published PNG fails the build, byte-identical 1600px PNG, individual routes, pagination, actual HTML text, escaping, RSS/sitemap, published-only notification manifest/revision, date-labelled blank title (G1), and draft text/photo exclusion.');
+console.log('PASS: malformed published PNG fails the build, byte-identical 1600px PNG, individual routes, pagination, actual HTML text, escaping, RSS/sitemap, published-only notification manifest/revision, date-labelled blank title (G1), VT323 two-line title fit (pixel G2), and draft text/photo exclusion.');

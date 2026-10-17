@@ -15,7 +15,7 @@ export function renderNotebook(post,base='/',{deferMedia=false,pageIndex=0}={}){
 // Browser-only canonical measurement; imported by studio and build verifier.
 export async function measureNotebook(post,element,{pageIndex=0}={}){
  const page=entryPages(post)[pageIndex],geometry=pageGeometry(pageIndex);if(!page)throw Error('Page index out of range.');
- if(pageIndex===0){const faces=await document.fonts.load('44px Kalam',post.title.trim()||'bbyteeth');if(!faces.length)throw Error('Title font unavailable.');}
+ if(pageIndex===0){const faces=await document.fonts.load('52px VT323',post.title.trim()||'bbyteeth');if(!faces.length)throw Error('Title font unavailable.');}
  for(const e of page.elements.filter(e=>e.type==='text'))await loadTextFonts(e);
  // Force layout before waiting, so hidden studio measurements request any
  // body fallback/italic faces required by this entry as well.

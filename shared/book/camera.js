@@ -24,10 +24,10 @@ export function deskLayout(width,height){
   huddle(Math.min(20*scale,(leftWidth-gap-sizes.tinky[0])/3),46);
   // The compact player sits at mid-height on the right edge; the paw drops into the gap above the pipe so it never covers the heart button.
   if(compact)paw=(positions.mp3.y+sizes.mp3[1]+positions.pipe.y)/2;
-  // Larger screens only. Ashtray and Geek Bar are life-size against the lighter (~14.5px/cm); the rest are sized to read at a glance.
-  Object.assign(sizes,{thomas:[112*scale,80*scale],muscle:[96*scale,40*scale],hotrod:[96*scale,40*scale],note:[96*scale,96*scale],ashtray:[160*scale,80*scale],geekbar:[78*scale,132*scale]});
+  // Larger screens only. The Geek Bar is life-size against the lighter (~14.5px/cm); the rest are sized to read at a glance.
+  Object.assign(sizes,{thomas:[112*scale,80*scale],muscle:[96*scale,40*scale],hotrod:[96*scale,40*scale],note:[96*scale,96*scale],ashtray:[240*scale,117*scale],geekbar:[78*scale,132*scale]});
   // shortcut: measured menu width (470px, centred); re-measure if the menu changes (book-responsive catches overlap).
-  const menuLeft=(width-470)/2-8,menuRight=(width+470)/2+8,lane=height-44,s=12*scale,[tw,th]=sizes.thomas,[cw,ch]=sizes.muscle;
+  const menuLeft=(width-470)/2-8,lane=height-44,s=12*scale,[tw,th]=sizes.thomas,[cw,ch]=sizes.muscle;
   positions.thomas={x:gap,y:lane-th/2};
   // Cars park in a row after Thomas, or stack in the strip when the row would reach the menu.
   if(gap+tw+s+cw+s+cw<=menuLeft){positions.muscle={x:gap+tw+s,y:lane-ch/2};positions.hotrod={x:gap+tw+s+cw+s,y:lane-ch/2};}
@@ -35,8 +35,11 @@ export function deskLayout(width,height){
   positions.note={x:gap,y:(positions.jar.y+sizes.jar[1]+positions.grinder.y-sizes.note[1])/2};
   const base=positions.lighter.y+sizes.lighter[1],column=width-rightWidth+gap,[gw,gh]=sizes.geekbar,[aw,ah]=sizes.ashtray,beside=positions.lighter.x-gap-gw;
   positions.geekbar=beside>=column?{x:beside,y:Math.max(gap,base-gh)}:{x:column,y:base+gap};
-  const tray=width-gap-aw;
-  positions.ashtray=tray>=menuRight?{x:tray,y:lane-ah/2}:{x:column,y:Math.max(base,positions.geekbar.y+gh)+gap};
+  // The ashtray is wider than the pipe, so it takes the bottom-right corner and the pipe and player shift up above it.
+  positions.ashtray={x:width-gap-aw,y:height-gap-ah};
+  positions.pipe.y=Math.min(positions.pipe.y,positions.ashtray.y-gap-sizes.pipe[1]);
+  positions.mp3.y=Math.min(positions.mp3.y,positions.pipe.y-gap-sizes.mp3[1]);
+  if(compact)paw=(positions.mp3.y+sizes.mp3[1]+positions.pipe.y)/2;
  }
  return {scale,compact,positions,sizes,frame,paw};
 }

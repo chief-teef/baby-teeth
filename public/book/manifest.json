@@ -871,7 +871,7 @@
     "layer": "hotrod",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/hotrod.svg",
-    "sha256": "8fbd304fd3063ef11f3581b589f24bd788e7a7c1f2daf8bd6b83c9cb581e0e3b"
+    "sha256": "35aea86a6cfbdc843bf16404aac193482cb8fe7d9b63df8438400906a09f1bb9"
   },
   {
     "file": "note.png",
@@ -899,12 +899,12 @@
   {
     "file": "ashtray.png",
     "logicalSize": [
-      160,
-      80
+      148,
+      72
     ],
     "sourcePixelSize": [
-      40,
-      20
+      37,
+      18
     ],
     "pivot": [
       0,
@@ -917,7 +917,7 @@
     "layer": "ashtray",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/ashtray.svg",
-    "sha256": "74836de837a58df6979c5bd2fceb58b6b01063b260508f1762464671cd2b2490"
+    "sha256": "db0fd88bdcb7408af65feee759282c1c96f03b5ac159219a7aa6b33918dd37f9"
   },
   {
     "file": "geekbar.png",

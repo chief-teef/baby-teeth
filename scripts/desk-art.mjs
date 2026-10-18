@@ -50,12 +50,13 @@ function toyAssets(r,sprite){
   +[5,12,19].map(x=>disc(x,15,5,'#1d3c78','#3b78d8')+r(x+1,16,1,1,'#7fb0f0')+r(x+2,17,1,1,'#c9ccd2')).join('')+r(7,17,15,1,'#c9ccd2');
  const steam=sprite([[0,3,6],[1,1,8],[2,0,9],[3,0,9],[4,1,9],[5,2,8],[6,3,6]],[],['#c4ccd4','#dde3e8','#f2f4f6','#ffffff']);
  const wheel=(x,y,size)=>disc(x,y,size,tyre,chrome)+r(x+Math.floor(size/2),y+Math.floor(size/2),1,1,'#7a8088');
- // Orange: long-hood, short-deck late-'60s muscle car. Teal: '32 roadster hot rod with an exposed engine.
+ // Orange: long-hood, short-deck late-'60s muscle car. Blue: low Hot Wheels-style coupe with big rear-set wheels and a flame decal.
  const muscle=sprite([[2,8,14],[3,7,16],[4,5,17],[5,1,22],[6,0,23],[7,0,23],[8,1,22]],[],['#7a3208','#c4520f','#f47a20','#ffb35c'],[[7,4,5,1,glassBlue],[8,3,4,1,glassBlue],[13,3,3,2,glassBlue],[1,5,6,1,ink],[2,6,3,1,'#ffd23f'],[5,6,2,1,'#ff9a1f'],[7,6,1,1,'#e8321e'],[3,5,1,1,'#ffd23f'],[11,5,1,3,'#c4520f'],[13,6,1,1,'#f4f4f4'],[0,6,1,1,'#fff3a0'],[0,7,1,1,chrome],[23,6,1,1,'#e8321e'],[23,7,1,1,chrome],[20,4,3,1,ink],[22,3,1,1,ink]])+wheel(2,6,4)+wheel(17,6,4);
- const hotrod=sprite([[1,14,19],[2,13,20],[3,8,21],[4,8,22],[5,8,22],[6,8,22]],[],['#0b4f4a','#12857b','#18b5a8','#7fe3d8'],[[15,2,4,1,glassBlue],[9,4,6,1,'#f4f7f4'],[22,4,1,1,'#e8321e']])
-  +r(1,2,2,5,chrome)+r(1,3,2,1,'#5a5f66')+r(1,5,2,1,'#5a5f66')+r(0,3,1,1,'#fff3a0')+r(3,3,5,3,'#9aa0a8')+r(3,3,5,1,'#e6e9ec')+r(4,2,3,1,'#e6e9ec')+r(3,6,6,1,chrome)+r(1,7,21,1,ink)+wheel(2,6,4)+wheel(16,4,6);
  // Pixel grids for the detailed toys: one character per pixel, '.' is transparent.
  const grid=(rows,pal)=>rows.map((row,y)=>[...row].map((c,x)=>pal[c]?r(x,y,1,1,pal[c]):'').join('')).join('');
+ const hotrod=grid([
+  '........KKKKKKK.........','.......KWGGKGGGK........','......KGGGGKGGGGK.......','..KKKKKBBBBBBBBBBKKKKK..',
+  '.KYLLLLLLLLLLLLLLLLLLLRK','.KBBBBBBFFffFBBBBBBBBBBK','.KDDDDDDDDDDDDDDDDDDDDDK','..KKKKKKKKKKKKKKKKKKKK..'],{K:'#14213d',B:'#2f6fe8',L:'#8ab8ff',D:'#1d3c9e',G:glassBlue,W:'#f4f7f4',Y:'#fff3a0',R:'#e8321e',F:'#ff8a1f',f:'#ffd23f'})+wheel(2,5,5)+wheel(16,5,5);
  // Courage the Cowardly Dog, original pixel drawing after the cartoon: 3/4 facing left, long muzzle, big nose, huge worried eyes, long ears.
  const courage=grid([
   '.KKKKK','.KBBBBKK','..KKBBBK..............KKKKKKKK','....KKKBK.....KKK...KKBBBBBBBBK','.......KK.KKK....KKKBBBBBBBKKK','........KKKKKKKKKKKK..KKKKKK',
@@ -74,7 +75,8 @@ function toyAssets(r,sprite){
  const puppy=grid(['','.....OOOOO','...OORRRRROO','..ORRRCCCRRRO','.ORRCCCCCCCRRO','.ORCCCCCCCCCRO','ORRCCCCCCCCCRRO','ORRCrrCCCrrCRRO','ORRrWKrCrWKrRRO','ORRrKKrCrKKrRRO',
   'ORRCKKCCCKKCRRO','ORRCCCCCCCCCRRO','ORRCCCKKKCCCRRO','ORRCCrrKrrCCRRO','ORRCCCrOrCCCRRO','ORROOOOOOOOORRO','ORRO.......ORRO','.ORO.......ORO.','..O.........O..'],ashPalette);
  // The head overlaps the tray's front-left corner so they read as one piece.
- const ashtray=tray+`<g transform="translate(2 0)">${puppy}</g>`;
+ // Cropped to the art (the grids leave a blank top row and left margin).
+ const ashtray=`<g transform="translate(-2 -1)">${tray}<g transform="translate(2 0)">${puppy}</g></g>`;
  // Geek Bar Pulse X, upright 3/4 view: gradient side panel lettered bottom-to-top, starfield front, ring display.
  const glyph={G:['111','100','101','101','111'],E:['111','100','110','100','111'],K:['101','101','110','101','101'],B:['110','101','110','101','110'],A:['010','101','111','101','101'],R:['110','101','110','101','101']};
  const lettering=[['G',40],['E',36],['E',32],['K',28],['B',22],['A',18],['R',14]].map(([c,base])=>glyph[c].map((row,gy)=>[...row].map((p,gx)=>p==='1'?r(1+gy,base-gx,1,1,'#fff'):'').join('')).join('')).join('');
@@ -89,5 +91,5 @@ function toyAssets(r,sprite){
   +r(0,12,1,31,'#2d2450')+panel+r(1,12,1,31,'#c9b5f5')+r(25,13,1,29,'#2c2c34')
   +lettering+[10,12,14,16,18].map(x=>r(x,14,1,1,'#e8e8f0')+r(x,40,1,1,'#e8e8f0')).join('')+stars+display(['#2f3b48','#7a3a1a','#1f3f6a','#2a5560']);
  const screen=display(['#8fe8ff','#ff8a2a','#4aa8ff','#7fe8ff']);
- return [['thomas',28,20,thomas],['steam',10,7,steam],['muscle',24,10,muscle],['hotrod',24,10,hotrod],['note',32,32,note],['ashtray',40,20,ashtray],['geekbar',26,44,geekbar],['geekbar-screen',26,44,screen]];
+ return [['thomas',28,20,thomas],['steam',10,7,steam],['muscle',24,10,muscle],['hotrod',24,10,hotrod],['note',32,32,note],['ashtray',37,18,ashtray],['geekbar',26,44,geekbar],['geekbar-screen',26,44,screen]];
 }

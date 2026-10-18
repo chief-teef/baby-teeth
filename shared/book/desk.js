@@ -8,7 +8,7 @@ const TUBBIES=['tinky','dipsy','figurine','po'];
 export function mountDesk(root,base){
  const desk=document.createElement('div');desk.className='book-desk';desk.ariaHidden='true';root.prepend(desk);
  const lighter=mountLighter(root,base),props=[['lighter',lighter]],objects={};let player,herbs,width=0,height=0;
- for(const [kind,label] of [['jar','Glass herb jar'],['grinder','Pink herb grinder'],['pipe','Pink glass pipe'],['tinky','Tall purple Teletubby'],['dipsy','Green Teletubby'],['figurine','Little yellow Teletubby'],['po','Small red Teletubby'],['mp3','Pink MP3 player'],['thomas','Thomas the Tank Engine toy'],['muscle','Orange toy car'],['hotrod','Teal toy car'],['note','Sticky note with a Courage doodle'],['ashtray','Glass ashtray'],['geekbar','Geek Bar vape']]){
+ for(const [kind,label] of [['jar','Glass herb jar'],['grinder','Pink herb grinder'],['pipe','Pink glass pipe'],['tinky','Tall purple Teletubby'],['dipsy','Green Teletubby'],['figurine','Little yellow Teletubby'],['po','Small red Teletubby'],['mp3','Pink MP3 player'],['thomas','Thomas the Tank Engine toy'],['muscle','Orange toy car'],['hotrod','Blue toy car'],['note','Sticky note with a Courage doodle'],['ashtray','Puppy ashtray'],['geekbar','Geek Bar vape']]){
   const element=document.createElement(TUBBIES.includes(kind)?'button':'div');element.className=`desk-prop desk-${kind}${TUBBIES.includes(kind)?' desk-tubby':''}`;objects[kind]=element;
   if(element.tagName!=='BUTTON'){element.tabIndex=0;element.setAttribute('role','group');}
   element.innerHTML=`<img class="prop-art" src="${base}book/${kind}.png" alt="">`;

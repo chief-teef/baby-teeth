@@ -876,12 +876,12 @@
   {
     "file": "note.png",
     "logicalSize": [
-      96,
-      96
+      128,
+      128
     ],
     "sourcePixelSize": [
-      24,
-      24
+      32,
+      32
     ],
     "pivot": [
       0,
@@ -894,17 +894,17 @@
     "layer": "note",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/note.svg",
-    "sha256": "316f20fbb9032b5fe1f41337b94b26e588a06bbcdf0ea81dea1aa3c02f76a873"
+    "sha256": "1cea43f4e882d836a78737c64339aebe1fea7ade121a19588cd18be407310a96"
   },
   {
     "file": "ashtray.png",
     "logicalSize": [
       160,
-      64
+      80
     ],
     "sourcePixelSize": [
       40,
-      16
+      20
     ],
     "pivot": [
       0,
@@ -917,7 +917,7 @@
     "layer": "ashtray",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/ashtray.svg",
-    "sha256": "109f4b867b8e59926427a62e8479b79572089832ada2e85814411e42dc9fd87d"
+    "sha256": "74836de837a58df6979c5bd2fceb58b6b01063b260508f1762464671cd2b2490"
   },
   {
     "file": "geekbar.png",
@@ -940,7 +940,7 @@
     "layer": "geekbar",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/geekbar.svg",
-    "sha256": "7699e92476522017d31361f72c3a8c50c0bf3ac0482003f3fdf42be85c3e5495"
+    "sha256": "55b435f6ccf8bf3a71293b79db4fd4b3a1b060dcfc9c7f68c8da381a339c48ca"
   },
   {
     "file": "geekbar-screen.png",

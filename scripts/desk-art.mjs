@@ -54,28 +54,40 @@ function toyAssets(r,sprite){
  const muscle=sprite([[2,8,14],[3,7,16],[4,5,17],[5,1,22],[6,0,23],[7,0,23],[8,1,22]],[],['#7a3208','#c4520f','#f47a20','#ffb35c'],[[7,4,5,1,glassBlue],[8,3,4,1,glassBlue],[13,3,3,2,glassBlue],[1,5,6,1,ink],[2,6,3,1,'#ffd23f'],[5,6,2,1,'#ff9a1f'],[7,6,1,1,'#e8321e'],[3,5,1,1,'#ffd23f'],[11,5,1,3,'#c4520f'],[13,6,1,1,'#f4f4f4'],[0,6,1,1,'#fff3a0'],[0,7,1,1,chrome],[23,6,1,1,'#e8321e'],[23,7,1,1,chrome],[20,4,3,1,ink],[22,3,1,1,ink]])+wheel(2,6,4)+wheel(17,6,4);
  const hotrod=sprite([[1,14,19],[2,13,20],[3,8,21],[4,8,22],[5,8,22],[6,8,22]],[],['#0b4f4a','#12857b','#18b5a8','#7fe3d8'],[[15,2,4,1,glassBlue],[9,4,6,1,'#f4f7f4'],[22,4,1,1,'#e8321e']])
   +r(1,2,2,5,chrome)+r(1,3,2,1,'#5a5f66')+r(1,5,2,1,'#5a5f66')+r(0,3,1,1,'#fff3a0')+r(3,3,5,3,'#9aa0a8')+r(3,3,5,1,'#e6e9ec')+r(4,2,3,1,'#e6e9ec')+r(3,6,6,1,chrome)+r(1,7,21,1,ink)+wheel(2,6,4)+wheel(16,4,6);
- // Courage fills the note in marker: tall black ears, huge eyes, screaming mouth, arms thrown up.
- const courage=sprite([[6,8,15],[7,7,16],...[8,9,10,11,12].map(y=>[y,6,17]),[13,7,16],[14,8,15],[15,9,14],[16,8,15],[17,8,15],[18,8,15],[19,9,14],[20,9,10],[20,13,14],[21,8,10],[21,13,15],[7,1,4],[7,19,22],...[8,9,10,11,12,13,14,15].map(y=>[y,2,4]),...[8,9,10,11,12,13,14,15].map(y=>[y,19,21]),[16,2,8],[16,15,21]],[],['#5a2a44','#d9799f','#f39ac0','#ffc6dc'],[[8,8,3,3,'#fff'],[13,8,3,3,'#fff'],[9,9,1,1,'#1a1a1a'],[14,9,1,1,'#1a1a1a'],[9,7,2,1,'#5a2a44'],[13,7,2,1,'#5a2a44'],[11,11,2,1,'#1a1a1a'],[9,12,6,2,'#7a1f35'],[9,12,6,1,'#fff'],[11,13,2,1,'#e8506e'],[10,17,4,2,'#ffc6dc']]);
- const note=r(0,0,24,24,'#f7e463')+r(0,0,24,4,'#efd552')+r(23,1,1,23,'#d9bf3d')+r(1,23,23,1,'#d9bf3d')+r(20,21,2,1,'#fbef9a')+r(21,20,1,1,'#fbef9a')
-  +courage+[[1,6,2],[2,6,3],[3,7,2],[4,7,2],[5,7,3],[6,8,2],[1,16,2],[2,15,3],[3,15,2],[4,15,2],[5,14,3],[6,14,2]].map(([y,x,w])=>r(x,y,w,1,'#2a2228')).join('')+r(0,4,1,2,'#3d5bd0')+r(1,3,1,1,'#3d5bd0')+r(23,4,1,2,'#3d5bd0')+r(22,3,1,1,'#3d5bd0')+r(18,4,1,2,'#6fb3e8');
- // Life-size round glass ashtray from slightly above: bowl, ash, two crushed butts, three rests.
- const ashRim=[[0,12,27],[1,7,32],[2,4,35],[3,2,37],[4,1,38],[5,0,39],[6,0,39],[7,0,39],[8,0,39],[9,1,38],[10,1,38],[11,2,37],[12,3,36],[13,5,34],[14,8,31],[15,12,27]];
- const bowl=[[2,13,26],[3,8,31],[4,6,33],[5,5,34],[6,5,34],[7,6,33],[8,8,31],[9,12,27]].map(([y,a,b])=>r(a,y,b-a+1,1,'#6e8791')).join('');
- const ashtray=sprite(ashRim,[],['#56707c','#7f9aa6','#a9c2cc','#e2f0f4'])+bowl+r(13,2,14,1,'#5b737e')+r(9,1,22,1,'#e2f0f4')+r(6,11,7,1,'#e2f0f4')+r(30,12,3,1,'#e2f0f4')
-  +r(19,0,2,2,'#3f5560')+r(2,4,2,1,'#3f5560')+r(36,4,2,1,'#3f5560')
-  +r(14,6,9,2,'#b9b3ab')+r(16,5,5,1,'#cfc9c1')+r(15,8,7,1,'#a39d95')+r(24,7,1,1,'#bdb7af')+r(11,6,1,1,'#bdb7af')
-  +r(21,5,1,1,'#55504a')+r(22,5,4,1,'#f4efe6')+r(26,5,3,1,'#d99a4e')+r(27,5,1,1,'#b9772f')+r(8,4,1,1,'#55504a')+r(9,4,3,1,'#f4efe6')+r(12,5,1,1,'#e6dfd3')+r(13,5,3,1,'#d99a4e');
- // Geek Bar Pulse X, upright 3/4 view: gradient side panel lettered bottom-to-top, starfield front, ring display, clear mouthpiece.
+ // Pixel grids for the detailed toys: one character per pixel, '.' is transparent.
+ const grid=(rows,pal)=>rows.map((row,y)=>[...row].map((c,x)=>pal[c]?r(x,y,1,1,pal[c]):'').join('')).join('');
+ // Courage the Cowardly Dog, original pixel drawing after the cartoon: 3/4 facing left, long muzzle, big nose, huge worried eyes, long ears.
+ const courage=grid([
+  '.KKKKK','.KBBBBKK','..KKBBBK..............KKKKKKKK','....KKKBK.....KKK...KKBBBBBBBBK','.......KK.KKK....KKKBBBBBBBKKK','........KKKKKKKKKKKK..KKKKKK',
+  '......KLPKWWKKWWWWKPK','.....KLPKWWWWKWWWWKPPK','.....KPPKWWWWKWWWWKPPPK','....KPPPKWWKWKWWKWKPKPK','....KPPPKWWKWKWWKWKPPKK','...KPPPPPKWWKKWWWWKPPPK',
+  '..KPPKKKKKKKPPKWWKPPPK','.KPKKBBBBBKPPPPKKPPPK','KPPKKKBBBBKPPPPPPPPPK','KPKPKKKKKKKPPPPPPPPPK','.KPPPPKKKKPPPKKPPPPK','..KPPPPPPKPKPPPKPPPK',
+  '....KKKKKKKPPPPPPPPPK','...........KPPPPPPPPKK','...........KPPPKPKPPKKK.K','...........KPPPKPKPPPSKPK','...........KPPPKPKPPPSKK','...........KPPKPKPKPPSK',
+  '...........KPPPPPPPPPSK','...........KPPPPPPPPPSK','............KPPPPPPPSK','............KPKKKKPK','............KPK..KPK','............KPK..KPK',
+  '...........KPPK.KPPPK','...........KKKK.KKKKK'],{K:'#1a1018',P:'#e6a2b0',L:'#f4c4ce',S:'#c98694',W:'#ffffff',B:'#b05a28'});
+ const note=r(0,0,32,32,'#f7e463')+r(0,0,32,5,'#efd552')+r(31,1,1,31,'#d9bf3d')+r(1,31,31,1,'#d9bf3d')+r(27,28,3,1,'#fbef9a')+r(28,27,2,1,'#fbef9a')+courage;
+ // The owner's ceramic puppy ashtray, life-size: cream glaze, orange patches, puppy head in front, ash and grime inside, no cigarettes.
+ const ashPalette={O:'#3f2a1e',C:'#f3ead8',H:'#fffaf0',D:'#d9cdb4',R:'#ee7a2a',r:'#f5a65c',K:'#141010',W:'#ffffff',A:'#8e8a84',a:'#bdb7ad',G:'#3a3430'};
+ const tray=grid(['','','................OOOOOOOOOOOOOOOOOOOOOO','...............OCCCCCCCCCCCCCCCCCCCCCCO','..............OCCaaaaaaaaaaaaaaaaaaaCCO','..............OCCAAGGAAAGGGAAAGGAAGACCOO',
+  '..............OCCGGAGGGAAGGGGAGGAAGGCCCO','..............OCCAGGGAAGGAGGGAAAGGAACCOO','..............OCCaAAGGAAAAGGAAAGAAAaCCO','.............OCCCCCCCCCCCCCCCCCCCCCCCCO','.............OHHHHHHHHHHHHHHHHHHHHHHHDO',
+  '.............OCCRRRRCCCCCCCCRRRRRCCCCDO','.............OCRRRRRCCCCCCCRRrRRRCCCCDO','.............OCRRRRCCCCCCCCCRRRRCCCCCDO','.............OCCRRCCCCCCCCCCCRRCCCCCCDO','.............OCCCCCCCCCCCCCCCCCCCCCCCDO',
+  '.............ODDDDDDDDDDDDDDDDDDDDDDDDO','..............OOOOOOOOOOOOOOOOOOOOOOOO'],ashPalette);
+ const puppy=grid(['','.....OOOOO','...OORRRRROO','..ORRRCCCRRRO','.ORRCCCCCCCRRO','.ORCCCCCCCCCRO','ORRCCCCCCCCCRRO','ORRCrrCCCrrCRRO','ORRrWKrCrWKrRRO','ORRrKKrCrKKrRRO',
+  'ORRCKKCCCKKCRRO','ORRCCCCCCCCCRRO','ORRCCCKKKCCCRRO','ORRCCrrKrrCCRRO','ORRCCCrOrCCCRRO','ORROOOOOOOOORRO','ORRO.......ORRO','.ORO.......ORO.','..O.........O..'],ashPalette);
+ // The head overlaps the tray's front-left corner so they read as one piece.
+ const ashtray=tray+`<g transform="translate(2 0)">${puppy}</g>`;
+ // Geek Bar Pulse X, upright 3/4 view: gradient side panel lettered bottom-to-top, starfield front, ring display.
  const glyph={G:['111','100','101','101','111'],E:['111','100','110','100','111'],K:['101','101','110','101','101'],B:['110','101','110','101','110'],A:['010','101','111','101','101'],R:['110','101','110','101','101']};
  const lettering=[['G',40],['E',36],['E',32],['K',28],['B',22],['A',18],['R',14]].map(([c,base])=>glyph[c].map((row,gy)=>[...row].map((p,gx)=>p==='1'?r(1+gy,base-gx,1,1,'#fff'):'').join('')).join('')).join('');
- const stars=[[9,17],[13,16],[18,18],[8,22],[15,24],[19,26],[9,29],[13,31],[18,35],[10,37],[16,37],[12,19],[17,29]].map(([x,y])=>r(x,y,1,1,'#f4f4fa')).join('')+[[15,18],[16,19],[9,25],[10,26],[11,27],[17,30],[18,31],[12,34],[13,35]].map(([x,y])=>r(x,y,1,1,'#9a9ab0')).join('')
+ const stars=[[9,17],[13,16],[18,18],[10,23],[15,24],[19,26],[9,29],[13,31],[18,35],[10,37],[16,37],[12,19],[17,29]].map(([x,y])=>r(x,y,1,1,'#f4f4fa')).join('')+[[15,18],[16,19],[9,25],[10,26],[11,27],[17,30],[18,31],[12,34],[13,35]].map(([x,y])=>r(x,y,1,1,'#9a9ab0')).join('')
   +r(10,20,2,2,'#f4f4fa')+r(11,23,1,1,'#f08a3c')+r(14,27,2,2,'#f5d742')+r(9,31,1,1,'#e0503c')+r(16,33,2,2,'#5fd3d3')+r(12,37,1,1,'#3f6fe0')+r(17,22,1,1,'#e8a050')+r(16,22,1,1,'#c8c0a0')+r(18,22,1,1,'#c8c0a0');
  const display=([digit,warm,cool,x])=>[[21,18],[21,33]].map(([dx,dy])=>r(dx,dy,3,1,digit)+r(dx,dy+2,3,1,digit)+r(dx,dy+4,3,1,digit)+r(dx,dy,1,5,digit)+r(dx+2,dy,1,5,digit)).join('')+r(22,16,1,1,digit)+r(22,39,1,1,digit)
   +r(21,25,3,1,warm)+r(20,26,1,5,warm)+r(24,26,1,5,cool)+r(21,31,3,1,cool)+r(21,27,1,1,x)+r(23,27,1,1,x)+r(22,28,1,1,x)+r(21,29,1,1,x)+r(23,29,1,1,x);
- const geekbar=r(9,3,7,8,'#1b1b1f')+r(10,4,1,6,'#3c3c46')+r(10,3,5,1,'#55555f')+r(11,3,3,1,'#050507')+r(7,1,11,6,'#e8f2f5aa')+r(8,0,9,1,'#8fa4ac')+r(7,1,1,6,'#8fa4ac')+r(17,1,1,6,'#8fa4ac')+r(8,1,2,4,'#ffffffcc')
-  +r(1,11,24,1,'#2a2a32')+r(0,12,26,31,'#121216')+r(1,43,24,1,'#08080a')+r(8,11,16,1,'#3a3a44')
-  +r(0,12,1,31,'#2d2450')+r(1,12,6,10,'#a07fe0')+r(1,22,6,10,'#8a8ee8')+r(1,32,6,11,'#72a6f0')+r(1,12,1,31,'#c9b5f5')+r(7,12,1,31,'#08080a')+r(25,12,1,31,'#2c2c34')
+ // Black mouthpiece (no cap) sits toward the back-left; the panel edge is an S-curve; the front-right corners are rounder.
+ const panel=Array.from({length:31},(_,i)=>{const y=12+i,edge=7+Math.round(Math.sin(i/30*2*Math.PI));return r(1,y,edge-1,1,y<22?'#a07fe0':y<32?'#8a8ee8':'#72a6f0')+r(edge,y,1,1,'#08080a');}).join('');
+ const geekbar=r(7,2,5,1,'#55555f')+r(6,3,7,8,'#1b1b1f')+r(8,2,3,1,'#050507')+r(7,4,1,6,'#3c3c46')+r(11,4,1,6,'#26262c')
+  +r(1,11,22,1,'#2a2a32')+r(0,12,25,1,'#121216')+r(0,13,26,29,'#121216')+r(0,42,25,1,'#121216')+r(1,43,22,1,'#08080a')+r(6,11,15,1,'#3a3a44')
+  +r(0,12,1,31,'#2d2450')+panel+r(1,12,1,31,'#c9b5f5')+r(25,13,1,29,'#2c2c34')
   +lettering+[10,12,14,16,18].map(x=>r(x,14,1,1,'#e8e8f0')+r(x,40,1,1,'#e8e8f0')).join('')+stars+display(['#2f3b48','#7a3a1a','#1f3f6a','#2a5560']);
  const screen=display(['#8fe8ff','#ff8a2a','#4aa8ff','#7fe8ff']);
- return [['thomas',28,20,thomas],['steam',10,7,steam],['muscle',24,10,muscle],['hotrod',24,10,hotrod],['note',24,24,note],['ashtray',40,16,ashtray],['geekbar',26,44,geekbar],['geekbar-screen',26,44,screen]];
+ return [['thomas',28,20,thomas],['steam',10,7,steam],['muscle',24,10,muscle],['hotrod',24,10,hotrod],['note',32,32,note],['ashtray',40,20,ashtray],['geekbar',26,44,geekbar],['geekbar-screen',26,44,screen]];
 }

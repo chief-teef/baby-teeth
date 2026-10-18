@@ -25,7 +25,7 @@ export function deskLayout(width,height){
   // The compact player sits at mid-height on the right edge; the paw drops into the gap above the pipe so it never covers the heart button.
   if(compact)paw=(positions.mp3.y+sizes.mp3[1]+positions.pipe.y)/2;
   // Larger screens only. Ashtray and Geek Bar are life-size against the lighter (~14.5px/cm); the rest are sized to read at a glance.
-  Object.assign(sizes,{thomas:[112*scale,80*scale],muscle:[96*scale,40*scale],hotrod:[96*scale,40*scale],note:[96*scale,96*scale],ashtray:[160*scale,64*scale],geekbar:[78*scale,132*scale]});
+  Object.assign(sizes,{thomas:[112*scale,80*scale],muscle:[96*scale,40*scale],hotrod:[96*scale,40*scale],note:[96*scale,96*scale],ashtray:[160*scale,80*scale],geekbar:[78*scale,132*scale]});
   // shortcut: measured menu width (470px, centred); re-measure if the menu changes (book-responsive catches overlap).
   const menuLeft=(width-470)/2-8,menuRight=(width+470)/2+8,lane=height-44,s=12*scale,[tw,th]=sizes.thomas,[cw,ch]=sizes.muscle;
   positions.thomas={x:gap,y:lane-th/2};

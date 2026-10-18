@@ -782,6 +782,190 @@
     "sha256": "f3542d92e8024ae86383aadd4f71e2df884cb07f92aebdcb3bda2ca4d776bdac"
   },
   {
+    "file": "thomas.png",
+    "logicalSize": [
+      104,
+      72
+    ],
+    "sourcePixelSize": [
+      26,
+      18
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "thomas",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/thomas.svg",
+    "sha256": "ac137d9cb3c484686012e3d78e79a52753aa3d6d0969ec5579397ad01a0e4dec"
+  },
+  {
+    "file": "steam.png",
+    "logicalSize": [
+      40,
+      28
+    ],
+    "sourcePixelSize": [
+      10,
+      7
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "steam",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/steam.svg",
+    "sha256": "50fda89cc82095ff8b8f268a810cd2e9efba4a80ceef6d877347978d094a6cc4"
+  },
+  {
+    "file": "muscle.png",
+    "logicalSize": [
+      88,
+      36
+    ],
+    "sourcePixelSize": [
+      22,
+      9
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "muscle",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/muscle.svg",
+    "sha256": "dae1fa8b3014ac965a06e80bdfd4aed2715f707b9640ed0db85965ffe4259672"
+  },
+  {
+    "file": "hotrod.png",
+    "logicalSize": [
+      88,
+      36
+    ],
+    "sourcePixelSize": [
+      22,
+      9
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "hotrod",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/hotrod.svg",
+    "sha256": "ba9788260aac0a81c6f9dc7f03fc84068e2394d3d22c7168a3b39ee9a7cca636"
+  },
+  {
+    "file": "note.png",
+    "logicalSize": [
+      64,
+      64
+    ],
+    "sourcePixelSize": [
+      16,
+      16
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "note",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/note.svg",
+    "sha256": "1dbb024ddf769322c294e4577770119545f8a6d17195fe7e41c5e211be990345"
+  },
+  {
+    "file": "ashtray.png",
+    "logicalSize": [
+      72,
+      32
+    ],
+    "sourcePixelSize": [
+      18,
+      8
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "ashtray",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/ashtray.svg",
+    "sha256": "3b8a0559c9a1c5366b782d50b717e6bf5fcda82425a10d417998532a08020e33"
+  },
+  {
+    "file": "geekbar.png",
+    "logicalSize": [
+      184,
+      48
+    ],
+    "sourcePixelSize": [
+      46,
+      12
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "geekbar",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/geekbar.svg",
+    "sha256": "9dd39b7810e3e9947cc4d3468fde7544fa1f87b0811ea6025904639cdf1d7505"
+  },
+  {
+    "file": "geekbar-screen.png",
+    "logicalSize": [
+      184,
+      48
+    ],
+    "sourcePixelSize": [
+      46,
+      12
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "geekbar-screen",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/geekbar-screen.svg",
+    "sha256": "8eeddfe5091df604118adc178639ea3ce186ad0e08b9f8c7f4359a2d4512295e"
+  },
+  {
     "file": "turn-0.wav",
     "logicalSize": null,
     "sourcePixelSize": null,

@@ -24,6 +24,14 @@ export function deskLayout(width,height){
   huddle(Math.min(20*scale,(leftWidth-gap-sizes.tinky[0])/3),46);
   // The compact player sits at mid-height on the right edge; the paw drops into the gap above the pipe so it never covers the heart button.
   if(compact)paw=(positions.mp3.y+sizes.mp3[1]+positions.pipe.y)/2;
+  // Larger screens only: toy lane left of the centered menu, note at its right, smoking pair beside (or under) the lighter.
+  Object.assign(sizes,{thomas:[78*scale,54*scale],muscle:[66*scale,27*scale],hotrod:[66*scale,27*scale],note:[64*scale,64*scale],ashtray:[54*scale,24*scale],geekbar:[138*scale,36*scale]});
+  const lane=height-42;let x=gap;
+  for(const k of ['thomas','muscle','hotrod']){positions[k]={x,y:lane-sizes[k][1]/2};x+=sizes[k][0]+12*scale;}
+  positions.note={x:width-gap-sizes.note[0]-24*scale,y:lane-sizes.note[1]/2};
+  const column=width-rightWidth+gap,[gw,gh]=sizes.geekbar,[aw,ah]=sizes.ashtray,base=positions.lighter.y+sizes.lighter[1];
+  if(column+gw+8+aw<=positions.lighter.x-gap){positions.geekbar={x:column,y:base-gh};positions.ashtray={x:column+gw+8,y:base-ah};}
+  else{positions.geekbar={x:column,y:base+gap};positions.ashtray={x:column,y:base+gap+gh+8};}
  }
  return {scale,compact,positions,sizes,frame,paw};
 }

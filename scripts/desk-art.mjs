@@ -35,5 +35,28 @@ export function deskAssets(){
  // Orange paw reaching left; notches split the toes and the arm runs off the right edge.
  const bean='#f6a3b5',fur='#8f4518';
  const paw=sprite([[1,3,6],[2,1,8],[3,0,10],[4,0,23],[5,1,23],[6,0,23],[7,0,23],[8,0,23],[9,1,23],[10,0,23],[11,0,23],[12,0,23],[13,1,23],[14,2,23],[15,4,23],[16,6,12]],[],[fur,'#d6702a','#f39a3d','#ffc983'],[[2,2,2,2,bean],[2,6,2,2,bean],[2,10,2,2,bean],[6,5,2,1,bean],[5,6,4,6,bean],[6,12,2,1,bean],[6,7,1,1,'#ffd3dc'],[2,5,2,1,fur],[2,9,2,1,fur],[3,13,2,1,fur],[14,6,2,8,'#d6702a'],[18,6,2,8,'#d6702a']]);
- return [['desk-wood',256,128,wood],['lighter',14,23,lighter],['lighter-lid',14,7,lid],['grinder',28,22,grinder],['grinder-top',28,22,top],['grinder-well',28,22,well],['page-corner',16,16,corner],['pipe',34,20,pipe],['oregano',34,20,herbs],['jar',22,30,jar],['buds',14,14,bud],['dust',22,12,dust],['figurine',20,29,figure],['mp3',55,75,mp3],['tinky',20,33,tinky],['dipsy',20,31,dipsy],['po',20,26,po],['paw',24,18,paw]].map(a=>[...a,[0,0]]);
+ return [['desk-wood',256,128,wood],['lighter',14,23,lighter],['lighter-lid',14,7,lid],['grinder',28,22,grinder],['grinder-top',28,22,top],['grinder-well',28,22,well],['page-corner',16,16,corner],['pipe',34,20,pipe],['oregano',34,20,herbs],['jar',22,30,jar],['buds',14,14,bud],['dust',22,12,dust],['figurine',20,29,figure],['mp3',55,75,mp3],['tinky',20,33,tinky],['dipsy',20,31,dipsy],['po',20,26,po],['paw',24,18,paw],...toyAssets(r,sprite)].map(a=>[...a,[0,0]]);
+}
+// Second desk-toy set: original whole-pixel drawings, no traced art or logo files.
+function toyAssets(r,sprite){
+ const ink='#2b2b33',red='#c8312c',yellow='#f6d54a';
+ const wheels=[3,10,17].map(x=>r(x,14,4,3,'#2a5bb0')+r(x+1,17,2,1,'#1d3c78')+r(x+1,14,2,1,'#7fb0f0')).join('');
+ const thomas=sprite([[0,6,9],[1,7,8],[2,7,8],[3,7,8],[1,16,25],[2,17,24],[3,17,24],[3,12,14],...Array.from({length:9},(_,i)=>[4+i,1,24]),[13,0,25]],[],['#1d3c78','#2a5bb0','#3b78d8','#7fb0f0'],[[6,0,4,1,ink],[7,1,2,3,ink],[16,1,10,1,ink],[17,2,8,1,'#3a3a44'],[19,4,4,3,'#bfe3ff'],[1,4,5,8,'#8d8f96'],[2,5,4,6,'#e3e1dc'],[2,6,1,1,'#222'],[4,6,1,1,'#222'],[2,9,3,1,'#6b4a3c'],[1,12,24,1,red],[0,13,26,1,red],[0,12,1,2,ink],[21,8,1,4,yellow],[20,9,1,1,yellow],[20,11,3,1,yellow]])+wheels+r(4,15,16,1,'#b9bcc4');
+ const steam=sprite([[0,3,6],[1,1,8],[2,0,9],[3,0,9],[4,1,9],[5,2,8],[6,3,6]],[],['#c4ccd4','#dde3e8','#f2f4f6','#ffffff']);
+ const tire=(x,y,w,h)=>r(x,y,w,h,'#1c1c1c')+r(x+1,y+1,w-2,1,'#c8c8c8');
+ const muscle=sprite([[0,8,13],[1,7,14],[2,6,15],[3,1,20],[4,0,21],[5,0,21],[6,1,20]],[],['#7a3208','#c4520f','#f47a20','#ffb35c'],[[8,1,3,1,'#a8d8ff'],[12,1,2,1,'#a8d8ff'],[0,4,1,1,'#fff3a0'],[21,4,1,1,'#e8321e'],[2,4,5,1,'#ffd23f'],[7,4,1,1,'#e8321e'],[2,5,3,1,'#ffd23f'],[5,5,2,1,'#e8321e']])+tire(3,6,4,3)+tire(15,6,4,3);
+ const hotrod=sprite([[0,9,13],[1,8,14],[2,7,20],[3,1,21],[4,0,21],[5,0,21],[6,2,13]],[],['#0b4f4a','#12857b','#18b5a8','#7fe3d8'],[[9,1,4,1,'#a8d8ff'],[0,4,1,1,'#fff3a0'],[21,4,1,1,'#e8321e'],[1,4,20,1,'#f4f7f4']])+tire(3,6,3,3)+tire(14,5,6,4);
+ const pen='#2f3f9c',pink='#f4a6c0';
+ const note=r(0,0,16,16,'#f7e463')+r(0,0,16,3,'#efd552')+r(15,1,1,15,'#d9bf3d')+r(1,15,15,1,'#d9bf3d')+r(13,13,2,2,'#e9d24f')
+  +r(5,3,1,3,pen)+r(10,3,1,3,pen)+r(5,6,6,1,pen)+r(4,7,1,4,pen)+r(11,7,1,4,pen)+r(5,11,6,1,pen)+r(5,7,6,4,pink)+r(5,7,2,2,'#fff')+r(9,7,2,2,'#fff')+r(6,8,1,1,pen)+r(9,8,1,1,pen)+r(7,9,2,2,'#7a2a3a')
+  +r(6,12,4,2,pink)+r(5,12,1,2,pen)+r(10,12,1,2,pen)+r(4,12,1,1,pen)+r(3,10,1,2,pen)+r(11,12,1,1,pen)+r(12,10,1,2,pen)+r(6,14,1,1,pen)+r(9,14,1,1,pen)+r(2,4,1,2,pen)+r(13,4,1,2,pen)+r(13,7,1,1,'#7ab8e8');
+ const glass='#56707c',ashtray=r(4,0,10,1,glass)+r(2,1,14,1,glass)+r(4,1,10,1,'#d8e8ee')+r(1,2,16,4,'#9fb7c2')+r(0,2,1,4,glass)+r(17,2,1,4,glass)+r(3,2,12,2,'#6e8791')+r(5,3,3,1,'#c9c4bd')+r(10,2,2,1,'#b5afa6')+r(6,2,3,1,'#f4efe6')+r(9,2,2,1,'#d99a4e')+r(5,2,1,1,'#8a8580')+r(3,4,3,1,'#e3f0f4')+r(1,6,16,1,glass)+r(3,7,12,1,'#3f5560');
+ // Geek Bar Pulse on its side: gradient body, hand-lettered name, small screen.
+ const glyph={G:['111','100','101','101','111'],E:['111','100','110','100','111'],K:['101','101','110','101','101'],B:['110','101','110','101','110'],A:['010','101','111','101','101'],R:['110','101','110','101','101']};
+ const lettering=[['G',8],['E',12],['E',16],['K',20],['B',26],['A',30],['R',34]].map(([c,x])=>glyph[c].map((row,y)=>[...row].map((p,i)=>p==='1'?r(x+i,4+y,1,1,'#fff4fb'):'').join('')).join('')).join('');
+ const geekbar=r(1,2,5,8,'#2b2430')+r(0,3,1,6,'#2b2430')+r(1,3,4,1,'#5a5263')+r(0,5,1,2,'#141018')
+  +r(7,0,38,1,'#4a2350')+r(6,1,1,10,'#4a2350')+r(45,1,1,10,'#4a2350')+r(7,11,38,1,'#4a2350')+r(7,1,10,10,'#f27bb5')+r(17,1,10,10,'#d971c2')+r(27,1,10,10,'#b766cd')+r(37,1,8,10,'#9459d4')+r(8,1,36,1,'#ffd0ec')+r(7,10,38,1,'#5d2a6e')
+  +lettering+r(38,3,7,6,'#2e2236')+r(39,4,5,4,'#141018');
+ const screen=r(39,4,5,4,'#16302a')+r(39,4,4,1,'#9ff07a')+r(43,4,1,1,'#3e6b33')+r(39,6,3,1,'#7ad7f0')+r(42,6,2,1,'#2d5f6e');
+ return [['thomas',26,18,thomas],['steam',10,7,steam],['muscle',22,9,muscle],['hotrod',22,9,hotrod],['note',16,16,note],['ashtray',18,8,ashtray],['geekbar',46,12,geekbar],['geekbar-screen',46,12,screen]];
 }

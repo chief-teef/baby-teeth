@@ -56,3 +56,9 @@
 
 .desk-paw-edge{position:absolute;inset:0;overflow:clip;pointer-events:none}.desk-paw{position:absolute;z-index:67;pointer-events:auto;right:-48px;top:50%;translate:0 -50%;width:96px;height:72px;min-width:44px;min-height:44px;padding:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}.desk-paw>img{display:block;width:100%;height:100%;image-rendering:pixelated;pointer-events:none;filter:drop-shadow(-3px 5px 0 #38251c55)}.desk-paw:focus-visible{outline:none}.desk-paw:focus-visible>img{filter:drop-shadow(2px 0 0 var(--paper)) drop-shadow(-2px 0 0 var(--paper)) drop-shadow(0 2px 0 var(--paper))}
 @media(max-width:767px){.desk-paw{right:-28px;width:72px;height:54px}}
+
+.desk-thomas{width:78px;height:54px}.desk-muscle,.desk-hotrod{width:66px;height:27px}.desk-note{width:64px;height:64px}.desk-ashtray{width:54px;height:24px}.desk-geekbar{width:138px;height:36px}
+.desk-note>.prop-art{rotate:-6deg}.thomas-steam,.geekbar-screen{position:absolute;image-rendering:pixelated;pointer-events:none}
+.thomas-steam{left:8px;top:-26px;width:30px;height:21px;opacity:0}.held.desk-thomas .thomas-steam{animation:thomas-steam 700ms ease-out}@keyframes thomas-steam{0%{opacity:0;transform:translateY(8px) scale(.5)}25%{opacity:1}100%{opacity:0;transform:translateY(-18px) scale(1.25)}}
+.geekbar-screen{inset:0;width:100%;height:100%;opacity:0}.held.desk-geekbar .geekbar-screen{opacity:1}
+.still .thomas-steam{animation:none}@media(prefers-reduced-motion:reduce){.thomas-steam{animation:none!important}}

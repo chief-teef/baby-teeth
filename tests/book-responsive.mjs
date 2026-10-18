@@ -46,5 +46,5 @@ try{
  const lighter=await page.locator('.desk-lighter').boundingBox(),pipe=await page.locator('.desk-pipe').boundingBox(),propScale=deskLayout(390,844).scale;
  assert.ok(Math.abs(lighter.x+28*propScale-(pipe.x+pipe.width*.82))<2,'Scaled lighter reaches the pipe horizontally');
  assert.ok(Math.abs(lighter.y+4*propScale-(pipe.y+pipe.height*.35))<2,'Scaled lighter reaches the pipe vertically');
- assert.deepEqual(errors,[]);console.log('PASS separated book, nine props (huddle overlaps by design) and reachable controls across ten desktop/tablet/phone/short viewports, plus resize. Chromium only.');
+ assert.deepEqual(errors,[]);console.log('PASS separated book, fifteen props (huddle overlaps by design; six toys hidden on phones) and reachable controls across ten desktop/tablet/phone/short viewports, plus resize. Chromium only.');
 }finally{await browser.close();}

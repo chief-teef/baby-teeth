@@ -63,3 +63,10 @@ test('desk toys: Teletubby and paw sprites ship, and the huddle runs Po to Tinky
  assert.deepEqual(HUDDLE,['po','figurine','dipsy','tinky']);
  for(const [w,h] of [[1440,900],[1024,768],[390,844],[320,568],[844,390]]){const {positions}=deskLayout(w,h);for(let i=1;i<HUDDLE.length;i++){const front=positions[HUDDLE[i-1]],back=positions[HUDDLE[i]];assert.ok(back.x>front.x&&back.y<front.y,`${w}x${h}: ${HUDDLE[i]} sits right of and behind ${HUDDLE[i-1]}`);}}
 });
+test('desk toys 2: six toy sprites ship and appear only in the larger-screen layout',async()=>{
+ const {deskAssets}=await import('../scripts/desk-art.mjs'),{deskLayout}=await import('../shared/book/camera.js');
+ const sprites=deskAssets().map(([name])=>name),manifest=JSON.parse(readFileSync('public/book/manifest.json','utf8')).map(a=>a.file),toys=['thomas','muscle','hotrod','note','ashtray','geekbar'];
+ for(const name of [...toys,'steam','geekbar-screen'])assert.ok(sprites.includes(name)&&manifest.includes(`${name}.png`),name);
+ for(const [w,h] of [[1440,900],[1280,800],[1024,768],[834,1194],[768,600]]){const {positions}=deskLayout(w,h);for(const k of toys)assert.ok(positions[k],`${w}x${h}: ${k} placed`);assert.ok(positions.thomas.x<positions.muscle.x&&positions.muscle.x<positions.hotrod.x,'Toy lane runs Thomas, orange, teal');}
+ for(const [w,h] of [[390,844],[320,568],[844,390],[600,400]]){const {positions}=deskLayout(w,h);for(const k of toys)assert.equal(positions[k],undefined,`${w}x${h}: ${k} hidden`);}
+});

@@ -690,6 +690,98 @@
     "sha256": "f97222d1a5fb10d339a322ba6bbef0bf56ecc59369c4cf2a36bd8e6cde2fe166"
   },
   {
+    "file": "tinky.png",
+    "logicalSize": [
+      80,
+      132
+    ],
+    "sourcePixelSize": [
+      20,
+      33
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "tinky",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/tinky.svg",
+    "sha256": "94f6c968b533da0eabbedb1846a26a1deac81c506cafb1b5113580ca09bf9467"
+  },
+  {
+    "file": "dipsy.png",
+    "logicalSize": [
+      80,
+      124
+    ],
+    "sourcePixelSize": [
+      20,
+      31
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "dipsy",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/dipsy.svg",
+    "sha256": "e1eedde026d69b8fa1b2a7e9518710f9b58964687f0ecc38aaa04d17bc94257f"
+  },
+  {
+    "file": "po.png",
+    "logicalSize": [
+      80,
+      104
+    ],
+    "sourcePixelSize": [
+      20,
+      26
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "po",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/po.svg",
+    "sha256": "c00798bf35155aa409bbd87a13b8e8618c8d923fe491dad1112fcb4592f015b4"
+  },
+  {
+    "file": "paw.png",
+    "logicalSize": [
+      96,
+      72
+    ],
+    "sourcePixelSize": [
+      24,
+      18
+    ],
+    "pivot": [
+      0,
+      0
+    ],
+    "attachmentPoint": [
+      0,
+      0
+    ],
+    "layer": "paw",
+    "license": "CC0-1.0",
+    "source": "Original procedural artwork; assets/book/paw.svg",
+    "sha256": "f3542d92e8024ae86383aadd4f71e2df884cb07f92aebdcb3bda2ca4d776bdac"
+  },
+  {
     "file": "turn-0.wav",
     "logicalSize": null,
     "sourcePixelSize": null,

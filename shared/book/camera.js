@@ -1,23 +1,31 @@
+export const HUDDLE=['po','figurine','dipsy','tinky'];
 export function deskLayout(width,height){
  const scale=Math.max(.5,Math.min(1,width/1440,height/900)),compact=width<1280||height<850,gap=16,bottom=height-84;
- const sizes={figurine:[80*scale,116*scale],jar:[88*scale,120*scale],grinder:[112*scale,88*scale],lighter:[56*scale,116*scale],pipe:[204*scale,120*scale],mp3:compact?[88,120]:[280,460]},positions={};
- let frame;
+ const sizes={figurine:[80*scale,116*scale],po:[80*scale,104*scale],dipsy:[80*scale,124*scale],tinky:[80*scale,132*scale],jar:[88*scale,120*scale],grinder:[112*scale,88*scale],lighter:[56*scale,116*scale],pipe:[204*scale,120*scale],mp3:compact?[88,120]:[280,460]},positions={};
+ let frame,paw=height/2;
+ // Teletubby huddle in Laa-Laa's slot, front to back; each step goes right and up so heads stay visible.
+ const huddle=(dx,rise)=>{const {x,y}=positions.figurine;HUDDLE.forEach((k,i)=>{positions[k]={x:x+i*dx,y:y+(HUDDLE.length-1-i)*rise};});};
  if(width<768&&!(height<600&&width>=600&&width>height)){
   const top=['figurine','jar','grinder'],lower=['lighter','pipe','mp3'];
   const topHeight=Math.max(...top.map(k=>sizes[k][1])),lowerHeight=Math.max(...lower.map(k=>sizes[k][1]));
   for(const row of [top,lower])row.forEach((k,i)=>{const [w,h]=sizes[k];positions[k]={x:i===0?gap:i===1?(width-w)/2:width-gap-w,y:row===top?gap:bottom-h};});
+  huddle(20*scale,6);
   frame={x:gap,y:gap+topHeight+gap,width:width-gap*2,height:Math.max(1,bottom-lowerHeight-gap-(gap+topHeight+gap))};
  }else if(height<600){
   const keys=['figurine','jar','grinder','lighter','pipe','mp3'],rowHeight=Math.max(...keys.map(k=>sizes[k][1]));
   keys.forEach((k,i)=>{const [w,h]=sizes[k];positions[k]={x:gap+(width-gap*2)/keys.length*(i+.5)-w/2,y:gap+(rowHeight-h)/2};});
+  huddle(20*scale,6);
   frame={x:gap,y:gap+rowHeight+gap,width:width-gap*2,height:Math.max(1,bottom-(gap+rowHeight+gap)-gap)};
  }else{
   const left=['figurine','jar','grinder'],right=['lighter','mp3','pipe'];
   for(const column of [left,right])column.forEach((k,i)=>{const [w,h]=sizes[k];positions[k]={x:column===left?gap:width-gap-w,y:i===0?gap:i===1?(gap+bottom-h)/2:bottom-h};});
   const leftWidth=Math.max(...left.map(k=>sizes[k][0]))+gap*2,rightWidth=Math.max(...right.map(k=>sizes[k][0]))+gap*2;
   frame={x:leftWidth,y:gap,width:Math.max(1,width-leftWidth-rightWidth),height:Math.max(1,bottom-gap)};
+  huddle(Math.min(20*scale,(leftWidth-gap-sizes.tinky[0])/3),46);
+  // The compact player sits at mid-height on the right edge; the paw drops into the gap above the pipe so it never covers the heart button.
+  if(compact)paw=(positions.mp3.y+sizes.mp3[1]+positions.pipe.y)/2;
  }
- return {scale,compact,positions,sizes,frame};
+ return {scale,compact,positions,sizes,frame,paw};
 }
 export function fitCamera(width,height,open=true){
  const {frame}=deskLayout(width,height),w=open?2120:1196,h=1420;

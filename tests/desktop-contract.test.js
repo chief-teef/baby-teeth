@@ -55,3 +55,11 @@ test('notebook header uses VT323 at the agreed sizes with a serif, never handwri
  for(const s of ['h2','time'])assert.doesNotMatch(rule(s),/Kalam|Caveat|cursive/);
  assert.match(readFileSync(new URL('../shared/book/theme.css',import.meta.url),'utf8'),/font-family:'VT323';src:url\('..\/..\/public\/editor\/fonts\/vt323\.woff2'\)/);
 });
+test('desk toys: Teletubby and paw sprites ship, and the huddle runs Po to Tinky Winky front to back',async()=>{
+ const {deskAssets}=await import('../scripts/desk-art.mjs'),{deskLayout,HUDDLE}=await import('../shared/book/camera.js');
+ const sprites=Object.fromEntries(deskAssets().map(([name,w,h])=>[name,[w,h]])),manifest=JSON.parse(readFileSync('public/book/manifest.json','utf8')).map(a=>a.file);
+ for(const name of ['tinky','dipsy','po','paw'])assert.ok(sprites[name]&&manifest.includes(`${name}.png`),name);
+ assert.ok(sprites.tinky[1]>sprites.dipsy[1]&&sprites.dipsy[1]>sprites.figurine[1]&&sprites.figurine[1]>sprites.po[1],'Heights follow the line-up');
+ assert.deepEqual(HUDDLE,['po','figurine','dipsy','tinky']);
+ for(const [w,h] of [[1440,900],[1024,768],[390,844],[320,568],[844,390]]){const {positions}=deskLayout(w,h);for(let i=1;i<HUDDLE.length;i++){const front=positions[HUDDLE[i-1]],back=positions[HUDDLE[i]];assert.ok(back.x>front.x&&back.y<front.y,`${w}x${h}: ${HUDDLE[i]} sits right of and behind ${HUDDLE[i-1]}`);}}
+});

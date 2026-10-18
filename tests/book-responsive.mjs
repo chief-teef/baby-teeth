@@ -17,7 +17,8 @@ try{
    assert.ok(!overlap(prop,camera),`${width}x${height}: ${prop.name} does not cover the book`);
    assert.ok(!overlap(prop,rail),`${width}x${height}: ${prop.name} does not cover controls`);
   }
-  for(let i=0;i<props.length;i++)for(let j=i+1;j<props.length;j++)assert.ok(!overlap(props[i],props[j]),`${width}x${height}: props stay separated`);
+  const huddled=p=>/desk-tubby/.test(p.name);
+  for(let i=0;i<props.length;i++)for(let j=i+1;j<props.length;j++)if(!(huddled(props[i])&&huddled(props[j])))assert.ok(!overlap(props[i],props[j]),`${width}x${height}: props stay separated`);
   assert.ok(!overlap(camera,rail),`${width}x${height}: book stays above controls`);
   const layout=deskLayout(width,height);assert.ok(camera.width<=layout.frame.width+1&&camera.height<=layout.frame.height+1);
   if(layout.compact){
@@ -36,7 +37,7 @@ try{
  await page.setViewportSize({width:320,height:400});await page.waitForTimeout(100);
  assert.ok(await page.locator('.book-camera').evaluate((e,old)=>new DOMMatrix(getComputedStyle(e).transform).a<old,large));
  await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'no-preference'});await page.reload();await page.waitForFunction(()=>window.bookScene);
- const figurine=page.locator('.desk-figurine'),box=await figurine.boundingBox(),left=await figurine.evaluate(e=>parseFloat(e.style.left));
+ const figurine=page.locator('.desk-po'),box=await figurine.boundingBox(),left=await figurine.evaluate(e=>parseFloat(e.style.left));
  await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+20,box.y+box.height/2+10);await page.mouse.up();
  assert.ok(Math.abs(await figurine.evaluate(e=>parseFloat(e.style.left))-left-20)<1,'Scaled props drag in screen coordinates');
  await page.locator('.herb-buds').focus();await page.keyboard.press('Enter');await page.waitForFunction(()=>document.querySelector('#demo').dataset.herbs==='buds');
@@ -45,5 +46,5 @@ try{
  const lighter=await page.locator('.desk-lighter').boundingBox(),pipe=await page.locator('.desk-pipe').boundingBox(),propScale=deskLayout(390,844).scale;
  assert.ok(Math.abs(lighter.x+28*propScale-(pipe.x+pipe.width*.82))<2,'Scaled lighter reaches the pipe horizontally');
  assert.ok(Math.abs(lighter.y+4*propScale-(pipe.y+pipe.height*.35))<2,'Scaled lighter reaches the pipe vertically');
- assert.deepEqual(errors,[]);console.log('PASS separated book, six props and reachable controls across ten desktop/tablet/phone/short viewports, plus resize. Chromium only.');
+ assert.deepEqual(errors,[]);console.log('PASS separated book, nine props (huddle overlaps by design) and reachable controls across ten desktop/tablet/phone/short viewports, plus resize. Chromium only.');
 }finally{await browser.close();}

@@ -1,7 +1,6 @@
 import {esc,renderText,resolveMediaUrl} from './document.js';
 import {entryDate,geometryOverflow,entryPages,pageGeometry} from './notebook-format.js';
 import {fontFamily,fontById} from './font-registry.js';
-import {fitTextBox} from './text-fit.js';
 export function renderNotebook(post,base='/',{deferMedia=false,pageIndex=0}={}){
  const page=entryPages(post)[pageIndex],geometry=pageGeometry(pageIndex);if(!page)throw Error('Page index out of range.');
  const header=pageIndex===0?`<header class="notebook-header">${post.title.trim()?`<h2>${esc(post.title)}</h2>`:''}<time datetime="${esc(post.publishedAt||post.created)}">${esc(entryDate(post))}</time></header>`:'';
@@ -25,10 +24,8 @@ export async function measureNotebook(post,element,{pageIndex=0}={}){
  if(pageIndex===0&&title&&title.scrollHeight>104.5)failures.push('title');
  for(const object of element.querySelectorAll('.notebook-object')){
   const model=page.elements.find(e=>e.id===object.dataset.objectId);let h=model.h;
-  if(model.type==='text'){
-   if(model.fixedHeight){if(!fitTextBox(object,model).fits)failures.push(model.id);}
-   else h=Math.max(h,object.scrollHeight);
-  }
+  // Fixed boxes keep their authored height; spilled text never fails the fit.
+  if(model.type==='text'&&!model.fixedHeight)h=Math.max(h,object.scrollHeight);
   const r=model.rotation*Math.PI/180,w=Math.abs(model.w*Math.cos(r))+Math.abs(h*Math.sin(r)),bh=Math.abs(model.w*Math.sin(r))+Math.abs(h*Math.cos(r));
   const x=model.x+(model.w-w)/2,y=model.y+(h-bh)/2;
   if(x<-.01||y<-.01||x+w>geometry.width+.01||y+bh>geometry.height+.01)failures.push(model.id);

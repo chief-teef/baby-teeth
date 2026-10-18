@@ -89,7 +89,7 @@ export function cleanText(node,depth=0,state={count:0},parent){
  const result={type:node.type};
  if(node.type==='text'){if(typeof node.text!=='string'||node.text.length>100000||!node.text.length)throw Error('Invalid text.');result.text=node.text;}
  const attrs=textAttrs(node.type,node.attrs);if(Object.keys(attrs).length)result.attrs=attrs;
- if(node.marks!==undefined){if(node.type!=='text'||!Array.isArray(node.marks)||node.marks.length>8)throw Error('Invalid formatting.');const kinds=new Set();result.marks=node.marks.map(mark=>{if(kinds.has(mark?.type))throw Error('Duplicate formatting.');kinds.add(mark?.type);return cleanMark(mark);});}
+ if(node.marks!==undefined){if(!inline.has(node.type)||!Array.isArray(node.marks)||node.marks.length>8)throw Error('Invalid formatting.');const kinds=new Set();result.marks=node.marks.map(mark=>{if(kinds.has(mark?.type))throw Error('Duplicate formatting.');kinds.add(mark?.type);return cleanMark(mark);});}
  if(node.content!==undefined){if(!Array.isArray(node.content)||node.content.length>10000||['text','hardBreak','horizontalRule'].includes(node.type))throw Error('Invalid text content.');result.content=node.content.map(child=>cleanText(child,depth+1,state,node.type));}
  return result;
 }

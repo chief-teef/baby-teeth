@@ -8,6 +8,8 @@
 .studio .paper-stack>.object{position:absolute;touch-action:pan-y}
 .studio .paper-stack>.object.photo,.studio .paper-stack>.object.drawing,.studio .paper-stack>.object .grab{touch-action:none}
 .studio .paper-stack .moving-object{pointer-events:none;will-change:left,top;z-index:1000!important}
+/* The paper clip is recomputed on drop; a dragged box shows its full text meanwhile. */
+.studio .paper-stack .moving-object .ProseMirror{clip-path:none!important}
 .studio .paper-stack .object.text .ProseMirror{cursor:text;pointer-events:auto}
 .studio .paper-stack .object.selected .grab{display:flex;cursor:grab;touch-action:none}
 .studio .paper-stack .object.selected .grab:active{cursor:grabbing}

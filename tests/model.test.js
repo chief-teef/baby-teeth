@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {validateBook,blankPost,uid,textDoc,bounds} from '../src/model.js';
 import {toothStamp} from '../shared/tooth-stamp.js';
-import {cleanPost} from '../shared/document.js';
+import {cleanPost,cleanText,renderText} from '../shared/document.js';
 const fixture=()=>({version:1,posts:[{version:2,pageFormat:'notebook-900x1200-v1',id:uid(),title:'',created:new Date().toISOString(),elements:[{id:uid(),type:'text',x:20,y:30,w:200,h:100,rotation:0,doc:textDoc('hello')}]}]});
 test('archive rejects unsafe drawings, photos, duplicate entries and ink',()=>{
  const book=fixture();assert.equal(validateBook(book),book);assert.throws(()=>validateBook({...book,posts:[book.posts[0],book.posts[0]]}));
@@ -21,4 +21,12 @@ test('text font, size and fixed height survive saves without changing legacy def
   const next=structuredClone(book);Object.assign(next.posts[0].elements[0],invalid);assert.throws(()=>validateBook(next),/text/);
  }
  text.font='serif';text.fontSize=60;assert.equal(validateBook(book),book);
+});
+test('marked hard breaks validate and render unchanged; marks on other nodes still fail',()=>{
+ const style={type:'textStyle',attrs:{fontSize:60}},plain={type:'doc',content:[{type:'paragraph',content:[{type:'text',text:'Line one'},{type:'hardBreak'},{type:'text',text:'Line two'}]}]};
+ const marked=structuredClone(plain);for(const node of marked.content[0].content)node.marks=[style];
+ const book=fixture();book.posts[0].elements[0].doc=marked;assert.equal(validateBook(book),book);
+ const unmarked=structuredClone(marked);delete unmarked.content[0].content[1].marks;
+ assert.equal(renderText(cleanText(marked)),renderText(cleanText(unmarked)));
+ const bad=structuredClone(plain);bad.content[0].marks=[style];assert.throws(()=>cleanText(bad),/Invalid formatting/);
 });

@@ -1,5 +1,5 @@
 @import './book/theme.css';
-.notebook-page{position:relative;width:900px;height:1200px;background-color:var(--page-color,var(--paper));background-image:linear-gradient(90deg,#2035240c,transparent 3%,transparent 97%,#20352408),url('../public/book/grain.png');background-size:auto,32px 32px;color:var(--ink);box-sizing:border-box;overflow:visible;box-shadow:inset 0 0 0 1px #20352418}
+.notebook-page{position:relative;width:900px;height:1200px;background-color:var(--page-color,var(--paper));background-image:linear-gradient(90deg,#2035240c,transparent 3%,transparent 97%,#20352408),url('../public/book/grain.png');background-size:auto,32px 32px;color:var(--ink);box-sizing:border-box;overflow:clip;box-shadow:inset 0 0 0 1px #20352418}
 .notebook-page:before{content:'';position:absolute;inset:220px 0 60px;pointer-events:none;background:repeating-linear-gradient(transparent 0 35px,#b6c5a030 35px 36px);border-left:1px solid #edb5c840;margin-left:44px}
 .notebook-page:after{content:'';position:absolute;inset:0;pointer-events:none;background:url('../public/book/grain.png');opacity:.02}
 .notebook-header{position:absolute;left:54px;top:48px;width:792px;height:152px;color:var(--ink)}
@@ -20,8 +20,7 @@
 :is(.notebook-text,.public-text)[data-font] h2,.notebook-stage .object[data-font] .ProseMirror h2{font-size:calc(var(--text-size,28px)*38/28);line-height:calc(var(--text-size,28px)*46/28)}
 :is(.notebook-text,.public-text)[data-font] h3,.notebook-stage .object[data-font] .ProseMirror h3{font-size:calc(var(--text-size,28px)*32/28);line-height:calc(var(--text-size,28px)*40/28)}
 :is(.notebook-text,.public-text)[data-font] :is(h4,h5,h6),.notebook-stage .object[data-font] .ProseMirror :is(h4,h5,h6){font-size:var(--text-size,28px);line-height:calc(var(--text-size,28px)*38/28)}
-:is(.notebook-text,.public-text)[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror{min-height:0;overflow:hidden}
-:is(.notebook-text,.public-text)[data-text-fits=false]{outline:2px dashed #9b463b;outline-offset:2px}
+:is(.notebook-text,.public-text)[data-fixed-height="true"]{min-height:0}.notebook-stage .object[data-fixed-height="true"] .ProseMirror{min-height:0;height:100%;box-sizing:border-box}
 :is(:is(.notebook-text,.public-text)[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) :is(ul,ol){padding-left:calc(var(--text-size,28px)*40/28);margin-block:.7em}
 :is(:is(.notebook-text,.public-text)[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) pre{font-size:calc(var(--text-size,28px)*24/28);line-height:calc(var(--text-size,28px)*34/28);margin-block:.7em}
 :is(:is(.notebook-text,.public-text)[data-fixed-height="true"],.notebook-stage .object[data-fixed-height="true"] .ProseMirror) code{font-size:calc(var(--text-size,28px)*24/28)}

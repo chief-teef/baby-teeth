@@ -31,9 +31,9 @@ try{
  for(const row of result.parity)assert.equal(new Set(row).size,1);
  assert.ok(result.parity[0][0].includes('Caveat'));assert.equal(result.parity[1][0],'32px');
  assert.equal(result.formatting.bold,'700');assert.equal(result.formatting.italic,'italic');assert.equal(result.formatting.synthesis,'weight style');
- assert.ok(result.overflow.includes(result.id));assert.ok(result.legacy.family.startsWith('Georgia'));assert.equal(result.legacy.size,'28px');assert.equal(result.legacy.line,'38px');
+ assert.ok(!result.overflow.includes(result.id),'spilled fixed-height text never fails fit');assert.ok(result.legacy.family.startsWith('Georgia'));assert.equal(result.legacy.size,'28px');assert.equal(result.legacy.line,'38px');
  await page.screenshot({path:'test-results/text-fonts.png',fullPage:true});
  const failed=await browser.newPage();await failed.route('**/Caveat-*.woff2',route=>route.abort());
  await assert.rejects(fixture(failed),/Handwriting font unavailable|NetworkError/);
- console.log('PASS self-hosted handwriting loads; editor/canonical/reading parity, legacy metrics, fixed-height overflow and font failure');
+ console.log('PASS self-hosted handwriting loads; editor/canonical/reading parity, legacy metrics, fixed-height spill passes fit and font failure');
 }finally{await browser.close();}

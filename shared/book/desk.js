@@ -15,7 +15,7 @@ export function mountDesk(root,base){
   if(kind==='grinder')element.insertAdjacentHTML('beforeend',`<img class="grinder-top" src="${base}book/grinder-top.png" alt="">`);
   if(kind==='pipe')element.insertAdjacentHTML('beforeend',`<img class="pipe-herbs" src="${base}book/oregano.png" alt="">`);
   if(kind==='thomas')element.insertAdjacentHTML('beforeend',`<img class="thomas-steam" src="${base}book/steam.png" alt="">`);
-  if(kind==='geekbar')element.insertAdjacentHTML('beforeend',`<img class="geekbar-screen" src="${base}book/geekbar-screen.png" alt="">`);
+  if(kind==='geekbar')element.insertAdjacentHTML('beforeend',`<img class="geekbar-screen" src="${base}book/geekbar-screen.png" alt=""><img class="geekbar-vapor" src="${base}book/steam.png" alt="">`);
   if(kind==='mp3'){element.classList.toggle('awake',root.clientWidth>=1280&&root.clientHeight>=850);const control=document.createElement('button');control.className='mp3-handle';control.textContent='♡';control.ariaLabel='Toggle music screen';control.setAttribute('aria-expanded',String(element.classList.contains('awake')));control.onclick=()=>{element.classList.toggle('awake');control.setAttribute('aria-expanded',String(element.classList.contains('awake')));};element.append(control);player=mountMusicPlayer(element,base);}
   element.ariaLabel=`Pick up ${label} · arrow keys move · Escape puts down`;root.append(element);props.push([kind,movableProp(root,element,element,{roll:kind==='muscle'||kind==='hotrod',pickup(){if(kind==='pipe')herbs.smoke();}})]);
  }

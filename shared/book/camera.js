@@ -24,14 +24,19 @@ export function deskLayout(width,height){
   huddle(Math.min(20*scale,(leftWidth-gap-sizes.tinky[0])/3),46);
   // The compact player sits at mid-height on the right edge; the paw drops into the gap above the pipe so it never covers the heart button.
   if(compact)paw=(positions.mp3.y+sizes.mp3[1]+positions.pipe.y)/2;
-  // Larger screens only: toy lane left of the centered menu, note at its right, smoking pair beside (or under) the lighter.
-  Object.assign(sizes,{thomas:[78*scale,54*scale],muscle:[66*scale,27*scale],hotrod:[66*scale,27*scale],note:[64*scale,64*scale],ashtray:[54*scale,24*scale],geekbar:[138*scale,36*scale]});
-  const lane=height-42;let x=gap;
-  for(const k of ['thomas','muscle','hotrod']){positions[k]={x,y:lane-sizes[k][1]/2};x+=sizes[k][0]+12*scale;}
-  positions.note={x:width-gap-sizes.note[0]-24*scale,y:lane-sizes.note[1]/2};
-  const column=width-rightWidth+gap,[gw,gh]=sizes.geekbar,[aw,ah]=sizes.ashtray,base=positions.lighter.y+sizes.lighter[1];
-  if(column+gw+8+aw<=positions.lighter.x-gap){positions.geekbar={x:column,y:base-gh};positions.ashtray={x:column+gw+8,y:base-ah};}
-  else{positions.geekbar={x:column,y:base+gap};positions.ashtray={x:column,y:base+gap+gh+8};}
+  // Larger screens only. Ashtray and Geek Bar are life-size against the lighter (~14.5px/cm); the rest are sized to read at a glance.
+  Object.assign(sizes,{thomas:[112*scale,80*scale],muscle:[96*scale,40*scale],hotrod:[96*scale,40*scale],note:[96*scale,96*scale],ashtray:[160*scale,64*scale],geekbar:[78*scale,132*scale]});
+  // shortcut: measured menu width (470px, centred); re-measure if the menu changes (book-responsive catches overlap).
+  const menuLeft=(width-470)/2-8,menuRight=(width+470)/2+8,lane=height-44,s=12*scale,[tw,th]=sizes.thomas,[cw,ch]=sizes.muscle;
+  positions.thomas={x:gap,y:lane-th/2};
+  // Cars park in a row after Thomas, or stack in the strip when the row would reach the menu.
+  if(gap+tw+s+cw+s+cw<=menuLeft){positions.muscle={x:gap+tw+s,y:lane-ch/2};positions.hotrod={x:gap+tw+s+cw+s,y:lane-ch/2};}
+  else{positions.muscle={x:gap+tw+s,y:lane-ch-2};positions.hotrod={x:gap+tw+s,y:lane+2};}
+  positions.note={x:gap,y:(positions.jar.y+sizes.jar[1]+positions.grinder.y-sizes.note[1])/2};
+  const base=positions.lighter.y+sizes.lighter[1],column=width-rightWidth+gap,[gw,gh]=sizes.geekbar,[aw,ah]=sizes.ashtray,beside=positions.lighter.x-gap-gw;
+  positions.geekbar=beside>=column?{x:beside,y:Math.max(gap,base-gh)}:{x:column,y:base+gap};
+  const tray=width-gap-aw;
+  positions.ashtray=tray>=menuRight?{x:tray,y:lane-ah/2}:{x:column,y:Math.max(base,positions.geekbar.y+gh)+gap};
  }
  return {scale,compact,positions,sizes,frame,paw};
 }

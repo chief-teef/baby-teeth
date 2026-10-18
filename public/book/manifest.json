@@ -784,12 +784,12 @@
   {
     "file": "thomas.png",
     "logicalSize": [
-      104,
-      72
+      112,
+      80
     ],
     "sourcePixelSize": [
-      26,
-      18
+      28,
+      20
     ],
     "pivot": [
       0,
@@ -802,7 +802,7 @@
     "layer": "thomas",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/thomas.svg",
-    "sha256": "ac137d9cb3c484686012e3d78e79a52753aa3d6d0969ec5579397ad01a0e4dec"
+    "sha256": "7c748ce7739a04dfb459ae12b0b36802963220d6fe7cf432fb58ec2e2e874851"
   },
   {
     "file": "steam.png",
@@ -830,12 +830,12 @@
   {
     "file": "muscle.png",
     "logicalSize": [
-      88,
-      36
+      96,
+      40
     ],
     "sourcePixelSize": [
-      22,
-      9
+      24,
+      10
     ],
     "pivot": [
       0,
@@ -848,17 +848,17 @@
     "layer": "muscle",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/muscle.svg",
-    "sha256": "dae1fa8b3014ac965a06e80bdfd4aed2715f707b9640ed0db85965ffe4259672"
+    "sha256": "9934b98dcf6ccc16501673dc2da32eef6ad2ab97b8518c65dbad72bcc406e077"
   },
   {
     "file": "hotrod.png",
     "logicalSize": [
-      88,
-      36
+      96,
+      40
     ],
     "sourcePixelSize": [
-      22,
-      9
+      24,
+      10
     ],
     "pivot": [
       0,
@@ -871,17 +871,17 @@
     "layer": "hotrod",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/hotrod.svg",
-    "sha256": "ba9788260aac0a81c6f9dc7f03fc84068e2394d3d22c7168a3b39ee9a7cca636"
+    "sha256": "8fbd304fd3063ef11f3581b589f24bd788e7a7c1f2daf8bd6b83c9cb581e0e3b"
   },
   {
     "file": "note.png",
     "logicalSize": [
-      64,
-      64
+      96,
+      96
     ],
     "sourcePixelSize": [
-      16,
-      16
+      24,
+      24
     ],
     "pivot": [
       0,
@@ -894,17 +894,17 @@
     "layer": "note",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/note.svg",
-    "sha256": "1dbb024ddf769322c294e4577770119545f8a6d17195fe7e41c5e211be990345"
+    "sha256": "316f20fbb9032b5fe1f41337b94b26e588a06bbcdf0ea81dea1aa3c02f76a873"
   },
   {
     "file": "ashtray.png",
     "logicalSize": [
-      72,
-      32
+      160,
+      64
     ],
     "sourcePixelSize": [
-      18,
-      8
+      40,
+      16
     ],
     "pivot": [
       0,
@@ -917,17 +917,17 @@
     "layer": "ashtray",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/ashtray.svg",
-    "sha256": "3b8a0559c9a1c5366b782d50b717e6bf5fcda82425a10d417998532a08020e33"
+    "sha256": "109f4b867b8e59926427a62e8479b79572089832ada2e85814411e42dc9fd87d"
   },
   {
     "file": "geekbar.png",
     "logicalSize": [
-      184,
-      48
+      104,
+      176
     ],
     "sourcePixelSize": [
-      46,
-      12
+      26,
+      44
     ],
     "pivot": [
       0,
@@ -940,17 +940,17 @@
     "layer": "geekbar",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/geekbar.svg",
-    "sha256": "9dd39b7810e3e9947cc4d3468fde7544fa1f87b0811ea6025904639cdf1d7505"
+    "sha256": "7699e92476522017d31361f72c3a8c50c0bf3ac0482003f3fdf42be85c3e5495"
   },
   {
     "file": "geekbar-screen.png",
     "logicalSize": [
-      184,
-      48
+      104,
+      176
     ],
     "sourcePixelSize": [
-      46,
-      12
+      26,
+      44
     ],
     "pivot": [
       0,
@@ -963,7 +963,7 @@
     "layer": "geekbar-screen",
     "license": "CC0-1.0",
     "source": "Original procedural artwork; assets/book/geekbar-screen.svg",
-    "sha256": "8eeddfe5091df604118adc178639ea3ce186ad0e08b9f8c7f4359a2d4512295e"
+    "sha256": "17f981f1e409880aa7669fabecb4a748cf7f48707ff80aa1a3297db695df974e"
   },
   {
     "file": "turn-0.wav",

@@ -67,6 +67,10 @@ test('desk toys 2: six toy sprites ship and appear only in the larger-screen lay
  const {deskAssets}=await import('../scripts/desk-art.mjs'),{deskLayout}=await import('../shared/book/camera.js');
  const sprites=deskAssets().map(([name])=>name),manifest=JSON.parse(readFileSync('public/book/manifest.json','utf8')).map(a=>a.file),toys=['thomas','muscle','hotrod','note','ashtray','geekbar'];
  for(const name of [...toys,'steam','geekbar-screen'])assert.ok(sprites.includes(name)&&manifest.includes(`${name}.png`),name);
- for(const [w,h] of [[1440,900],[1280,800],[1024,768],[834,1194],[768,600]]){const {positions}=deskLayout(w,h);for(const k of toys)assert.ok(positions[k],`${w}x${h}: ${k} placed`);assert.ok(positions.thomas.x<positions.muscle.x&&positions.muscle.x<positions.hotrod.x,'Toy lane runs Thomas, orange, teal');}
+ for(const [w,h] of [[1440,900],[1280,800],[1024,768],[834,1194],[768,600]]){const {positions}=deskLayout(w,h);for(const k of toys)assert.ok(positions[k],`${w}x${h}: ${k} placed`);const {thomas,muscle,hotrod}=positions;assert.ok(thomas.x<muscle.x&&(muscle.x<hotrod.x||muscle.x===hotrod.x&&muscle.y<hotrod.y),'Toy lane runs Thomas, orange, teal (cars stack when the row would reach the menu)');}
  for(const [w,h] of [[390,844],[320,568],[844,390],[600,400]]){const {positions}=deskLayout(w,h);for(const k of toys)assert.equal(positions[k],undefined,`${w}x${h}: ${k} hidden`);}
+ // Round 2: ashtray and Geek Bar life-size against the ~8cm lighter; upright Geek Bar; note between jar and grinder.
+ const {sizes,positions}=deskLayout(1440,900),cm=sizes.lighter[1]/8;
+ assert.ok(Math.abs(sizes.ashtray[0]/cm-11)<1,'Ashtray is about 11cm across');assert.ok(Math.abs(sizes.geekbar[1]/cm-9.2)<.5&&sizes.geekbar[1]>sizes.geekbar[0],'Geek Bar stands about 9cm tall');
+ assert.ok(positions.note.y>=positions.jar.y+sizes.jar[1]&&positions.note.y+sizes.note[1]<=positions.grinder.y,'Note sits between jar and grinder');
 });
